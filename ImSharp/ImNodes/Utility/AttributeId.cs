@@ -1,0 +1,69 @@
+#if IMNODES
+namespace ImSharp.ImNodes;
+
+/// <summary> The internally used ID type for ImNodes attributes. </summary>
+public readonly record struct AttributeId(int Id) : IAdditionOperators<AttributeId, int, AttributeId>,
+    ISubtractionOperators<AttributeId, int, AttributeId>, IIncrementOperators<AttributeId>, IDecrementOperators<AttributeId>,
+    ISpanFormattable, IUtf8SpanFormattable
+{
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static implicit operator AttributeId(uint v)
+        => new((int)v);
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static implicit operator AttributeId(int v)
+        => new(v);
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static explicit operator uint(AttributeId v)
+        => (uint)v.Id;
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static explicit operator int(AttributeId v)
+        => v.Id;
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static AttributeId operator ++(AttributeId id)
+        => new(id.Id + 1);
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static AttributeId operator --(AttributeId id)
+        => new(id.Id - 1);
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static AttributeId operator +(AttributeId id, int offset)
+        => new(id.Id + offset);
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static AttributeId operator -(AttributeId id, int offset)
+        => new(id.Id - offset);
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static AttributeId operator +(int offset, AttributeId id)
+        => new(id.Id + offset);
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static AttributeId operator -(int offset, AttributeId id)
+        => new(id.Id - offset);
+
+    /// <inheritdoc/>
+    public override string ToString()
+        => Id.ToString();
+
+    /// <inheritdoc/>
+    public string ToString(string? format, IFormatProvider? formatProvider)
+        => Id.ToString(format, formatProvider);
+
+    /// <inheritdoc/>
+    public bool TryFormat(Span<char> destination, out int charsWritten,
+        [StringSyntax(StringSyntaxAttribute.NumericFormat)]
+        ReadOnlySpan<char> format, IFormatProvider? provider)
+        => Id.TryFormat(destination, out charsWritten, format, provider);
+
+    /// <inheritdoc/>
+    public bool TryFormat(Span<byte> destination, out int bytesWritten,
+        [StringSyntax(StringSyntaxAttribute.NumericFormat)]
+        ReadOnlySpan<char> format, IFormatProvider? provider)
+        => Id.TryFormat(destination, out bytesWritten, format, provider);
+}
+#endif

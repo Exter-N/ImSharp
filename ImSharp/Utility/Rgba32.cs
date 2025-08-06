@@ -1,0 +1,190 @@
+using System.Buffers.Binary;
+
+namespace ImSharp;
+
+/// <summary> A wrapper for RGBA32 colors as used in ImGui. </summary>
+/// <param name="Color"> The color as a RGBA32 4-byte integer. </param>
+public readonly record struct Rgba32(uint Color) : ISpanFormattable, IUtf8SpanFormattable
+{
+    /// <summary> A fully transparent color. </summary>
+    public static readonly Rgba32 Transparent = new(0x00000000);
+
+    /// <summary> A pure black color. </summary>
+    public static readonly Rgba32 Black = new(0xFF000000);
+
+    /// <summary> A pure white color. </summary>
+    public static readonly Rgba32 White = new(0xFFFFFFFF);
+
+    /// <summary> A pure red color. </summary>
+    public static readonly Rgba32 Red = new(0xFF0000FF);
+
+    /// <summary> A pure green color. </summary>
+    public static readonly Rgba32 Green = new(0xFF00FF00);
+
+    /// <summary> A pure blue color. </summary>
+    public static readonly Rgba32 Blue = new(0xFFFF0000);
+
+    /// <summary> A pure cyan color. </summary>
+    public static readonly Rgba32 Cyan = new(0xFFFFFF00);
+
+    /// <summary> A pure magenta color. </summary>
+    public static readonly Rgba32 Magenta = new(0xFFFF00FF);
+
+    /// <summary> A pure yellow color. </summary>
+    public static readonly Rgba32 Yellow = new(0xFF00FFFF);
+
+    /// <summary> A pure gray color. </summary>
+    public static readonly Rgba32 Gray = new(0xFF808080);
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static implicit operator Rgba32(uint color)
+        => new(color);
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static implicit operator Rgba32(Vector4 color)
+        => new(color);
+
+    /// <summary> Convert the 4-float color into a RGBA32 color normalized to byte values for a color channel. </summary>
+    /// <remarks> Values outside [0, 1] will be clamped to 0 and <seealso cref="byte.MaxValue"/> respectively. </remarks>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public Rgba32(Vector4 color)
+        : this(Im.Native.Methods.Color.ColorConvertFloat4ToU32(color).Color)
+    { }
+
+    /// <summary> The red-channel byte. </summary>
+    public byte R
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get => (byte)Color;
+    }
+
+    /// <summary> The green-channel byte. </summary>
+    public byte G
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get => (byte)(Color >> 8);
+    }
+
+    /// <summary> The blue-channel byte. </summary>
+    public byte B
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get => (byte)(Color >> 16);
+    }
+
+    /// <summary> The alpha-channel byte. </summary>
+    public byte A
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get => (byte)(Color >> 24);
+    }
+
+    /// <summary> Whether the color is fully transparent, i.e. the alpha-channel is 0. </summary>
+    public bool IsTransparent
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get => Color < 0x00FFFFFF;
+    }
+
+    /// <summary> Convert the RGBA32 color into a 4-float color. </summary>
+    /// <returns> A <seealso cref="Vector4"/> with each channel normalized to [0, 1]. </returns>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public Vector4 ToVector()
+        => Im.Native.Methods.Color.ColorConvertU32ToFloat4(this);
+
+    /// <summary> Write to string as #RRGGBBAA. </summary>
+    public override string ToString()
+        => $"#{BinaryPrimitives.ReverseEndianness(Color):X8}";
+
+    /// <summary> Write to string as #RRGGBBAA. </summary>
+    public string ToString(string? format, IFormatProvider? formatProvider)
+    {
+        FormattableString formattable = $"";
+        return formattable.ToString(formatProvider);
+    }
+
+    /// <summary> Obtain an approximation of the intensity of a color without taking into consideration the alpha value. </summary>
+    /// <param name="color"> The color. </param>
+    /// <returns> The approximated intensity. </returns>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static float Intensity(in Vector4 color)
+        => 2 * color.X * color.X + 7 * color.Y * color.Y + color.Z * color.Z;
+
+    /// <summary> Obtain an approximation of the intensity of this color without taking into consideration the alpha value. </summary>
+    /// <returns> The approximated intensity. </returns>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public float Intensity()
+        => Intensity(ToVector());
+
+    /// <summary> Obtain the better choice of black and white for a given color regarding contrast. </summary>
+    /// <param name="color"> The color to contrast. </param>
+    /// <returns> Black if the intensity of the given color is high enough, white otherwise. </returns>
+    public static Vector4 ContrastColor(Vector4 color)
+        => Intensity(color) >= 4 ? new Vector4(0, 0, 0, color.W) : new Vector4(1, 1, 1, color.W);
+
+    /// <summary> Obtain the better choice of black and white for this color regarding contrast. </summary>
+    /// <returns> Black if the intensity of this color is high enough, white otherwise. </returns>
+    public Rgba32 ContrastColor()
+        => Intensity() >= 4 ? new Rgba32(Color & 0xFF000000u) : new Rgba32(Color | 0x00FFFFFFu);
+
+    /// <summary> Mix this color with another at the mid-point per color channel, but with full alpha. </summary>
+    /// <param name="other"> The other color to mix in. </param>
+    /// <returns> The mixed color with no transparency. </returns>
+    public Rgba32 Mix(Rgba32 other)
+    {
+        var r = ((Color & 0xFF) + (other.Color & 0xFF)) / 2;
+        var g = (((Color >> 8) & 0xFF) + ((other.Color >> 8) & 0xFF)) / 2;
+        var b = (((Color >> 16) & 0xFF) + ((other.Color >> 16) & 0xFF)) / 2;
+        return r | (g << 8) | (b << 16) | 0xFF000000u;
+    }
+
+    /// <inheritdoc/>
+    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+    {
+        if (destination.Length < 9)
+        {
+            charsWritten = 0;
+            return false;
+        }
+
+        charsWritten   = 9;
+        destination[0] = '#';
+        destination[1] = HexU16[(int)(Color >> 28)];
+        destination[2] = HexU16[(int)(Color >> 24) & 0xF];
+        destination[3] = HexU16[(int)(Color >> 20) & 0xF];
+        destination[4] = HexU16[(int)(Color >> 16) & 0xF];
+        destination[5] = HexU16[(int)(Color >> 12) & 0xF];
+        destination[6] = HexU16[(int)(Color >> 8) & 0xF];
+        destination[7] = HexU16[(int)(Color >> 4) & 0xF];
+        destination[8] = HexU16[(int)Color & 0xF];
+        return true;
+    }
+
+    /// <inheritdoc/>
+    public bool TryFormat(Span<byte> destination, out int bytesWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+    {
+        if (destination.Length < 9)
+        {
+            bytesWritten = 0;
+            return false;
+        }
+
+        bytesWritten   = 9;
+        destination[0] = (byte)'#';
+        destination[1] = HexU8[(int)(Color >> 28)];
+        destination[2] = HexU8[(int)(Color >> 24) & 0xF];
+        destination[3] = HexU8[(int)(Color >> 20) & 0xF];
+        destination[4] = HexU8[(int)(Color >> 16) & 0xF];
+        destination[5] = HexU8[(int)(Color >> 12) & 0xF];
+        destination[6] = HexU8[(int)(Color >> 8) & 0xF];
+        destination[7] = HexU8[(int)(Color >> 4) & 0xF];
+        destination[8] = HexU8[(int)Color & 0xF];
+        return true;
+    }
+
+    private static ReadOnlySpan<char> HexU16
+        => "0123456789ABCDEF";
+
+    private static ReadOnlySpan<byte> HexU8
+        => "0123456789ABCDEF"u8;
+}
