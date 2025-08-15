@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around ImGui tab bars. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public unsafe ref struct TabBarDisposable
+    public unsafe ref struct TabBarDisposable : IDisposable
     {
         /// <summary> Whether creating the tab bar succeeded. </summary>
         public readonly bool Success;

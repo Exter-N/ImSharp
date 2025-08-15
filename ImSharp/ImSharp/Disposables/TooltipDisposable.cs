@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around ImGui tooltips. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct TooltipDisposable
+    public ref struct TooltipDisposable : IDisposable
     {
         /// <summary> Whether the tooltip is still open. </summary>
         public bool Alive { get; private set; }

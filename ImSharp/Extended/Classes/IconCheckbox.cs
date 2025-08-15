@@ -35,7 +35,7 @@ internal sealed class IconCheckbox<TIcon>(TIcon icon = default, Rgba32? color = 
     /// <summary> Draw a two-state checkbox displaying an arbitrary icon instead of a checkmark. </summary>
     /// <param name="label"> The label as text. Does not have to be null-terminated. </param>
     /// <param name="icon"> The icon to display for 'True'. </param>
-    /// <param name="color"> The optional color to display the icon in. If null, CheckMark color will be used. </param>
+    /// <param name="color"> The optional color to display the icon in. If null, <see cref="ImGuiColor.CheckMark"/> will be used. </param>
     /// <param name="value"> The input and output value of the checkbox. </param>
     /// <returns> True if the checkbox has been clicked in this frame, in which case <paramref name="value"/> will be flipped. </returns>
     public bool Draw(Utf8LabelHandler label, TIcon icon, Rgba32 color, ref bool value)

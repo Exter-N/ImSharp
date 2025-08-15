@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around pushing keyboard focus states. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct KeyboardFocusDisposable
+    public ref struct KeyboardFocusDisposable : IDisposable
     {
         /// <summary> The number of keyboard focus states currently pushed using this disposable. </summary>
         public int Count { get; private set; }

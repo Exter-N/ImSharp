@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around style pushing. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct StyleDisposable
+    public ref struct StyleDisposable : IDisposable
     {
         /// <summary> The number of styles currently pushed using this disposable. </summary>
         public int Count { get; private set; }

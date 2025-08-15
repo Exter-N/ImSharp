@@ -1,5 +1,6 @@
 namespace ImSharp;
 
+
 [InterpolatedStringHandler]
 public ref struct Utf8InterpolatedStringHandler
 {
@@ -10,7 +11,7 @@ public ref struct Utf8InterpolatedStringHandler
     public Utf8InterpolatedStringHandler(int literalLength, int formattedCount, out bool shouldAppend)
     {
         _array   = ImSharpConfiguration.ArrayPool.Rent(ImSharpConfiguration.ArrayPoolRequestSizeLarge);
-        _handler = new Utf8.TryWriteInterpolatedStringHandler(literalLength, formattedCount, _array, out shouldAppend);
+        _handler = new Utf8.TryWriteInterpolatedStringHandler(literalLength, formattedCount, _array, CultureInfo.InvariantCulture, out shouldAppend);
     }
 
     [MethodImpl(ImSharpConfiguration.OptInl)]

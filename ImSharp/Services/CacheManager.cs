@@ -28,7 +28,8 @@ public class CacheManager : IDisposable
     /// <summary> A service provider to generate transient cache objects without providing a factory method. </summary>
     public IServiceProvider? ServiceProvider { get; set; }
 
-    private readonly Dictionary<ImGuiId, (IManagedCache Cache, DateTime Time)> _caches = [];
+    private readonly Dictionary<ImGuiId, (IManagedCache Cache, DateTime Time)> _caches     = [];
+    private readonly Dictionary<ImGuiId, object>                               _storedData = [];
 
     /// <summary> Create a manager to handle managed caches for UI display in a single space. </summary>
     /// <param name="logger"> A logger. </param>
@@ -57,6 +58,8 @@ public class CacheManager : IDisposable
         if (!_caches.TryGetValue(id, out var pair))
         {
             var cache = factory();
+            if (_storedData.TryGetValue(id, out var data))
+                cache.ApplyStoredData(data);
             _caches.Add(id, (cache, NextDeletion(cache.KeepAliveDuration)));
             Logger.LogDebug("Created new cache of type {Type} for ID {ID}.", typeof(TResult), id.Id);
             return cache;
@@ -65,8 +68,12 @@ public class CacheManager : IDisposable
         if (CheckAndUpdateCache<TResult>(id, pair.Item1) is { } existingCache)
             return existingCache;
 
+        if (pair.Item1.SaveStoredData() is { } obj)
+            _storedData[id] = obj;
         (pair.Item1 as IDisposable)?.Dispose();
         var newCache = factory();
+        if (_storedData.TryGetValue(id, out var newData))
+            newCache.ApplyStoredData(newData);
         _caches[id] = (newCache, NextDeletion(newCache.KeepAliveDuration));
         Logger.LogInformation("Replaced existing cache of type {OldType} with new type {NewType} for ID {ID}.", pair.Item1.GetType(),
             typeof(TResult), id.Id);
@@ -88,6 +95,8 @@ public class CacheManager : IDisposable
         if (!_caches.TryGetValue(id, out var pair))
         {
             var cache = GetService<TResult>(key);
+            if (_storedData.TryGetValue(id, out var data))
+                cache.ApplyStoredData(data);
             _caches.Add(id, (cache, NextDeletion(cache.KeepAliveDuration)));
             Logger.LogDebug("Created new cache of type {Type} for ID {ID}.", typeof(TResult), id.Id);
             return cache;
@@ -96,8 +105,12 @@ public class CacheManager : IDisposable
         if (CheckAndUpdateCache<TResult>(id, pair.Item1) is { } existingCache)
             return existingCache;
 
+        if (pair.Item1.SaveStoredData() is { } obj)
+            _storedData[id] = obj;
         (pair.Item1 as IDisposable)?.Dispose();
         var newCache = GetService<TResult>(key);
+        if (_storedData.TryGetValue(id, out var newData))
+            newCache.ApplyStoredData(newData);
         _caches[id] = (newCache, NextDeletion(newCache.KeepAliveDuration));
         Logger.LogInformation("Replaced existing cache of type {OldType} with new type {NewType} for ID {ID}.", pair.Item1.GetType(),
             typeof(TResult), id.Id);
@@ -113,6 +126,8 @@ public class CacheManager : IDisposable
         {
             if (time < now)
             {
+                if (cache.SaveStoredData() is { } obj)
+                    _storedData[id] = obj;
                 (cache as IDisposable)?.Dispose();
                 _caches.Remove(id);
                 Logger.LogTrace("Removed cache for ID {ID}.", id.Id);

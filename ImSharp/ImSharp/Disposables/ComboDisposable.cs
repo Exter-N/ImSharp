@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around ImGui combos. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public unsafe ref struct ComboDisposable
+    public unsafe ref struct ComboDisposable : IDisposable
     {
         /// <summary> Whether creating the combo box succeeded and it is expanded. </summary>
         public readonly bool Success;

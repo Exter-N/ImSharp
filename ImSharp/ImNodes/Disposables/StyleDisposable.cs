@@ -5,7 +5,7 @@ public static partial class ImNodes
 {
     /// <summary> A wrapper around ImNodes style pushing. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct StyleDisposable
+    public ref struct StyleDisposable : IDisposable
     {
         /// <summary> The number of ImNodes styles currently pushed using this disposable. </summary>
         public int Count { get; private set; }

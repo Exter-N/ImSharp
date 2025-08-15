@@ -124,6 +124,34 @@ public static partial class Im
             get => Pointer->MousePos;
         }
 
+        /// <summary> Tells ImGui to capture text input. </summary>
+        public bool CaptureTextInput
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Pointer->WantTextInput;
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            set => Pointer->WantTextInput = value;
+        }
+
+        /// <summary> Tells ImGui to capture keyboard inputs. </summary>
+        public bool CaptureKeyboard
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Pointer->WantCaptureKeyboard;
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            set => Pointer->WantCaptureKeyboard = value;
+        }
+
+        /// <summary> Tells ImGui to capture mouse inputs. </summary>
+        public bool CaptureMouse
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Pointer->WantCaptureMouse;
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            set => Pointer->WantCaptureMouse = value;
+        }
+
+
         /// <summary> Access the <seealso cref="InputOutput"/> structure containing inputs, timings and configuration. </summary>
         /// <returns> A reference to the <seealso cref="InputOutput"/> structure. </returns>
         [MethodImpl(ImSharpConfiguration.OptInl)]

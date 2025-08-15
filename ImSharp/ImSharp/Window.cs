@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> Wrapper class for methods querying or setting current or next window state. </summary>
     /// <param name="pointer"> The native pointer to the draw list. </param>
-    public unsafe ref struct Window(Native.Internal.Window* pointer)
+    public readonly unsafe ref struct Window(Native.Internal.Window* pointer)
     {
         /// <summary> The address of the native object. </summary>
         public readonly Native.Internal.Window* Pointer = pointer;

@@ -105,6 +105,71 @@ public partial class Im
             }
         }
 
+        /// <inheritdoc cref="Iterate{T}(IReadOnlyList{T})"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public readonly IEnumerable<T> Iterate<T>(IList<T> list)
+        {
+            while (Step())
+            {
+                for (var i = DisplayStart; i < DisplayEnd; ++i)
+                    yield return list[i];
+            }
+        }
+
+        /// <summary> Iterate over all items in the enumerable to be drawn with the current ListClipper settings. </summary>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public readonly IEnumerable<T> Iterate<T>(IEnumerable<T> list)
+        {
+            // Shortcut for random access.
+            switch (list)
+            {
+                case IReadOnlyList<T> l:
+                {
+                    foreach (var i in Iterate(l))
+                        yield return i;
+
+                    break;
+                }
+                case IList<T> l2:
+                {
+                    foreach (var i in Iterate(l2))
+                        yield return i;
+
+                    break;
+                }
+            }
+
+
+            using var enumerator = list.GetEnumerator();
+            while (Step())
+            {
+                var currentIndex = 0;
+                var skips        = DisplayStart - currentIndex;
+                if (skips < 0)
+                    continue;
+
+                for (var i = 0; i < skips; ++i)
+                {
+                    if (!enumerator.MoveNext())
+                        yield break;
+                }
+
+                currentIndex += skips;
+                var takes = DisplayEnd - currentIndex;
+                if (takes <= 0)
+                    continue;
+
+                for (var i = 0; i < takes; ++i)
+                {
+                    if (!enumerator.MoveNext())
+                        yield break;
+
+                    ++currentIndex;
+                    yield return enumerator.Current;
+                }
+            }
+        }
+
         [MethodImpl(ImSharpConfiguration.Inl)]
         readonly IEnumerator IEnumerable.GetEnumerator()
             => GetEnumerator();

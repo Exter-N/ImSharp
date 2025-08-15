@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around combined color and style pushing. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct ColorStyleDisposable
+    public ref struct ColorStyleDisposable : IDisposable
     {
         private ColorDisposable _color;
         private StyleDisposable _style;

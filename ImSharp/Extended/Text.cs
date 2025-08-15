@@ -67,4 +67,33 @@ public static partial class ImEx
     [MethodImpl(ImSharpConfiguration.Inl)]
     public static void MonoText(Utf8TextHandler text)
         => MonoText(ref text);
+
+    /// <summary> Draw text aligned to the right of the current content region. </summary>
+    /// <param name="text"> The given text. Does not have to be null-terminated. </param>
+    /// <param name="offset"> Optional additional offset from the right of the available region. </param>
+    /// <param name="knownWidth"> If the width of the text is already known, you can pass it here. If this is non-positive, the width will be calculated. </param>
+    public static void TextRightAligned(Utf8TextHandler text, float offset = 0, float knownWidth = 0)
+    {
+        var size      = knownWidth <= 0 ? Im.Font.CalculateSize(text, false).X : knownWidth;
+        var available = Im.ContentRegion.Available.X;
+        Im.Cursor.X = available - size - offset;
+        Im.Text(ref text);
+    }
+
+    /// <inheritdoc cref="TextRightAligned(Utf8TextHandler,float,float)"/>
+    public static void TextRightAligned<T>(ref Utf8StringHandler<T> text, float offset = 0, float knownWidth = 0) where T : IStringHandlerBuffer
+    {
+        var size      = knownWidth <= 0 ? Im.Font.CalculateSize(ref text, false).X : knownWidth;
+        var available = Im.ContentRegion.Available.X;
+        Im.Cursor.X = available - size - offset;
+        Im.Text(ref text);
+    }
+
+
+    /// <summary> Draw text of a known width aligned to the right of the current content region. </summary>
+    /// <param name="text"> The given text. Does not have to be null-terminated. </param>
+    /// <param name="offset"> Optional additional offset from the right of the available region. </param>
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    public static void TextRightAligned(SizedString text, float offset = 0)
+        => TextRightAligned(text.Text, offset, text.Size.X);
 }

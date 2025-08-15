@@ -73,6 +73,12 @@ public static partial class Im
         Vector2 size = default)
         => Native.Methods.Widgets.Selectable(label.Start(), isSelected, flags, size);
 
+    /// <inheritdoc cref="Selectable(Utf8LabelHandler,bool,SelectableFlags,Vector2)"/>
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    public static unsafe bool Selectable<T>(ref Utf8StringHandler<T> label, bool isSelected = false,
+        SelectableFlags flags = SelectableFlags.None, Vector2 size = default) where T : IStringHandlerBuffer
+        => Native.Methods.Widgets.Selectable(label.Start(), isSelected, flags, size);
+
     /// <summary> Draw a checkbox. </summary>
     /// <param name="label"> The label as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
     /// <param name="value"> The input and output value of the checkbox. </param>

@@ -26,6 +26,27 @@ public static partial class ImEx
             Im.Text(icon.Span, textColor);
         }
 
+        /// <inheritdoc cref="DrawAligned{T}(T,Rgba32)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static void DrawAligned<T>(T icon) where T : IIconStandIn
+        {
+            Im.Cursor.FrameAlign();
+            using var _ = T.Font.Push();
+            Im.Text(icon.Span);
+        }
+
+        /// <summary> Draw a stand-alone icon as text aligned to the frame offset. </summary>
+        /// <typeparam name="T"> The icon type. </typeparam>
+        /// <param name="icon"> The icon. </param>
+        /// <param name="textColor"> The color of the icon. Uses text color if 0. </param>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static void DrawAligned<T>(T icon, Rgba32 textColor) where T : IIconStandIn
+        {
+            Im.Cursor.FrameAlign();
+            using var _ = T.Font.Push();
+            Im.Text(icon.Span, textColor);
+        }
+
         /// <summary> Calculate the size of a stand-alone icon. </summary>
         /// <typeparam name="T"> The icon type. </typeparam>
         /// <param name="icon"> The icon. </param>

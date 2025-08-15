@@ -5,7 +5,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around ImGui child windows. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public unsafe ref struct ChildDisposable
+    public unsafe ref struct ChildDisposable : IDisposable
     {
         /// <summary> Whether creating the child window succeeded and it is at least partly visible. </summary>
         public readonly bool Success;

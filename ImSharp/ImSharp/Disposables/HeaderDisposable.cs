@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around ImGui collapsing headers that also push an ID. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public unsafe ref struct HeaderDisposable
+    public unsafe ref struct HeaderDisposable : IDisposable
     {
         /// <summary> Whether the collapsing header is currently opened. </summary>
         public readonly bool Success;

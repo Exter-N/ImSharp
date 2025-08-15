@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around indentation. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct IndentDisposable
+    public ref struct IndentDisposable : IDisposable
     {
         /// <summary> The current indentation pushed by this object. </summary>
         public float CurrentIndent { get; private set; }

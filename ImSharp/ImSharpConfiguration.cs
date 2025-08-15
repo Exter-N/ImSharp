@@ -13,7 +13,10 @@ public static unsafe class ImSharpConfiguration
     internal static ILogger          Logger  = NullLogger.Instance;
     internal static Action<ILogger>? LoggerChanged;
 
-
+    /// <summary> Set or remove the global ImSharp context. </summary>
+    /// <param name="context"> The address of the context to set. If this is null, the empty context will be set. </param>
+    /// <exception cref="Exception"/>
+    /// <remarks> Do not call this within a draw frame of the contained <see cref="Im.Native.Internal.Context"/>, only outside of drawing. </remarks>
     public static void SetContext(ImSharpContext* context)
     {
         var imguiContext = (Im.Native.Internal.Context*)context->ImGuiContext;
@@ -25,6 +28,7 @@ public static unsafe class ImSharpConfiguration
             Context->Dispose();
 
         Context = context is null ? ImSharpContext.EmptyPointer : context;
+        Logger.LogDebug("Set ImSharp context to {Context}.", context is null ? "Empty Context" : $"0x{(nint)context:X}");
     }
 
     /// <summary> Set or remove a global logger for ImSharp. </summary>
@@ -33,9 +37,16 @@ public static unsafe class ImSharpConfiguration
         if (ReferenceEquals(logger, Logger))
             return;
 
-        (Logger as IDisposable)?.Dispose();
+        // ReSharper disable once SuspiciousTypeConversion.Global
+        if (Logger is IDisposable disposable)
+        {
+            disposable.Dispose();
+            logger?.LogDebug("Disposed old ImSharp Logger.");
+        }
+
         Logger = logger ?? NullLogger.Instance;
         LoggerChanged?.Invoke(Logger);
+        Logger.LogDebug("Set ImSharp Logger to {Logger}.", logger is null ? "NullLogger" : "new logger");
     }
 
     /// <summary> The array pool used internally to rent arrays. </summary>
@@ -90,11 +101,13 @@ public static unsafe class ImSharpConfiguration
         {
             ArrayPool       = ArrayPool<byte>.Shared;
             _arrayPoolOwned = false;
+            Logger.LogDebug("Set ImSharp array pool to the default shared pool.");
         }
         else
         {
             ArrayPool       = newArrayPool;
             _arrayPoolOwned = owned;
+            Logger.LogDebug("Set ImSharp array pool to new {Owned} array pool.", owned ? "owned" : "unowned");
         }
     }
 
@@ -105,8 +118,11 @@ public static unsafe class ImSharpConfiguration
         ~CleanupType()
         {
             // ReSharper disable once SuspiciousTypeConversion.Global
-            if (_arrayPoolOwned && ArrayPool is IDisposable disposable)
-                disposable.Dispose();
+            if (!_arrayPoolOwned || ArrayPool is not IDisposable disposable)
+                return;
+
+            disposable.Dispose();
+            Logger.LogDebug("Disposing owned ImSharp array pool.");
         }
     }
 }

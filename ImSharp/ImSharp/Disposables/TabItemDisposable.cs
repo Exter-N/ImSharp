@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around ImGui tab items. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public unsafe ref struct TabItemDisposable
+    public unsafe ref struct TabItemDisposable : IDisposable
     {
         /// <summary> Whether creating the tab item succeeded, and it is currently selected. </summary>
         public readonly bool Success;

@@ -6,7 +6,7 @@ public static partial class ImNodes
 {
     /// <summary> A wrapper around ImNodes color pushing. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct ColorDisposable
+    public ref struct ColorDisposable : IDisposable
     {
         /// <summary> The number of ImNodes colors currently pushed using this disposable. </summary>
         public int Count { get; private set; }

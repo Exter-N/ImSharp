@@ -68,6 +68,13 @@ public static partial class Im
             get => Native.Methods.Style.GetFont();
         }
 
+        /// <summary> Get the configured monospaced font, see <see cref="ImSharpContext.MonoFont"/>. </summary>
+        public static Font Mono
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => (Native.ImFont*)ImSharpConfiguration.Context->MonoFont;
+        }
+
         /// <summary> Push the monospaced font configured in the <seealso cref="ImSharpContext"/> if it is available. </summary>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static FontDisposable PushMono()
@@ -139,6 +146,17 @@ public static partial class Im
             formatted = text.Span().CloneNullTerminated();
             Native.Methods.Text.CalcTextSize(&ret, text.Start(out var end), end, hideTextAfterDashes, wrapWidth);
             return ret;
+        }
+
+        /// <summary> Calculate the required size to display the given text using this font. If this is a null-reference, use the current font. </summary>
+        /// <param name="text"> The given text as text. Does not have to be null-terminated. </param>
+        /// <param name="hideTextAfterDashes"> Whether everything after the first ## is to be included or not. </param>
+        /// <param name="wrapWidth"> The text wrap width to use for wrapping. 0 uses the current wrapping position, if any. </param>
+        /// <returns> The required size to display the text. </returns>
+        public Vector2 CalculateTextSize(Utf8TextHandler text, bool hideTextAfterDashes = true, float wrapWidth = 0)
+        {
+            using var font = Push(this, Pointer is not null);
+            return CalculateSize(ref text, hideTextAfterDashes, wrapWidth);
         }
 
         /// <summary> Get the cursor advance, or width, of a single character. </summary>

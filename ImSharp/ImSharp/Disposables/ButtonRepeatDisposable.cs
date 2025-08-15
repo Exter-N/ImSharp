@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around pushing button repeat states. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct ButtonRepeatDisposable
+    public ref struct ButtonRepeatDisposable : IDisposable
     {
         /// <summary> The number of button repeat states currently pushed using this disposable. </summary>
         public int Count { get; private set; }

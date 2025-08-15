@@ -10,6 +10,11 @@ public static unsafe partial class Im
         public static void Set(Utf8TextHandler text)
             => Native.Methods.Clipboard.SetClipboardText(text.Start());
 
+        /// <inheritdoc cref="Set(Utf8TextHandler)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static void Set<T>(ref Utf8StringHandler<T> text) where T : IStringHandlerBuffer
+            => Native.Methods.Clipboard.SetClipboardText(text.Start());
+
         /// <summary> Obtain the current text from the clipboard. </summary>
         /// <returns> A non-owned view into the current clipboard text up to the null-terminator on success. </returns>
         [MethodImpl(ImSharpConfiguration.OptInl)]

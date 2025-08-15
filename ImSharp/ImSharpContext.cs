@@ -1,9 +1,9 @@
-using ImSharp;
-
 namespace ImSharp;
 
 public unsafe struct ImSharpContext : IDisposable
 {
+    public const long CurrentVersion = 1;
+
     public static readonly ImSharpContext  Empty;
     public static readonly ImSharpContext* EmptyPointer = (ImSharpContext*)Unsafe.AsPointer(ref Empty);
 
@@ -25,7 +25,7 @@ public unsafe struct ImSharpContext : IDisposable
     public static ImSharpContext* SetupDefault()
     {
         var ret = (ImSharpContext*)Marshal.AllocHGlobal(sizeof(ImSharpContext));
-        ret->Version        = 1;
+        ret->Version        = CurrentVersion;
         ret->HintBuffer     = (byte*)Marshal.AllocHGlobal(128 * 1024 - 1);
         ret->HintBufferSize = 128 * 1024 - 1;
 

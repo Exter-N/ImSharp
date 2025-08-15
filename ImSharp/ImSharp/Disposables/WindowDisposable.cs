@@ -2,7 +2,7 @@ namespace ImSharp;
 
 /// <summary> A wrapper around ImGui windows. </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
-public unsafe ref struct WindowDisposable
+public unsafe ref struct WindowDisposable : IDisposable
 {
     /// <summary> Whether creating the window succeeded. </summary>
     public readonly bool Success;

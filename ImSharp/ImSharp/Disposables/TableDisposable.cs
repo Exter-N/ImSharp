@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around ImGui tables. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public unsafe ref struct TableDisposable
+    public unsafe ref struct TableDisposable : IDisposable
     {
         /// <summary> Whether creating the table succeeded. This needs to be checked before calling any of the member methods. </summary>
         public readonly bool Success;

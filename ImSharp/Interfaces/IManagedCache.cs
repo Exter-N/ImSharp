@@ -1,7 +1,10 @@
+using Luna;
+using static ImSharp.IManagedCache;
+
 namespace ImSharp;
 
 /// <summary> An interface to represent managed caches used by <seealso cref="CacheManager"/>. </summary>
-public interface IManagedCache
+public interface IManagedCache : IUiService
 {
     /// <summary> Flags to denote different types of dirtiness for caches. </summary>
     [Flags]
@@ -36,13 +39,19 @@ public interface IManagedCache
 
     /// <summary> Update the caches state. This should handle the individual <seealso cref="DirtyFlags"/> sensibly and should set <seealso cref="Dirty"/> to <seealso cref="DirtyFlags.Clean"/> when finished. </summary>
     public void Update();
+
+    /// <summary> Apply data that should be stored even if the cache is removed from the cache manager. Called by the manager when a new cache object is created, before Update is called, if data for this ID already exists. </summary>
+    public void ApplyStoredData(object existingData);
+
+    /// <summary> Save data that should be stored when the cache is removed from the cache manager. Called by the manager when a cache object is removed. </summary>
+    public object? SaveStoredData();
 }
 
 /// <summary> A basic disposable cache implementation. </summary>
 public abstract class BasicCache : IManagedCache, IDisposable
 {
     /// <inheritdoc/>
-    public IManagedCache.DirtyFlags Dirty { get; set; } = IManagedCache.DirtyFlags.Dirty;
+    public DirtyFlags Dirty { get; set; } = DirtyFlags.Dirty;
 
     /// <inheritdoc/>
     public abstract void Update();
@@ -54,6 +63,14 @@ public abstract class BasicCache : IManagedCache, IDisposable
         GC.SuppressFinalize(this);
     }
 
+    /// <inheritdoc/>
+    public virtual void ApplyStoredData(object existingData)
+    { }
+
+    /// <inheritdoc/>
+    public virtual object? SaveStoredData()
+        => null;
+
     ~BasicCache()
         => Dispose(false);
 
@@ -61,4 +78,39 @@ public abstract class BasicCache : IManagedCache, IDisposable
     /// <param name="disposing"> Whether the disposal comes from a finalizer or a <seealso cref="Dispose()"/>. </param>
     protected virtual void Dispose(bool disposing)
     { }
+
+    /// <summary> Query whether the font settings have changed since the last time this cache was updated. </summary>
+    protected bool FontDirty
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get => Dirty.HasFlag(DirtyFlags.FontDirty);
+    }
+
+    /// <summary> Query whether the global ImGui style settings have changed since the last time this cache was updated. </summary>
+    protected bool StyleDirty
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get => Dirty.HasFlag(DirtyFlags.StyleDirty);
+    }
+
+    /// <summary> Query whether any color settings have changed since the last time this cache was updated. </summary>
+    protected bool ColorsDirty
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get => Dirty.HasFlag(DirtyFlags.ColorsDirty);
+    }
+
+    /// <summary> Query whether the cache's own dirty state changed since the last time this cache was updated. </summary>
+    protected bool CustomDirty
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get => Dirty.HasFlag(DirtyFlags.CustomDirty);
+    }
+
+    /// <summary> Query whether anything has changed since the last time this cache was updated. </summary>
+    protected bool AnyDirty
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get => Dirty is not DirtyFlags.Clean;
+    }
 }

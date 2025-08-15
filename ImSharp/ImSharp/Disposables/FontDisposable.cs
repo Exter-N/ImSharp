@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around pushing fonts. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct FontDisposable
+    public ref struct FontDisposable : IDisposable
     {
         /// <summary> The number of fonts currently pushed using this disposable. </summary>
         public int Count { get; private set; }

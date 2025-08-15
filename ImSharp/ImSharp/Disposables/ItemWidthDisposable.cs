@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around pushing item widths. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct ItemWidthDisposable
+    public ref struct ItemWidthDisposable : IDisposable
     {
         /// <summary> The number of item widths currently pushed using this disposable. </summary>
         public int Count { get; private set; }

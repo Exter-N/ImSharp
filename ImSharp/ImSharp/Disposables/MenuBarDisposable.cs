@@ -6,7 +6,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around ImGui menu bars. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public unsafe ref struct MenuBarDisposable
+    public unsafe ref struct MenuBarDisposable : IDisposable
     {
         /// <summary> Whether creating the menu bar succeeded. </summary>
         public readonly bool Success;

@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around ImGui groups. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct GroupDisposable
+    public ref struct GroupDisposable : IDisposable
     {
         /// <summary> Whether the group is still open. </summary>
         public bool Alive { get; private set; }

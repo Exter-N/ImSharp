@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around ImGui tree nodes. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public unsafe ref struct TreeNodeDisposable
+    public unsafe ref struct TreeNodeDisposable : IDisposable
     {
         /// <summary> Whether creating the tree node succeeded and it is open. </summary>
         public readonly bool Success;

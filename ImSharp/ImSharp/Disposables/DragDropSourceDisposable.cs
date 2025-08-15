@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around a ImGui Drag and Drop Source. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct DragDropSourceDisposable
+    public ref struct DragDropSourceDisposable : IDisposable
     {
         /// <summary> Whether creating the drag and drop source succeeded. </summary>
         public readonly bool Success;

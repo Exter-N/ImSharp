@@ -1,3 +1,5 @@
+using Luna;
+
 namespace ImSharp;
 
 public static class ImTextExtensions
@@ -54,7 +56,7 @@ public static class ImTextExtensions
     /// <summary> Read a null-terminated string from the buffer and clone it with null-terminator. </summary>
     internal static StringU8 ReadNullTerminated(this Span<byte> buffer)
     {
-        var nullTerminator = buffer.IndexOf((byte)0);
+        var nullTerminator = SpanExtensions.IndexOf(buffer, (byte)0);
         if (nullTerminator == -1)
         {
             var result = new byte[buffer.Length + 1];
@@ -75,7 +77,7 @@ public static class ImTextExtensions
     [MethodImpl(ImSharpConfiguration.Opt)]
     internal static unsafe Span<byte> CopyNullTerminated<T>(this Span<byte> buffer) where T : IStringHandlerBuffer
     {
-        var nullTerminator = buffer.IndexOf((byte)0);
+        var nullTerminator = SpanExtensions.IndexOf(buffer, (byte)0);
         if (nullTerminator == -1)
         {
             buffer.CopyTo(T.Span);

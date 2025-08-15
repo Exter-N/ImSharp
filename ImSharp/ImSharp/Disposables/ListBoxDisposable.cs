@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around ImGui list boxes. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public unsafe ref struct ListBoxDisposable
+    public unsafe ref struct ListBoxDisposable : IDisposable
     {
         /// <summary> Whether creating the list box succeeded and it is expanded. </summary>
         public readonly bool Success;

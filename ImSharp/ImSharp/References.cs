@@ -29,4 +29,20 @@ public static unsafe partial class Im
         [MethodImpl(ImSharpConfiguration.Inl)]
         get => ContextPointer;
     }
+
+    /// <remarks> Circumvent wrongly emitted error CS1612 when using setters. </remarks>
+    /// <inheritdoc cref="Io"/>
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    public static InputOutput GetIo()
+        => IoPointer;
+
+    /// <remarks> Circumvent wrongly emitted error CS1612 when using setters. </remarks>
+    /// <inheritdoc cref="Style"/>
+    public static ImGuiStyle GetStyle()
+        => StylePointer;
+
+    /// <remarks> Circumvent wrongly emitted error CS1612 when using setters. </remarks>
+    /// <inheritdoc cref="Context"/>
+    public static ImGuiContext GetContext()
+        => ContextPointer;
 }

@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around ImGui popups. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public unsafe ref struct PopupDisposable
+    public unsafe ref struct PopupDisposable : IDisposable
     {
         /// <summary> Whether creating the popup succeeded and it is open. </summary>
         public readonly bool Success;
