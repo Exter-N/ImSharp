@@ -18,12 +18,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Remove="Extended\Classes\Table\**" />
-      <EmbeddedResource Remove="Extended\Classes\Table\**" />
-      <None Remove="Extended\Classes\Table\**" />
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="JetBrains.Annotations" Version="2024.2.0" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0" />
         <PackageReference Include="System.IO.Hashing" Version="9.0" />

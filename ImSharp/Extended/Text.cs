@@ -89,11 +89,88 @@ public static partial class ImEx
         Im.Text(ref text);
     }
 
-
     /// <summary> Draw text of a known width aligned to the right of the current content region. </summary>
-    /// <param name="text"> The given text. Does not have to be null-terminated. </param>
-    /// <param name="offset"> Optional additional offset from the right of the available region. </param>
+    /// <inheritdoc cref="TextRightAligned(Utf8TextHandler,float,float)"/>
     [MethodImpl(ImSharpConfiguration.Inl)]
-    public static void TextRightAligned(SizedString text, float offset = 0)
+    public static void TextRightAligned(in SizedString text, float offset = 0)
         => TextRightAligned(text.Text, offset, text.Size.X);
+
+    /// <summary> Draw the given text horizontally centered in the current content region. </summary>
+    /// <param name="text"> The given text. Does not have to be null-terminated. </param>
+    /// <param name="knownWidth"> If the width of the text is already known, you can pass it here. If this is non-positive, the width will be calculated. </param>
+    public static void TextCentered(Utf8TextHandler text, float knownWidth = 0)
+    {
+        var size      = knownWidth is 0 ? Im.Font.CalculateSize(ref text, false).X : knownWidth;
+        var available = Im.ContentRegion.Maximum.X;
+        Im.Cursor.X += (available - size) / 2;
+        Im.Text(ref text);
+    }
+
+    /// <inheritdoc cref="TextCentered(Utf8TextHandler,float)"/>
+    public static void TextCentered<T>(ref Utf8StringHandler<T> text, float knownWidth = 0) where T : IStringHandlerBuffer
+    {
+        var size      = knownWidth is 0 ? Im.Font.CalculateSize(ref text, false).X : knownWidth;
+        var available = Im.ContentRegion.Maximum.X;
+        Im.Cursor.X += (available - size) / 2;
+        Im.Text(ref text);
+    }
+
+    /// <summary> Draw text of a known width horizontally centered in the current content region. </summary>
+    /// <inheritdoc cref="TextCentered(Utf8TextHandler,float)"/>
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    public static void TextCentered(in SizedString text)
+        => TextCentered(text.Text, text.Size.X);
+
+    /// <summary> Draw the same text multiple times at the cursor position to simulate a shadowed text. </summary>
+    /// <param name="text"> The given text. Does not need to be null-terminated. </param>
+    /// <param name="foregroundColor"> The center text color. If <see cref="ColorParameter.Default"/>, <see cref="ImGuiColor.Text"/> is used. </param>
+    /// <param name="shadowColor"> The shadow color. If <see cref="ColorParameter.Default"/>, <see cref="Rgba32.Black"/> is used. </param>
+    /// <param name="shadowWidth"> The width of the shadow in pixels. Should usually be 1. </param>
+    public static void TextShadowed(Utf8TextHandler text, ColorParameter foregroundColor, ColorParameter shadowColor, byte shadowWidth = 1)
+    {
+        var       shadow   = shadowColor.CheckDefault(Rgba32.Black);
+        var       position = Im.Cursor.Position;
+        using var color    = ImGuiColor.Text.Push(shadow);
+        for (var i = -shadowWidth; i <= shadowWidth; i++)
+        {
+            for (var j = -shadowWidth; j <= shadowWidth; j++)
+            {
+                if (i is 0 && j is 0)
+                    continue;
+
+                Im.Cursor.Position = new Vector2(position.X + i, position.Y + j);
+                Im.Text(ref text);
+            }
+        }
+
+        color.Pop();
+        color.Push(ImGuiColor.Text, foregroundColor);
+        Im.Cursor.Position = position;
+        Im.Text(ref text);
+    }
+
+    /// <summary> Draw the same text multiple times at the given position in a draw list to simulate a shadowed text. </summary>
+    /// <param name="drawList"> The draw list. </param>
+    /// <param name="position"> The position to draw the text at in screen coordinates. </param>
+    /// <param name="text"> The text to draw. </param>
+    /// <param name="foregroundColor"> The center text color. If <see cref="ColorParameter.Default"/>, <see cref="ImGuiColor.Text"/> is used. </param>
+    /// <param name="shadowColor"> The shadow color. If <see cref="ColorParameter.Default"/>, <see cref="Rgba32.Black"/> is used. </param>
+    /// <param name="shadowWidth"> The width of the shadow in pixels. Should usually be 1. </param>
+    public static void TextShadowed(Im.DrawList drawList, Vector2 position, Utf8TextHandler text, 
+        ColorParameter foregroundColor, ColorParameter shadowColor, byte shadowWidth = 1)
+    {
+        var shadow = shadowColor.CheckDefault(Rgba32.Black);
+        for (var i = -shadowWidth; i <= shadowWidth; i++)
+        {
+            for (var j = -shadowWidth; j <= shadowWidth; j++)
+            {
+                if (i is 0 && j is 0)
+                    continue;
+
+                drawList.Text(position, shadow, ref text);
+            }
+        }
+
+        drawList.Text(position, foregroundColor.CheckDefault(ImGuiColor.Text), ref text);
+    }
 }

@@ -10,19 +10,20 @@ public static partial class Im
         public int Count { get; private set; }
 
         /// <summary> Push a text wrap position to the text wrap stack. </summary>
-        /// <param name="localX"> The local X coordinate at which to wrap text. </param>
+        /// <param name="localX"> The window-local X coordinate at which to wrap text. If this is negative, no wrapping, if it is 0, wrap from here to the end of the available content region, and if it is positive, wrap from here. </param>
         /// <param name="condition"> If this is false, the position is not pushed. </param>
         /// <returns> A disposable object that can be used to push further text wrap positions and pops those positions after leaving scope. Use with using. </returns>
-        /// <remarks> If you need to keep text wrap positions pushed longer than the current scope, use without using and use <seealso cref="PopUnsafe"/>. </remarks>
+        /// <remarks> If you need to keep text wrap positions pushed longer than the current scope, use without using and use <seealso cref="Im.PopTextWrapPositionUnsafe"/>. </remarks>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public TextWrapDisposable Push(float localX, bool condition = true)
-        {
-            if (condition)
-            {
-                Native.Methods.Stacks.PushTextWrapPos(localX);
-                ++Count;
-            }
+        public TextWrapDisposable Push(float localX, bool condition)
+            => condition ? Push(localX) : this;
 
+        /// <inheritdoc cref="Push(float,bool)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public TextWrapDisposable Push(float localX)
+        {
+            Native.Methods.Stacks.PushTextWrapPos(localX);
+            ++Count;
             return this;
         }
 
@@ -41,15 +42,5 @@ public static partial class Im
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public void Dispose()
             => Pop(Count);
-
-        /// <summary> Pop a number of text wrap positions. </summary>
-        /// <param name="num"> The number of text wrap positions to pop. The number is not checked against the text wrap stack. </param>
-        /// <remarks> Avoid using this function, and text wrap positions across scopes, as much as possible. </remarks>
-        [MethodImpl(ImSharpConfiguration.OptInl)]
-        public static void PopUnsafe(int num = 1)
-        {
-            while (num-- > 0)
-                Native.Methods.Stacks.PopTextWrapPos();
-        }
     }
 }

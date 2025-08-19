@@ -1,3 +1,5 @@
+// ReSharper disable MethodOverloadWithOptionalParameter
+
 namespace ImSharp;
 
 public static unsafe partial class Im
@@ -47,8 +49,37 @@ public static unsafe partial class Im
     }
 
     /// <summary> Can be used to avoid copying an already established <seealso cref="Utf8TextHandler"/>. </summary>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    [OverloadResolutionPriority(100)]
+    [MethodImpl(ImSharpConfiguration.OptInl), OverloadResolutionPriority(100)]
     public static void Text<T>(ref Utf8StringHandler<T> text) where T : IStringHandlerBuffer
         => Native.Methods.Text.TextUnformatted(text.Start(out var end), end);
+
+    /// <inheritdoc cref="TextWrapDisposable.Push(float)"/>
+    [MethodImpl(ImSharpConfiguration.OptInl), OverloadResolutionPriority(100)]
+    public static TextWrapDisposable PushTextWrapPosition(float localX = 0)
+        => new TextWrapDisposable().Push(localX);
+
+    /// <inheritdoc cref="TextWrapDisposable.Push(float,bool)"/>
+    [MethodImpl(ImSharpConfiguration.OptInl), OverloadResolutionPriority(50)]
+    public static TextWrapDisposable PushTextWrapPosition(float localX = 0, bool condition = true)
+        => condition ? new TextWrapDisposable().Push(localX) : new TextWrapDisposable();
+
+    /// <summary> Pop a number of text wrap positions. </summary>
+    /// <param name="num"> The number of text wrap positions to pop. The number is not checked against the text wrap stack. </param>
+    /// <remarks> Avoid using this function, and text wrap positions across scopes, as much as possible. </remarks>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static void PopTextWrapPositionUnsafe(int num = 1)
+    {
+        while (num-- > 0)
+            Native.Methods.Stacks.PopTextWrapPos();
+    }
+
+    /// <summary> Draw text wrapping at the end of the available content region to the current cursor location. </summary>
+    /// <param name="text"> The given text. Does not have to be null-terminated. </param>
+    /// <param name="wrapPosition"> <inheritdoc cref="PushTextWrapPosition(float)"/> </param>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static void TextWrapped(Utf8TextHandler text, float wrapPosition = 0)
+    {
+        using var wrap = PushTextWrapPosition(wrapPosition);
+        Text(ref text);
+    }
 }

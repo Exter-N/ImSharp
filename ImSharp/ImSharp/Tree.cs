@@ -10,7 +10,6 @@ public static partial class Im
             => new(ref label, flags);
 
         /// <inheritdoc cref="TreeNodeDisposable(ref Utf8LabelHandler)"/>
-        [MethodImpl(ImSharpConfiguration.OptInl)]
         public static TreeNodeDisposable Push(Utf8LabelHandler label)
             => new(ref label);
 

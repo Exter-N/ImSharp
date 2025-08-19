@@ -119,6 +119,11 @@ public static partial class Im
         public void Text(Vector2 position, Rgba32 color, Utf8TextHandler text)
             => Native.ImDrawList.AddText(Pointer, position, color.Color, text.Start(out var end), end);
 
+        /// <inheritdoc cref="Text(Vector2,Rgba32,Utf8TextHandler)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public void Text<T>(Vector2 position, Rgba32 color, ref Utf8StringHandler<T> text) where T : IStringHandlerBuffer
+            => Native.ImDrawList.AddText(Pointer, position, color.Color, text.Start(out var end), end);
+
         /// <summary> Add text using the provided font. </summary>
         /// <param name="font"> A reference to the font to be used. </param>
         /// <param name="fontSize"> The desired size for the font. </param>
@@ -128,6 +133,11 @@ public static partial class Im
         /// <param name="wrapWidth"> The wrapping width for the text. Use 0 for no wrapping. </param>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public void Text(Font font, float fontSize, Vector2 position, Rgba32 color, Utf8TextHandler text, float wrapWidth = 0f)
+            => Native.ImDrawList.AddText(Pointer, font.Pointer, fontSize, position, color.Color, text.Start(out var end), end, wrapWidth, null);
+
+        /// <inheritdoc cref="Text(Font,float,Vector2,Rgba32,Utf8TextHandler,float)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public void Text<T>(Font font, float fontSize, Vector2 position, Rgba32 color, ref Utf8StringHandler<T> text, float wrapWidth = 0f) where T : IStringHandlerBuffer
             => Native.ImDrawList.AddText(Pointer, font.Pointer, fontSize, position, color.Color, text.Start(out var end), end, wrapWidth, null);
 
         /// <param name="cpuFineClipRect"> A clipping Rectangle. </param>
@@ -140,7 +150,6 @@ public static partial class Im
             Native.ImDrawList.AddText(Pointer, font.Pointer, fontSize, position, color.Color, text.Start(out var end), end, wrapWidth,
                 &clipRect);
         }
-
 
         /// <summary> Draw text clipped to a specific rectangle. </summary>
         /// <param name="upperLeftCorner"> The upper left corner of the clipping rectangle in screen coordinates. </param>

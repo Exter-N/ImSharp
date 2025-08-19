@@ -1,223 +1,131 @@
-namespace ImSharp;
+namespace ImSharp.Table;
 
-public static partial class ImEx
+/// <summary> The data required to draw a basic table without information about the table's cache. </summary>
+/// <typeparam name="TItem"> The type of the items to display. </typeparam>
+/// <typeparam name="TCacheItem"> The type of the cached transformation of the items to display. </typeparam>
+public abstract class TableData<TItem, TCacheItem> where TCacheItem : ICacheItem<TItem, TCacheItem>
 {
+    /// <summary> The default flags for a table. </summary>
+    public const TableFlags DefaultFlags = TableFlags.RowBackground
+      | TableFlags.Sortable
+      | TableFlags.BordersOuter
+      | TableFlags.ScrollY
+      | TableFlags.ScrollX
+      | TableFlags.PreciseWidths
+      | TableFlags.SizingFixedFit
+      | TableFlags.BordersInnerVertical
+      | TableFlags.NoBordersInBodyUntilResize;
 
-    public static class Table
+    /// <summary> The ID of the table. This is not displayed and just used for a unique ID. </summary>
+    public readonly StringU8 Id;
+
+    /// <summary> The column definitions for the table. </summary>
+    public readonly IReadOnlyList<ITableColumn<TCacheItem>> Columns;
+
+    /// <summary> The flags used when drawing the table. </summary>
+    public TableFlags Flags { get; set; } = DefaultFlags;
+
+    /// <summary> Whether the table can be sorted or not. </summary>
+    public bool Sortable
     {
-        public const float ArrowWidth = 10;
+        get => Flags.HasFlag(TableFlags.Sortable);
+        protected internal set => Flags = value ? Flags | TableFlags.Sortable : Flags & ~TableFlags.Sortable;
     }
 
-    public class Table<TItem, TCacheItem>
+    /// <summary> The total number of columns. </summary>
+    public int TotalColumns
+        => Columns.Count;
+
+    /// <summary> The number of currently visible columns, should be updated when the cache is drawn. </summary>
+    public int VisibleColumns { get; protected internal set; }
+
+    /// <summary> The total number of items in the table, should be updated when the cache is updated. </summary>
+    public int TotalItems   { get; protected internal set; }
+
+    /// <summary> The number of un-filtered items in the table, should be updated when the cache is updated. </summary>
+    public int VisibleItems { get; protected internal set; }
+
+    /// <summary> Get the size the table should occupy in pixels. Default is the entire space available in the window. </summary>
+    public virtual Vector2 GetSize()
+        => Im.ContentRegion.Available;
+
+    /// <summary> Get the desired number of frozen columns and rows in the table. Default is 1 for each. </summary>
+    public virtual (int Columns, int Rows) GetFrozenScroll()
+        => (1, 1);
+
+    /// <summary> Get the items to display. This is only called when updating the cache with the <see cref="IManagedCache.DirtyFlags.Custom"/> flag. </summary>
+    public abstract IEnumerable<TItem> GetItems();
+
+    /// <summary> Create the table data with a given list of column definitions and an ID. </summary>
+    public TableData(StringU8 id, params IReadOnlyList<ITableColumn<TCacheItem>> columns)
     {
-        protected class TableCache(Table<TItem, TCacheItem> table) : BasicCache
-        {
-            public readonly Table<TItem, TCacheItem> Table = table;
-
-            public bool FilterDirty
-            {
-                get => field;
-                set
-                {
-                    field = value;
-                    if (value)
-                        Dirty |= IManagedCache.DirtyFlags.CustomDirty;
-                }
-            }
-
-            public bool SortDirty
-            {
-                get => field;
-                set
-                {
-                    field = value;
-                    if (value)
-                        Dirty |= IManagedCache.DirtyFlags.CustomDirty;
-                }
-            }
-
-            public int VisibleColumns;
-
-            public List<TCacheItem> AllItems      = [];
-            public List<int>        FilteredItems = [];
-
-            public override void Update()
-            {
-                if (Dirty is IManagedCache.DirtyFlags.Clean)
-                    return;
-
-
-                UpdateFilter();
-                SortInternal();
-            }
-
-            public bool WouldBeVisible(TCacheItem value)
-                => Table.Headers.All(header => header.FilterFunc(value));
-
-            protected virtual void UpdateFilter()
-            {
-                if (!FilterDirty)
-                    return;
-
-                FilteredItems.Clear();
-                foreach (var (idx, item) in AllItems.Index())
-                {
-                    if (WouldBeVisible(item))
-                        FilteredItems.Add(idx);
-                }
-
-                FilterDirty = false;
-                SortDirty   = true;
-            }
-
-            protected virtual void SortInternal(ref Im.TableDisposable table)
-            {
-                if (!Table.Sortable)
-                    return;
-
-                var sortSpecs = table.SortSpecifications;
-                SortDirty |= sortSpecs.Dirty;
-
-                if (!SortDirty || sortSpecs.Count is 0)
-                    return;
-
-                var specs = sortSpecs[0];
-                Table.SortIndex = specs.ColumnIndex;
-
-                if (Table.Headers.Length <= Table.SortIndex)
-                    Table.SortIndex = 0;
-
-                var header = Table.Headers[Table.SortIndex];
-                switch (specs.SortDirection)
-                {
-                    case SortDirection.Ascending:
-                        header.PreSort();
-                        FilteredItems.StableSort((a, b) => header.Compare(a.Item1, b.Item1));
-                        header.PostSort();
-                        break;
-                    case SortDirection.Descending:
-                        header.PreSort();
-                        FilteredItems.StableSort((a, b) => header.CompareInverse(a.Item1, b.Item1));
-                        header.PostSort();
-                        break;
-                    default: Table.SortIndex = -1; break;
-                }
-
-                SortDirty       = false;
-                sortSpecs.Dirty = false;
-            }
-        }
-
-        protected          StringU8                   Label { get; }
-        protected readonly ITableColumn<TCacheItem>[] Headers;
-
-        protected bool  FilterDirty = true;
-        protected bool  SortDirty   = true;
-        protected float ItemHeight  { get; set; }
-        public    float ExtraHeight { get; set; } = 0;
-        private   int   _currentIdx = 0;
-        protected int   SortIndex   = -1;
-
-        public bool Sortable
-        {
-            get => Flags.HasFlag(TableFlags.Sortable);
-            protected set => Flags = value ? Flags | TableFlags.Sortable : Flags & ~TableFlags.Sortable;
-        }
-
-        public TableFlags Flags = TableFlags.RowBackground
-          | TableFlags.Sortable
-          | TableFlags.BordersOuter
-          | TableFlags.ScrollY
-          | TableFlags.ScrollX
-          | TableFlags.PreciseWidths
-          | TableFlags.SizingFixedFit
-          | TableFlags.BordersInnerVertical
-          | TableFlags.NoBordersInBodyUntilResize;
-
-        public int TotalColumns
-            => Headers.Length;
-
-        public int VisibleColumns { get; private set; }
-
-        public Table(StringU8 label, IReadOnlyCollection<TItem> items, params ITableColumn<TCacheItem>[] headers)
-        {
-            Label          = label;
-            Headers        = headers;
-            VisibleColumns = Headers.Length;
-        }
-
-        public void Draw(float itemHeight)
-        {
-            ItemHeight = itemHeight;
-            using var idPush = Im.Id.Push(Label);
-            DrawTableInternal();
-        }
-
-        protected virtual TableCache CreateCache()
-            => new(this);
-
-
-
-        protected virtual void DrawFilters()
-            => throw new NotImplementedException();
-
-        protected virtual void PreDraw()
-        { }
-
-
-
-
-        private void DrawItem((T, int) pair)
-        {
-            var       column = 0;
-            using var id     = ImRaii.PushId(_currentIdx);
-            _currentIdx = pair.Item2;
-            foreach (var header in Headers)
-            {
-                id.Push(column++);
-                if (ImGui.TableNextColumn())
-                    header.DrawColumn(pair.Item1, pair.Item2);
-                id.Pop();
-            }
-        }
-
-        private void DrawTableInternal()
-        {
-            using var table = Im.Table.Begin("Table"u8, Headers.Length, Flags,
-                Im.ContentRegion.Available - new Vector2(0, ExtraHeight * Im.Style.GlobalScale));
-            if (!table)
-                return;
-
-            var tableId = Im.Id.Current;
-            var cache   = CacheManager.Instance.GetOrCreateCache(tableId, CreateCache);
-            PreDraw();
-            ImGui.TableSetupScrollFreeze(1, 1);
-
-            foreach (var header in Headers)
-                ImGui.TableSetupColumn(header.Label, header.Flags, header.Width);
-
-            ImGui.TableNextRow(ImGuiTableRowFlags.Headers);
-            var i = 0;
-            VisibleColumns = 0;
-            foreach (var header in Headers)
-            {
-                using var id = ImRaii.PushId(i);
-                if (ImGui.TableGetColumnFlags(i).HasFlag(ImGuiTableColumnFlags.IsEnabled))
-                    ++VisibleColumns;
-                if (!ImGui.TableSetColumnIndex(i++))
-                    continue;
-
-                using var style = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, Vector2.Zero);
-                ImGui.TableHeader(string.Empty);
-                ImGui.SameLine();
-                style.Pop();
-                if (header.DrawFilter())
-                    FilterDirty = true;
-            }
-
-            SortInternal();
-            _currentIdx = 0;
-            ImGuiClip.ClippedDraw(FilteredItems, DrawItem, ItemHeight);
-        }
+        Id             = id;
+        Columns        = columns;
+        VisibleColumns = Columns.Count;
     }
+}
+
+/// <summary> The base class for all actual tables. </summary>
+/// <typeparam name="TItem"> The type of the items to display. </typeparam>
+/// <typeparam name="TCacheItem"> The type of the cached transformation of the items to display. </typeparam>
+/// <typeparam name="TTableCache"> The type of the cache used for the table to actually draw it. </typeparam>
+/// <param name="id"><inheritdoc cref="TableData{TItem,TCacheItem}.Id"/></param>
+/// <param name="columns"><inheritdoc cref="TableData{TItem,TCacheItem}.Columns"/></param>
+public abstract class TableBase<TItem, TCacheItem, TTableCache>
+    (StringU8 id, params IReadOnlyList<ITableColumn<TCacheItem>> columns) : TableData<TItem, TCacheItem>(id, columns)
+    where TCacheItem : ICacheItem<TItem, TCacheItem>
+    where TTableCache : TableCache<TItem, TCacheItem>
+{
+    /// <summary> Draw the table. </summary>
+    public void Draw()
+    {
+        // Push the ID to obtain the correct cache.
+        using var idPush = Im.Id.Push(Id);
+
+        // Obtain an existing or create a new cache.
+        var cache = CacheManager.Instance.GetOrCreateCache(Im.Id.Current, CreateCache);
+
+        // Draw.
+        PreDraw(cache);
+        cache.Draw();
+        PostDraw(cache);
+    }
+
+    /// <summary> The factory function that creates the cache used to draw the table. </summary>
+    protected abstract TTableCache CreateCache();
+
+    /// <summary> Invoked before the table gets drawn. </summary>
+    /// <param name="cache"> The current cache. </param>
+    protected virtual void PreDraw(in TTableCache cache)
+    { }
+
+    /// <summary> Invoked after the table gets drawn. </summary>
+    /// <param name="cache"> The current cache. </param>
+    protected virtual void PostDraw(in TTableCache cache)
+    { }
+}
+
+/// <summary> A default table with a simple, pre-implemented cache without extra functionality. </summary>
+/// <typeparam name="TItem"> The type of the items to display. </typeparam>
+/// <typeparam name="TCacheItem"> The type of the cached transformation of the items to display. </typeparam>
+/// <param name="id"><inheritdoc cref="TableData{TItem,TCacheItem}.Id"/></param>
+/// <param name="columns"><inheritdoc cref="TableData{TItem,TCacheItem}.Columns"/></param>
+public abstract class DefaultTable<TItem, TCacheItem>(StringU8 id, params IReadOnlyList<ITableColumn<TCacheItem>> columns)
+    : TableBase<TItem, TCacheItem, TableCache<TItem, TCacheItem>>(id, columns)
+    where TCacheItem : ICacheItem<TItem, TCacheItem>
+{
+    /// <summary> Create the default cache type. </summary>
+    protected override TableCache<TItem, TCacheItem> CreateCache()
+        => new(this);
+}
+
+/// <summary> A default table with a simple, pre-implemented cache without extra functionality that uses its base type as the cache type. </summary>
+/// <typeparam name="TItem"> The type of the items to display. </typeparam>
+/// <param name="id"><inheritdoc cref="TableData{TItem,TCacheItem}.Id"/></param>
+/// <param name="columns"><inheritdoc cref="TableData{TItem,TCacheItem}.Columns"/></param>
+public abstract class DefaultTable<TItem>(StringU8 id, params IReadOnlyList<ITableColumn<DefaultCacheItem<TItem>>> columns)
+    : DefaultTable<TItem, DefaultCacheItem<TItem>>(id, columns)
+{
+    protected override TableCache<TItem, DefaultCacheItem<TItem>> CreateCache()
+        => throw new NotImplementedException();
 }

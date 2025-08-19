@@ -142,7 +142,7 @@ public class CacheManager : IDisposable
     {
         if (_caches.TryGetValue(id, out var pair))
         {
-            pair.Item1.Dirty |= IManagedCache.DirtyFlags.CustomDirty;
+            pair.Item1.Dirty |= IManagedCache.DirtyFlags.Custom;
             Logger.LogTrace("Set custom dirty flag for ID {ID}.", id.Id);
         }
     }
@@ -164,7 +164,7 @@ public class CacheManager : IDisposable
     {
         Logger.LogTrace("Set font size dirty flag for all caches.");
         foreach (var (cache, _) in _caches.Values)
-            cache.Dirty |= IManagedCache.DirtyFlags.FontDirty;
+            cache.Dirty |= IManagedCache.DirtyFlags.Font;
     }
 
     /// <summary> Set the style dirty flag for all caches. </summary>
@@ -172,7 +172,7 @@ public class CacheManager : IDisposable
     {
         Logger.LogTrace("Set style dirty flag for all caches.");
         foreach (var (cache, _) in _caches.Values)
-            cache.Dirty |= IManagedCache.DirtyFlags.StyleDirty;
+            cache.Dirty |= IManagedCache.DirtyFlags.Style;
     }
 
     /// <summary> Set the colors dirty flag for all caches. </summary>
@@ -180,7 +180,7 @@ public class CacheManager : IDisposable
     {
         Logger.LogTrace("Set colors dirty flag for all caches.");
         foreach (var (cache, _) in _caches.Values)
-            cache.Dirty |= IManagedCache.DirtyFlags.StyleDirty;
+            cache.Dirty |= IManagedCache.DirtyFlags.Style;
     }
 
     /// <summary> Dispose and remove all stored caches. </summary>

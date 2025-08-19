@@ -3,10 +3,14 @@ namespace ImSharp;
 public partial class Im
 {
     /// <summary> A clipper utility that cleans up after itself. </summary>
-    public unsafe struct ListClipper(Native.ListClipper* pointer) : IEnumerable<int>, IDisposable
+    public unsafe struct ListClipper : IEnumerable<int>, IDisposable
     {
+        /// <summary> Create a list clipper from a native pointer. </summary>
+        internal ListClipper(Native.ListClipper* pointer)
+            => Pointer = pointer;
+
         /// <summary> The address of the native object. </summary>
-        public Native.ListClipper* Pointer { get; private set; } = pointer;
+        public Native.ListClipper* Pointer { get; private set; }
 
         [MethodImpl(ImSharpConfiguration.Inl)]
         public static implicit operator ListClipper(Native.ListClipper* pointer)
@@ -95,7 +99,7 @@ public partial class Im
         }
 
         /// <summary> Iterate over all items in the list to be drawn with the current ListClipper settings. </summary>
-        [MethodImpl(ImSharpConfiguration.OptInl)]
+        [MethodImpl(ImSharpConfiguration.OptInl), OverloadResolutionPriority(100)]
         public readonly IEnumerable<T> Iterate<T>(IReadOnlyList<T> list)
         {
             while (Step())
@@ -106,7 +110,7 @@ public partial class Im
         }
 
         /// <inheritdoc cref="Iterate{T}(IReadOnlyList{T})"/>
-        [MethodImpl(ImSharpConfiguration.OptInl)]
+        [MethodImpl(ImSharpConfiguration.OptInl), OverloadResolutionPriority(50)]
         public readonly IEnumerable<T> Iterate<T>(IList<T> list)
         {
             while (Step())
@@ -117,7 +121,7 @@ public partial class Im
         }
 
         /// <summary> Iterate over all items in the enumerable to be drawn with the current ListClipper settings. </summary>
-        [MethodImpl(ImSharpConfiguration.OptInl)]
+        [MethodImpl(ImSharpConfiguration.OptInl), OverloadResolutionPriority(0)]
         public readonly IEnumerable<T> Iterate<T>(IEnumerable<T> list)
         {
             // Shortcut for random access.

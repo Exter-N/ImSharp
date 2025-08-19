@@ -20,6 +20,27 @@ public static partial class Im
             get => Native.Methods.DrawList.GetMainViewport();
         }
 
+        /// <summary> Get the size of the viewport in pixels. </summary>
+        public Vector2 Size
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Pointer->Size;
+        }
+
+        /// <summary> Get the global position of the viewport in pixels. </summary>
+        public Vector2 Position
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Pointer->Pos;
+        }
+
+        /// <summary> Set the position of the next drawn window relative to this viewport. </summary>
+        /// <param name="position"> The desired position for the next window.</param>
+        /// <param name="condition"> Conditions to set the position. </param>
+        /// <param name="pivot"> The pivot for the position. </param>
+        public void SetNextWindowPositionRelative(Vector2 position, Condition condition = Condition.None, Vector2 pivot = default)
+            => Window.SetNextPosition(position + Position, condition, pivot);
+
         /// <summary> Get the background draw list for the given viewport. </summary>
         /// <remarks> The background draw list is the first that renders, so anything else is rendered on top of it. </remarks>
         public static DrawList GetBackgroundDrawList(Viewport viewport)

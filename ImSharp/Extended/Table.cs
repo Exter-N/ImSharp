@@ -5,6 +5,12 @@ public static partial class ImEx
     /// <summary> Wrapper around simple table draw methods. </summary>
     public static class Table
     {
+        /// <summary> The default width of the sorting arrow in table headers. </summary>
+        public const float ArrowWidth = 10;
+
+        /// <summary> The frame background color used for highlighting active filter combos in table headers. </summary>
+        public static Vector4 ActiveFilterColor { get; set; } = new Rgba32(0x803030A0).ToVector();
+
         /// <summary> Draw a simple table with the given data using the drawRow action. </summary>
         /// <typeparam name="T"> The type of the rows to draw. </typeparam>
         /// <param name="id"> The ID for the table. If this is a UTF8 string, it HAS to be null-terminated. </param>
