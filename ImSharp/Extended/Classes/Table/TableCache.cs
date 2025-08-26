@@ -4,12 +4,9 @@ namespace ImSharp.Table;
 /// <typeparam name="TItem"> The type of the items to display. </typeparam>
 /// <typeparam name="TCacheItem"> The type of the cached transformation of the items to display. </typeparam>
 /// <param name="parent"> The table's base data and column definitions that were used to create this cache. </param>
-public class TableCache<TItem, TCacheItem>(TableData<TItem, TCacheItem> parent) : BasicCache
+public class TableCache<TItem, TCacheItem>(TableData<TItem, TCacheItem> parent) : FilterCache<TItem, TCacheItem>
     where TCacheItem : ICacheItem<TItem, TCacheItem>
 {
-    /// <summary> Whether the next update should re-filter the global data. </summary>
-    protected bool FilterDirty { get; set; } = true;
-
     /// <summary> Whether the next update should re-sort the filtered data. </summary>
     protected bool SortDirty { get; set; } = true;
 
@@ -18,16 +15,6 @@ public class TableCache<TItem, TCacheItem>(TableData<TItem, TCacheItem> parent) 
 
     /// <summary> The sort direction in the column that is currently used for sorting, if any. </summary>
     protected SortDirection SortDirection { get; set; } = SortDirection.Ascending;
-
-    /// <summary> The additional width any filter needs to leave space for to show the sorting arrow in the header row. </summary>
-    protected float ArrowWidth { get; set; }
-
-    /// <summary> The pre-processed list of all available items to display. </summary>
-    protected readonly List<TCacheItem> AllItems = [];
-
-    /// <summary> The global indices of items that are currently visible according to the filters. </summary>
-    /// <remarks> Indices refer to <see cref="AllItems"/>. </remarks>
-    protected readonly List<int> FilteredItems = [];
 
     /// <summary>
     ///   The default widths columns are drawn with if not resized by the user.
@@ -73,7 +60,7 @@ public class TableCache<TItem, TCacheItem>(TableData<TItem, TCacheItem> parent) 
             // then draw the actual filter.
             table.Header(""u8);
             Im.Line.Same(0, 0);
-            if (header.DrawFilter(ArrowWidth))
+            if (header.DrawFilter())
                 FilterDirty = true;
         }
 
@@ -99,21 +86,6 @@ public class TableCache<TItem, TCacheItem>(TableData<TItem, TCacheItem> parent) 
         Dirty = IManagedCache.DirtyFlags.Clean;
     }
 
-    /// <summary> Update the actual item data if <see cref="BasicCache.CustomDirty"/>. </summary>
-    protected virtual void UpdateData()
-    {
-        if (!CustomDirty)
-            return;
-
-        // Update all items and notify that we need to re-filter and re-sort.
-        AllItems.Clear();
-        AllItems.AddRange(parent.GetItems().Select(TCacheItem.Create));
-        parent.TotalItems = AllItems.Count;
-
-        FilterDirty = true;
-        SortDirty   = true;
-    }
-
     /// <summary> Update the column widths if the font or style changed, or the available items have changed and the column definition cares for that. </summary>
     protected virtual void UpdateColumnWidths()
     {
@@ -123,7 +95,7 @@ public class TableCache<TItem, TCacheItem>(TableData<TItem, TCacheItem> parent) 
             return;
 
         // Update the arrow width always, cheaper than checking for flags again.
-        ArrowWidth = ImEx.Table.ArrowWidth * Im.Style.GlobalScale;
+        ImEx.Table.ArrowWidth = ImEx.Table.UnscaledArrowWidth * Im.Style.GlobalScale;
 
         for (var i = 0; i < HeaderDefaultWidths.Length; ++i)
         {
@@ -139,36 +111,16 @@ public class TableCache<TItem, TCacheItem>(TableData<TItem, TCacheItem> parent) 
         }
     }
 
-    /// <summary> Update the filtered items. </summary>
-    protected virtual void UpdateFilter()
-    {
-        if (!FilterDirty)
-            return;
-
-        // Add all items that are visible according to all filters.
-        FilteredItems.Clear();
-        foreach (var (idx, item) in AllItems.Index())
-        {
-            if (WouldBeVisible(item))
-                FilteredItems.Add(idx);
-        }
-
-        parent.VisibleItems = FilteredItems.Count;
-
-        // Notify that we have filtered, but now we need to re-sort.
-        FilterDirty = false;
-        SortDirty   = true;
-    }
-
     /// <summary> Check each single row for visibility against the filters in all columns. </summary>
     /// <param name="value"> The row to check. </param>
+    /// <param name="globalIndex"> The global index of the row. </param>
     /// <returns> True if the row is visible, false otherwise. </returns>
-    protected virtual bool WouldBeVisible(in TCacheItem value)
+    protected override bool WouldBeVisible(in TCacheItem value, int globalIndex)
     {
         // No LINQ due to 'in' modifier.
         foreach (var header in parent.Columns)
         {
-            if (!header.FilterFunc(value))
+            if (!header.WouldBeVisible(value, globalIndex))
                 return false;
         }
 
@@ -222,14 +174,14 @@ public class TableCache<TItem, TCacheItem>(TableData<TItem, TCacheItem> parent) 
         if (descending)
             tmpList.Sort((a, b) =>
             {
-                var ret = column.CompareInverse(AllItems[a.Item2], AllItems[b.Item2]);
-                return ret != 0 ? ret : a.Item2.CompareTo(b.Item2);
+                var ret = column.CompareInverse(AllItems[a.Item2], a.Item2, AllItems[b.Item2], b.Item2);
+                return ret != 0 ? ret : a.Item1.CompareTo(b.Item1);
             });
         else
             tmpList.Sort((a, b) =>
             {
-                var ret = column.Compare(AllItems[a.Item2], AllItems[b.Item2]);
-                return ret != 0 ? ret : a.Item2.CompareTo(b.Item2);
+                var ret = column.Compare(AllItems[a.Item2], a.Item2, AllItems[b.Item2], b.Item2);
+                return ret != 0 ? ret : a.Item1.CompareTo(b.Item1);
             });
         var i = 0;
         foreach (var (_, item) in tmpList)
@@ -277,5 +229,23 @@ public class TableCache<TItem, TCacheItem>(TableData<TItem, TCacheItem> parent) 
         var specs = fullSpecs[0];
         SortIndex     = specs.ColumnIndex;
         SortDirection = specs.SortDirection;
+    }
+
+    /// <inheritdoc/>
+    protected override IEnumerable<TItem> GetItems()
+        => parent.GetItems();
+
+    /// <inheritdoc/>
+    protected override void OnDataUpdate()
+    {
+        SortDirty         = true;
+        parent.TotalItems = AllItems.Count;
+    }
+
+    /// <inheritdoc/>
+    protected override void OnFilterUpdate()
+    {
+        SortDirty           = true;
+        parent.VisibleItems = FilteredItems.Count;
     }
 }

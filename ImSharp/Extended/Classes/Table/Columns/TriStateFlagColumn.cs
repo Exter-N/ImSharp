@@ -3,55 +3,57 @@ namespace ImSharp.Table;
 /// <summary> A table column representing a check on multiple pairs of flags that represent off- and on-states for some values. </summary>
 /// <typeparam name="TEnum"> The type of the enum that defines the flags. </typeparam>
 /// <typeparam name="TCacheItem"> The type of the cached transformation of the items to display. </typeparam>
-public abstract class TriStateFlagColumn<TEnum, TCacheItem> : FlagColumn<TEnum, TCacheItem>
-    where TEnum : struct, Enum
+public abstract class TriStateFlagColumn<TEnum, TCacheItem> : BasicColumn<TCacheItem>
+    where TEnum : unmanaged, Enum
 {
-    /// <summary> Pairs of flags that represent the on and off state for a specific value, and the name to display next to their tri-state checkbox. </summary>
+    /// <summary> The filter used. </summary>
+    public TriStateFlagFilterBase<TCacheItem, TEnum> Filter { get; protected init; }
+
+    /// <summary> Create a new Tri-State Flag Column. </summary>
+    public TriStateFlagColumn()
+        => Filter = new TriStateFlagFilter(this);
+
+    /// <inheritdoc cref="TriStateFlagFilterBase{TCacheItem,TEnum}.EnumData"/>
     protected abstract IReadOnlyList<(TEnum On, TEnum Off, StringU8 Name)> TriEnumData { get; }
 
-    /// <summary> Set a value according to the optional bool. </summary>
-    /// <param name="onValue"> The flag representing the on state. </param>
-    /// <param name="offValue"> The flag representing the off state. </param>
-    /// <param name="enable">
-    ///   The value to use for setting.
-    ///   If true, <paramref name="onValue"/> should be set and <paramref name="offValue"/> should be unset, conversely for false.
-    ///   If null, both should be set. </param>
-    /// <returns> True if the filter value has changed. </returns>
-    protected abstract bool SetValue(TEnum onValue, TEnum offValue, bool? enable);
+    /// <summary> Get the text to display for a row. </summary>
+    /// <param name="item"> The row to check. </param>
+    /// <param name="globalIndex"> The global index of the row to check </param>
+    /// <returns> The text for this cell. </returns>
+    protected abstract StringU8 DisplayString(in TCacheItem item, int globalIndex);
 
-    /// <summary> Draw a filter that expands a combo of multiple tri-state checkboxes on click. </summary>
+    /// <inheritdoc cref="TriStateFlagFilterBase{TCacheItem,TEnum}.GetValue"/>
+    protected abstract bool GetValue(in TCacheItem item, int globalIndex, int triEnumIndex);
+
     /// <inheritdoc/>
-    public override bool DrawFilter(float arrowWidth)
+    public override int Compare(in TCacheItem lhs, int lhsGlobalIndex, in TCacheItem rhs, int rhsGlobalIndex)
+        => DisplayString(lhs, lhsGlobalIndex).CompareTo(DisplayString(rhs, rhsGlobalIndex));
+
+    /// <inheritdoc/>
+    public override void DrawColumn(in TCacheItem item, int globalIndex)
     {
-        using var id    = Im.Id.Push("##Filter"u8);
-        using var combo = BeginCombo(arrowWidth, out var changes);
-        if (!combo)
-            return changes;
-
-        for (var i = 0; i < TriEnumData.Count; ++i)
-            changes |= DrawCheckbox(i);
-
-        if (changes)
-            InvokeEvent();
-
-        return changes;
+        Im.Text(DisplayString(item, globalIndex));
+        if (Im.Item.Hovered(HoveredFlags.AllowWhenDisabled))
+            DrawTooltip(item, globalIndex);
     }
 
-    /// <summary> Draw a tri-state checkbox for the given pair of flags. </summary>
-    /// <inheritdoc/>
-    protected override bool DrawCheckbox(int idx)
+    /// <summary> A tooltip to draw when the text is hovered. This is only called when the text is hovered, but does not start a tooltip itself. </summary>
+    /// <param name="item"> The drawn row. </param>
+    /// <param name="globalIndex"> The global index of the drawn row. </param>
+    protected virtual void DrawTooltip(in TCacheItem item, int globalIndex)
+    { }
+
+    protected class TriStateFlagFilter(TriStateFlagColumn<TEnum, TCacheItem> parent) : TriStateFlagFilterBase<TCacheItem, TEnum>
     {
-        var (on, off, name) = TriEnumData[idx];
-        bool? current = FilterValue.HasFlag(on)
-            ? FilterValue.HasFlag(off)
-                ? null
-                : true
-            : false;
+        /// <inheritdoc/>
+        public override TEnum FilterValue { get; protected set; }
 
-        return TriStateCheckbox.Instance.Draw(name, current, out var tmp) && SetValue(on, off, tmp);
+        /// <inheritdoc/>
+        public override IReadOnlyList<(TEnum On, TEnum Off, StringU8 Name)> EnumData
+            => parent.TriEnumData;
+
+        /// <inheritdoc/>
+        public override bool GetValue(in TCacheItem item, int globalIndex, int triEnumIndex)
+            => parent.GetValue(item, globalIndex, triEnumIndex);
     }
-
-    /// <summary> Unused. </summary>
-    protected sealed override IReadOnlyList<(TEnum Value, StringU8 Name)> EnumData
-        => throw new NotImplementedException();
 }

@@ -12,9 +12,11 @@ public interface ITableColumn<TCacheItem>
 
     /// <summary> Compare two rows according to this column. </summary>
     /// <param name="lhs"> The left row. </param>
+    /// <param name="lhsGlobalIndex"> The global index of the left row. </param>
     /// <param name="rhs"> The right row. </param>
+    /// <param name="rhsGlobalIndex"> The global index of the right row. </param>
     /// <returns> A negative value if the left row compares smaller, positive if it compares larger, 0 if they compare equal. </returns>
-    public int Compare(in TCacheItem lhs, in TCacheItem rhs);
+    public int Compare(in TCacheItem lhs, int lhsGlobalIndex, in TCacheItem rhs, int rhsGlobalIndex);
 
     /// <summary> Whether the default width of this column needs to be updated when the list of items changes. </summary>
     public bool WidthDependsOnItems { get; }
@@ -27,7 +29,7 @@ public interface ITableColumn<TCacheItem>
 
     /// <summary> Draw the filter in the header for this column. </summary>
     /// <returns> Whether the filter changed this frame. </returns>
-    public bool DrawFilter(float arrowWidth);
+    public bool DrawFilter();
 
     /// <summary> Draw a row's value for this column. </summary>
     /// <param name="item"> The row to draw. </param>
@@ -42,13 +44,16 @@ public interface ITableColumn<TCacheItem>
 
     /// <summary> Filter rows according to this column's filter. </summary>
     /// <param name="item"> The row to check. </param>
+    /// <param name="globalIndex"> The global index of the row to check. </param>
     /// <returns> True if the row should be visible, false if it should be filtered out. </returns>
-    public bool FilterFunc(in TCacheItem item);
+    public bool WouldBeVisible(in TCacheItem item, int globalIndex);
 
     /// <summary> Compare two rows according to this column but in reverse order. </summary>
     /// <param name="lhs"> The left row. </param>
+    /// <param name="lhsGlobalIndex"> The global index of the left row. </param>
     /// <param name="rhs"> The right row. </param>
+    /// <param name="rhsGlobalIndex"> The global index of the right row. </param>
     /// <returns> A positive value if the left row compares smaller, negative if it compares larger, 0 if they compare equal. </returns>
-    public int CompareInverse(in TCacheItem lhs, in TCacheItem rhs)
-        => Compare(rhs, lhs);
+    public int CompareInverse(in TCacheItem lhs, int lhsGlobalIndex, in TCacheItem rhs, int rhsGlobalIndex)
+        => Compare(rhs, rhsGlobalIndex, lhs, lhsGlobalIndex);
 }

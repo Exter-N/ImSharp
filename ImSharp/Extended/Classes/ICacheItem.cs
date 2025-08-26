@@ -1,4 +1,4 @@
-namespace ImSharp.Table;
+namespace ImSharp;
 
 /// <summary> An interface for table cache items that demands a factory from the regular item to exist. </summary>
 /// <typeparam name="TItem"> The type of the item to display in the table. </typeparam>
