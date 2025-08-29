@@ -1,11 +1,9 @@
 namespace ImSharp.Table;
 
 /// <summary> The base implementation of a table cache, used to store a table's pre-processed data and it's filters as long as it is active. </summary>
-/// <typeparam name="TItem"> The type of the items to display. </typeparam>
 /// <typeparam name="TCacheItem"> The type of the cached transformation of the items to display. </typeparam>
 /// <param name="parent"> The table's base data and column definitions that were used to create this cache. </param>
-public class TableCache<TItem, TCacheItem>(TableData<TItem, TCacheItem> parent) : FilterCache<TItem, TCacheItem>
-    where TCacheItem : ICacheItem<TItem, TCacheItem>
+public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<TCacheItem>
 {
     /// <summary> Whether the next update should re-sort the filtered data. </summary>
     protected bool SortDirty { get; set; } = true;
@@ -232,7 +230,7 @@ public class TableCache<TItem, TCacheItem>(TableData<TItem, TCacheItem> parent) 
     }
 
     /// <inheritdoc/>
-    protected override IEnumerable<TItem> GetItems()
+    protected override IEnumerable<TCacheItem> GetItems()
         => parent.GetItems();
 
     /// <inheritdoc/>

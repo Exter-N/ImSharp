@@ -27,17 +27,17 @@ public static class MouseWheelTypeExtensions
 {
     /// <summary> Check the modifiers for the mousewheel check. </summary>
     public static bool CheckMouseWheel(this MouseWheelType type)
-        => type switch
+        => Im.Io.KeyModifiers.HasFlag(type switch
         {
-            MouseWheelType.None                                                => false,
-            MouseWheelType.Unmodified                                          => true,
-            MouseWheelType.Shift                                               => Im.Io.KeyShift,
-            MouseWheelType.Control                                             => Im.Io.KeyControl,
-            MouseWheelType.Alt                                                 => Im.Io.KeyAlt,
-            MouseWheelType.Shift | MouseWheelType.Control                      => Im.Io.KeyShift && Im.Io.KeyControl,
-            MouseWheelType.Shift | MouseWheelType.Alt                          => Im.Io.KeyShift && Im.Io.KeyAlt,
-            MouseWheelType.Control | MouseWheelType.Alt                        => Im.Io.KeyControl && Im.Io.KeyAlt,
-            MouseWheelType.Shift | MouseWheelType.Control | MouseWheelType.Alt => Im.Io.KeyShift && Im.Io.KeyControl && Im.Io.KeyAlt,
-            _                                                                  => true,
-        };
+            MouseWheelType.None                                                => (ModFlags)0xFFFFFFFF,
+            MouseWheelType.Unmodified                                          => ModFlags.None,
+            MouseWheelType.Shift                                               => ModFlags.Shift,
+            MouseWheelType.Control                                             => ModFlags.Ctrl,
+            MouseWheelType.Alt                                                 => ModFlags.Alt,
+            MouseWheelType.Shift | MouseWheelType.Control                      => ModFlags.Shift | ModFlags.Ctrl,
+            MouseWheelType.Shift | MouseWheelType.Alt                          => ModFlags.Shift | ModFlags.Alt,
+            MouseWheelType.Control | MouseWheelType.Alt                        => ModFlags.Ctrl | ModFlags.Alt,
+            MouseWheelType.Shift | MouseWheelType.Control | MouseWheelType.Alt => ModFlags.Shift | ModFlags.Ctrl | ModFlags.Alt,
+            _                                                                  => (ModFlags)0xFFFFFFFF,
+        });
 }

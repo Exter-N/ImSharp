@@ -1,10 +1,8 @@
 namespace ImSharp;
 
 /// <summary> A base cache for items that are transformed for a cache and then can be filtered.  </summary>
-/// <typeparam name="TItem"> The base item type. </typeparam>
 /// <typeparam name="TCacheItem"> The transformed, cached item type. </typeparam>
-public abstract class FilterCache<TItem, TCacheItem> : BasicCache
-    where TCacheItem : ICacheItem<TItem, TCacheItem>
+public abstract class FilterCache<TCacheItem> : BasicCache
 {
     /// <summary> Whether the next update should re-filter the global data. </summary>
     protected bool FilterDirty { get; set; } = true;
@@ -24,7 +22,7 @@ public abstract class FilterCache<TItem, TCacheItem> : BasicCache
 
         // Update all items and notify that we need to re-filter and re-sort.
         AllItems.Clear();
-        AllItems.AddRange(GetItems().Select(TCacheItem.Create));
+        AllItems.AddRange(GetItems());
         FilterDirty = true;
         OnDataUpdate();
     }
@@ -66,7 +64,7 @@ public abstract class FilterCache<TItem, TCacheItem> : BasicCache
     protected abstract bool WouldBeVisible(in TCacheItem item, int globalIndex);
 
     /// <summary> Get an enumeration of all available items before filtering. </summary>
-    protected abstract IEnumerable<TItem> GetItems();
+    protected abstract IEnumerable<TCacheItem> GetItems();
 
     /// <summary> Invoked when the local data cache has been updated. </summary>
     protected virtual void OnDataUpdate()

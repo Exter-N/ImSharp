@@ -1,43 +1,59 @@
-using ImSharp;
-using ImSharp.Table;
 using Microsoft.Extensions.Logging;
 
-namespace OtterGui.Widgets;
+namespace ImSharp;
 
-//public abstract class FilterComboData<TItem, TCacheItem>(FilterComboBase<TItem, TCacheItem> parent) : FilterCache<TItem, TCacheItem>
-//    where TCacheItem : ICacheItem<TItem, TCacheItem>
+// TODO
+
+//public abstract class FilterComboData<TCacheItem>(FilterComboBase<TCacheItem> parent) : FilterCache<TCacheItem>
 //{
-//    protected readonly IFilter<TCacheItem> Filter = NopFilter<TCacheItem>.Instance;
+//    protected IFilter<TCacheItem> Filter { get; init; } = NopFilter<TCacheItem>.Instance;
 //
-//    protected override IEnumerable<TItem> GetItems()
+//    protected override IEnumerable<TCacheItem> GetItems()
 //        => parent.GetItems();
 //
-//    protected abstract bool  DrawFilter();
+//    protected virtual bool DrawFilter()
+//    {
+//        if (Filter is NopFilter<TCacheItem>)
+//            return false;
+//
+//        return Filter.DrawFilter("Filter..."u8, Im.ContentRegion.Available);
+//    }
+//
 //    protected abstract float ItemHeight { get; }
 //
 //    protected abstract void DrawItem(in TCacheItem item, int globalIndex);
 //}
 //
-//public abstract class FilterComboBaseCache<TItem, TCacheItem, TCache>(FilterComboBase<TItem, TCacheItem> parent)
-//    : FilterComboData<TItem, TCacheItem>(parent)
-//    where TCacheItem : ICacheItem<TItem, TCacheItem>
-//    where TCache : FilterCache<TItem, TCacheItem>
+//public abstract class FilterComboBaseCache<TCacheItem, TCache>(FilterComboBase<TCacheItem> parent)
+//    : FilterComboData<TCacheItem>(parent)
+//    where TCache : FilterCache<TCacheItem>
 //{
+//    protected virtual void PreDrawList()
+//    { }
+//
+//    protected virtual void PostDrawList()
+//    { }
+//
 //    protected virtual void DrawList()
 //    {
-//        using var clipper = new Im.ListClipper(FilteredItems.Count, ItemHeight);
-//        foreach (var globalIndex in clipper.Iterate(FilteredItems))
-//            DrawItem(AllItems[globalIndex], globalIndex);
+//        PreDrawList();
+//        using (var clipper = new Im.ListClipper(FilteredItems.Count, ItemHeight))
+//        {
+//            foreach (var globalIndex in clipper.Iterate(FilteredItems))
+//                DrawItem(AllItems[globalIndex], globalIndex);
+//        }
+//
+//        PostDrawList();
 //    }
 //}
 //
-//public abstract class FilterComboBase<TItem, TCacheItem> where TCacheItem : ICacheItem<TItem, TCacheItem>;
+//public abstract class FilterComboBase<TCacheItem>
 //{
 //    protected readonly ILogger        Log;
 //    protected          bool           SearchByParts   { get; set; }
 //    protected          MouseWheelType AllowMouseWheel { get; set; }
 //
-//    public abstract IEnumerable<TItem> GetItems();
+//    public abstract IEnumerable<TCacheItem> GetItems();
 //
 //
 //    protected int? NewSelection;
@@ -250,14 +266,14 @@ namespace OtterGui.Widgets;
 //            return;
 //
 //        _filterDirty = false;
-//        _available.EnsureCapacity(Items.Count);
+//        _available.EnsureCapacity(Im.Native.Methods.Items.Count);
 //
 //        // Keep the selected key if possible.
 //        var lastSelection = _lastSelection == -1 ? -1 : _available[_lastSelection];
 //        _lastSelection = -1;
 //
 //        _available.Clear();
-//        for (var idx = 0; idx < Items.Count; ++idx)
+//        for (var idx = 0; idx < Im.Native.Methods.Items.Count; ++idx)
 //        {
 //            if (!IsVisible(idx, _filter))
 //                continue;

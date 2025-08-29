@@ -1,9 +1,8 @@
 namespace ImSharp.Table;
 
 /// <summary> The data required to draw a basic table without information about the table's cache. </summary>
-/// <typeparam name="TItem"> The type of the items to display. </typeparam>
 /// <typeparam name="TCacheItem"> The type of the cached transformation of the items to display. </typeparam>
-public abstract class TableData<TItem, TCacheItem> where TCacheItem : ICacheItem<TItem, TCacheItem>
+public abstract class TableData<TCacheItem>
 {
     /// <summary> The default flags for a table. </summary>
     public const TableFlags DefaultFlags = TableFlags.RowBackground
@@ -54,7 +53,7 @@ public abstract class TableData<TItem, TCacheItem> where TCacheItem : ICacheItem
         => (1, 1);
 
     /// <summary> Get the items to display. This is only called when updating the cache with the <see cref="IManagedCache.DirtyFlags.Custom"/> flag. </summary>
-    public abstract IEnumerable<TItem> GetItems();
+    public abstract IEnumerable<TCacheItem> GetItems();
 
     /// <summary> Create the table data with a given list of column definitions and an ID. </summary>
     public TableData(StringU8 id, params IReadOnlyList<ITableColumn<TCacheItem>> columns)
@@ -71,10 +70,9 @@ public abstract class TableData<TItem, TCacheItem> where TCacheItem : ICacheItem
 /// <typeparam name="TTableCache"> The type of the cache used for the table to actually draw it. </typeparam>
 /// <param name="id"><inheritdoc cref="TableData{TItem,TCacheItem}.Id"/></param>
 /// <param name="columns"><inheritdoc cref="TableData{TItem,TCacheItem}.Columns"/></param>
-public abstract class TableBase<TItem, TCacheItem, TTableCache>
-    (StringU8 id, params IReadOnlyList<ITableColumn<TCacheItem>> columns) : TableData<TItem, TCacheItem>(id, columns)
-    where TCacheItem : ICacheItem<TItem, TCacheItem>
-    where TTableCache : TableCache<TItem, TCacheItem>
+public abstract class TableBase<TCacheItem, TTableCache>
+    (StringU8 id, params IReadOnlyList<ITableColumn<TCacheItem>> columns) : TableData<TCacheItem>(id, columns)
+    where TTableCache : TableCache<TCacheItem>
 {
     /// <summary> Draw the table. </summary>
     public void Draw()
@@ -108,24 +106,12 @@ public abstract class TableBase<TItem, TCacheItem, TTableCache>
 /// <summary> A default table with a simple, pre-implemented cache without extra functionality. </summary>
 /// <typeparam name="TItem"> The type of the items to display. </typeparam>
 /// <typeparam name="TCacheItem"> The type of the cached transformation of the items to display. </typeparam>
-/// <param name="id"><inheritdoc cref="TableData{TItem,TCacheItem}.Id"/></param>
-/// <param name="columns"><inheritdoc cref="TableData{TItem,TCacheItem}.Columns"/></param>
-public abstract class DefaultTable<TItem, TCacheItem>(StringU8 id, params IReadOnlyList<ITableColumn<TCacheItem>> columns)
-    : TableBase<TItem, TCacheItem, TableCache<TItem, TCacheItem>>(id, columns)
-    where TCacheItem : ICacheItem<TItem, TCacheItem>
+/// <param name="id"><inheritdoc cref="TableData{TCacheItem}.Id"/></param>
+/// <param name="columns"><inheritdoc cref="TableData{TCacheItem}.Columns"/></param>
+public abstract class DefaultTable<TCacheItem>(StringU8 id, params IReadOnlyList<ITableColumn<TCacheItem>> columns)
+    : TableBase<TCacheItem, TableCache<TCacheItem>>(id, columns)
 {
     /// <summary> Create the default cache type. </summary>
-    protected override TableCache<TItem, TCacheItem> CreateCache()
+    protected override TableCache<TCacheItem> CreateCache()
         => new(this);
-}
-
-/// <summary> A default table with a simple, pre-implemented cache without extra functionality that uses its base type as the cache type. </summary>
-/// <typeparam name="TItem"> The type of the items to display. </typeparam>
-/// <param name="id"><inheritdoc cref="TableData{TItem,TCacheItem}.Id"/></param>
-/// <param name="columns"><inheritdoc cref="TableData{TItem,TCacheItem}.Columns"/></param>
-public abstract class DefaultTable<TItem>(StringU8 id, params IReadOnlyList<ITableColumn<DefaultCacheItem<TItem>>> columns)
-    : DefaultTable<TItem, DefaultCacheItem<TItem>>(id, columns)
-{
-    protected override TableCache<TItem, DefaultCacheItem<TItem>> CreateCache()
-        => throw new NotImplementedException();
 }
