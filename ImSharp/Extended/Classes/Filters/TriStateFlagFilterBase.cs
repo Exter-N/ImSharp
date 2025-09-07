@@ -138,4 +138,8 @@ public abstract class TriStateFlagFilterBase<TCacheItem, TEnum> : IFilter<TCache
         FilterValue = newValue;
         return true;
     }
+
+    /// <inheritdoc/>
+    public void Clear()
+        => SetValue(AllFlags, true);
 }

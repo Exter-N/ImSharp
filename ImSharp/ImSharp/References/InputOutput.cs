@@ -58,6 +58,20 @@ public static partial class Im
             get => Pointer->ConfigFlags;
         }
 
+        /// <summary> Get the mousewheel movement delta in this frame. </summary>
+        public float MouseWheel
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Pointer->MouseWheel;
+        }
+
+        /// <summary> Get the horizontal mousewheel movement delta in this frame. </summary>
+        public float MouseWheelHorizontal
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Pointer->MouseWheelH;
+        }
+
         /// <summary> The time before a held button starts repeating its input in seconds for buttons in repeat mode. </summary>
         public float KeyRepeatDelay
         {

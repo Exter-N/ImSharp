@@ -18,4 +18,7 @@ public interface IFilter<TCacheItem>
     /// <param name="availableRegion"> The currently available region to draw the filter in. </param>
     /// <returns> True if the filter changed (in which case <see cref="FilterChanged"/> is also invoked). </returns>
     public bool DrawFilter(ReadOnlySpan<byte> label, Vector2 availableRegion);
+
+    /// <summary> Clear the filter. </summary>
+    public void Clear();
 }

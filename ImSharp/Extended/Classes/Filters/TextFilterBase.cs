@@ -60,6 +60,10 @@ public abstract class TextFilterBase<TCacheItem> : IFilter<TCacheItem>
     /// <summary> Invoke the <see cref="FilterChanged"/> event. </summary>
     protected void InvokeEvent()
         => FilterChanged?.Invoke();
+
+    /// <inheritdoc/>
+    public void Clear()
+        => Set(string.Empty);
 }
 
 /// <summary> A basic text filter that compares against items that already are of type string. </summary>

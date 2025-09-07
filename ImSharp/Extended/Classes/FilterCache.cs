@@ -8,7 +8,7 @@ public abstract class FilterCache<TCacheItem> : BasicCache
     protected bool FilterDirty { get; set; } = true;
 
     /// <summary> The pre-processed list of all available items to display. </summary>
-    protected readonly List<TCacheItem> UnfilteredItems = [];
+    protected IReadOnlyList<TCacheItem> UnfilteredItems = [];
 
     /// <summary> The global indices of items that are currently visible according to the filters. </summary>
     /// <remarks> Indices refer to <see cref="UnfilteredItems"/>. </remarks>
@@ -25,9 +25,9 @@ public abstract class FilterCache<TCacheItem> : BasicCache
             return;
 
         // Update all items and notify that we need to re-filter and re-sort.
-        UnfilteredItems.Clear();
-        UnfilteredItems.AddRange(GetItems());
-        FilterDirty = true;
+        var items = GetItems();
+        UnfilteredItems = items as IReadOnlyList<TCacheItem> ?? items.ToList();
+        FilterDirty     = true;
         OnDataUpdate();
     }
 

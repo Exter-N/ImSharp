@@ -29,6 +29,6 @@ public static class SimpleFilterTypeExtensions
             SimpleFilterType.Text     => new SimpleTextFilter<T>(),
             SimpleFilterType.Partwise => new SimplePartwiseFilter<T>(),
             SimpleFilterType.Regex    => new SimpleRegexFilter<T>(),
-            _                         => new NopFilter<SimpleCacheItem<T>>(),
+            _                         => NopFilter<SimpleCacheItem<T>>.Instance,
         };
 }

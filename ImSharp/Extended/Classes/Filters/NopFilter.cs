@@ -26,4 +26,8 @@ public sealed class NopFilter<TCacheItem> : IFilter<TCacheItem>
         add { }
         remove { }
     }
+
+    /// <inheritdoc/>
+    public void Clear()
+    {}
 }

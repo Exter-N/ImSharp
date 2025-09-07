@@ -286,6 +286,10 @@ public static partial class Im
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igBeginComboPreview")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
                 public static partial ImBool BeginComboPreview();
+
+                [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igSetItemUsingMouseWheel")]
+                [MethodImpl(ImSharpConfiguration.Inl)]
+                public static partial void SetItemUsingMouseWheel();
             }
         }
     }

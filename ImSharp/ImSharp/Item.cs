@@ -199,5 +199,10 @@ public static partial class Im
             Native.Methods.Internal.CalcItemSize(&ret, minimum, defaultSize.X, defaultSize.Y);
             return ret;
         }
+
+        /// <summary> Tell that the last item is listening and owning the mousewheel for this frame. </summary>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static void SetUsingMouseWheel()
+            => Native.Methods.Internal.SetItemUsingMouseWheel();
     }
 }
