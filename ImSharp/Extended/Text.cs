@@ -156,7 +156,7 @@ public static partial class ImEx
     /// <param name="foregroundColor"> The center text color. If <see cref="ColorParameter.Default"/>, <see cref="ImGuiColor.Text"/> is used. </param>
     /// <param name="shadowColor"> The shadow color. If <see cref="ColorParameter.Default"/>, <see cref="Rgba32.Black"/> is used. </param>
     /// <param name="shadowWidth"> The width of the shadow in pixels. Should usually be 1. </param>
-    public static void TextShadowed(Im.DrawList drawList, Vector2 position, Utf8TextHandler text, 
+    public static void TextShadowed(Im.DrawList drawList, Vector2 position, Utf8TextHandler text,
         ColorParameter foregroundColor, ColorParameter shadowColor, byte shadowWidth = 1)
     {
         var shadow = shadowColor.CheckDefault(Rgba32.Black);
@@ -172,5 +172,29 @@ public static partial class ImEx
         }
 
         drawList.Text(position, foregroundColor.CheckDefault(ImGuiColor.Text), ref text);
+    }
+
+    /// <summary> A wrapper for colored text. </summary>
+    /// <param name="text"> The text. </param>
+    /// <param name="color"> The color. </param>
+    public readonly ref struct ColorText(ReadOnlySpan<byte> text, ColorParameter color = default)
+    {
+        public readonly ReadOnlySpan<byte> Text  = text;
+        public readonly ColorParameter     Color = color;
+    }
+
+    /// <summary> Draw multiple pieces of text in different colors and no additional spacing between them. </summary>
+    /// <param name="text"> The text pieces with their associated colors. </param>
+    public static void TextMultiColored(params IEnumerable<ColorText> text)
+    {
+        var       textColor = ImGuiColor.Text.Get();
+        using var group     = Im.Group();
+        foreach (var colorText in text)
+        {
+            Im.Text(colorText.Text, colorText.Color.CheckDefault(textColor));
+            Im.Line.Same(0, 0);
+        }
+
+        Im.Line.New();
     }
 }

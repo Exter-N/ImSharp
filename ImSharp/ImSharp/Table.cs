@@ -22,6 +22,18 @@ public static partial class Im
         public static bool NextColumn()
             => Native.Methods.Table.TableNextColumn();
 
+        /// <inheritdoc cref="TableDisposable.DrawColumn"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static bool DrawColumn(Utf8TextHandler text)
+        {
+            if (!Native.Methods.Table.TableNextColumn())
+                return false;
+
+            Text(ref text);
+            return true;
+        }
+
+
         /// <inheritdoc cref="TableDisposable.GoToColumn"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static bool GoToColumn(int columnIndex)
