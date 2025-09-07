@@ -37,3 +37,12 @@ public sealed class PartwiseFilter : TextFilterBase<string>
     protected override string ToFilterString(in string item, int globalIndex)
         => item;
 }
+
+/// <summary> A <see cref="PartwiseFilterBase{TCacheItem}"/> for <see cref="SimpleCacheItem{T}"/> </summary>
+/// <typeparam name="T"> The base type of the items. </typeparam>
+public sealed class SimplePartwiseFilter<T> : PartwiseFilterBase<SimpleCacheItem<T>>
+{
+    /// <inheritdoc/>
+    protected override string ToFilterString(in SimpleCacheItem<T> item, int globalIndex)
+        => item.FilterString;
+}

@@ -69,3 +69,12 @@ public sealed class TextFilter : TextFilterBase<string>
     protected override string ToFilterString(in string item, int globalIndex)
         => item;
 }
+
+/// <summary> A <see cref="TextFilterBase{TCacheItem}"/> for <see cref="SimpleCacheItem{T}"/> </summary>
+/// <typeparam name="T"> The base type of the items. </typeparam>
+public sealed class SimpleTextFilter<T> : TextFilterBase<SimpleCacheItem<T>>
+{
+    /// <inheritdoc/>
+    protected override string ToFilterString(in SimpleCacheItem<T> item, int globalIndex)
+        => item.FilterString;
+}

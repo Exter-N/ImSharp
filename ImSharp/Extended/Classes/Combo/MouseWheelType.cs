@@ -1,6 +1,4 @@
-using ImSharp;
-
-namespace OtterGui.Widgets;
+namespace ImSharp;
 
 /// <summary> The different types of mousewheel scrolling supported for combo previews. </summary>
 /// <remarks> The modifiers can be combined as flags. </remarks>
