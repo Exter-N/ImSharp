@@ -1,286 +1,186 @@
-using Microsoft.Extensions.Logging;
+using Dalamud.Bindings.ImGui;
 
 namespace ImSharp;
 
-// TODO
+public abstract class SimpleFilterCombo<T> : FilterComboBase<SimpleCacheItem<T>>
+{
+    public SimpleFilterCombo(SimpleFilterType filterType)
+        => Filter = filterType.ToFilter<T>();
 
-//public abstract class FilterComboData<TCacheItem>(FilterComboBase<TCacheItem> parent) : FilterCache<TCacheItem>
-//{
-//    protected IFilter<TCacheItem> Filter { get; init; } = NopFilter<TCacheItem>.Instance;
-//
-//    protected override IEnumerable<TCacheItem> GetItems()
-//        => parent.GetItems();
-//
-//    protected virtual bool DrawFilter()
-//    {
-//        if (Filter is NopFilter<TCacheItem>)
-//            return false;
-//
-//        return Filter.DrawFilter("Filter..."u8, Im.ContentRegion.Available);
-//    }
-//
-//    protected abstract float ItemHeight { get; }
-//
-//    protected abstract void DrawItem(in TCacheItem item, int globalIndex);
-//}
-//
-//public abstract class FilterComboBaseCache<TCacheItem, TCache>(FilterComboBase<TCacheItem> parent)
-//    : FilterComboData<TCacheItem>(parent)
-//    where TCache : FilterCache<TCacheItem>
-//{
-//    protected virtual void PreDrawList()
-//    { }
-//
-//    protected virtual void PostDrawList()
-//    { }
-//
-//    protected virtual void DrawList()
-//    {
-//        PreDrawList();
-//        using (var clipper = new Im.ListClipper(FilteredItems.Count, ItemHeight))
-//        {
-//            foreach (var globalIndex in clipper.Iterate(FilteredItems))
-//                DrawItem(AllItems[globalIndex], globalIndex);
-//        }
-//
-//        PostDrawList();
-//    }
-//}
-//
-//public abstract class FilterComboBase<TCacheItem>
-//{
-//    protected readonly ILogger        Log;
-//    protected          bool           SearchByParts   { get; set; }
-//    protected          MouseWheelType AllowMouseWheel { get; set; }
-//
-//    public abstract IEnumerable<TCacheItem> GetItems();
-//
-//
-//    protected int? NewSelection;
-//    private   int  _lastSelection = -1;
-//    private   bool _filterDirty   = true;
-//    private   bool _setScroll;
-//    private   bool _closePopup;
-//
-//    public LowerString Filter
-//        => _filter;
-//
-//    protected FilterComboBase(ILogger? log = null)
-//        => Log = log ?? ImSharpConfiguration.Logger;
-//
-//    protected virtual bool Draw(Utf8LabelHandler label, Utf8HintHandler preview, Utf8TextHandler tooltip, float width)
-//    {
-//        using var id = Im.Id.Push(ref label);
-//        Im.Item.SetNextWidth(width);
-//        using var combo = Im.Combo.Begin(label, preview,)
-//    }
-//
-//    private void ClearStorage(string label)
-//    {
-//        Log.Verbose("Cleaning up Filter Combo Cache for {Label}.", label);
-//        _filter        = LowerString.Empty;
-//        _filterParts   = [];
-//        _lastSelection = -1;
-//        Cleanup();
-//
-//        if (_keepStorage)
-//            return;
-//
-//        _filterDirty = true;
-//        _available.Clear();
-//        _available.TrimExcess();
-//    }
-//
-//    protected virtual float GetFilterWidth()
-//        => ImGui.GetWindowWidth() - 2 * ImGui.GetStyle().FramePadding.X;
-//
-//    protected virtual void Cleanup()
-//    { }
-//
-//    protected virtual void PostCombo(float previewWidth)
-//    { }
-//
-//    protected virtual void DrawCombo(string label, string preview, string tooltip, int currentSelected, float previewWidth, float itemHeight,
-//        ImGuiComboFlags flags)
-//    {
-//        var id = ImGui.GetID(label);
-//        ImGui.SetNextItemWidth(previewWidth);
-//        using var combo = ImRaii.Combo(label, preview, flags | ImGuiComboFlags.HeightLarge);
-//        PostCombo(previewWidth);
-//        using (var dis = ImRaii.Enabled())
-//        {
-//            ImGuiUtil.HoverTooltip(tooltip, ImGuiHoveredFlags.AllowWhenDisabled);
-//        }
-//
-//        if (combo)
-//        {
-//            _popupState.Add(id);
-//            UpdateFilter();
-//
-//            // Width of the popup window and text input field.
-//            var width = GetFilterWidth();
-//
-//            DrawFilter(currentSelected, width);
-//            DrawKeyboardNavigation();
-//            DrawList(width, itemHeight);
-//            ClosePopup(id, label);
-//        }
-//        else if (_popupState.Remove(id))
-//        {
-//            ClearStorage(label);
-//        }
-//    }
-//
-//    protected virtual int UpdateCurrentSelected(int currentSelected)
-//    {
-//        _lastSelection = currentSelected;
-//        return currentSelected;
-//    }
-//
-//    protected virtual void DrawFilter(int currentSelected, float width)
-//    {
-//        _setScroll = false;
-//        // If the popup is opening, set the last selection to the currently selected object, if any,
-//        // scroll to it, and set keyboard focus to the filter field.
-//        if (ImGui.IsWindowAppearing())
-//        {
-//            currentSelected = UpdateCurrentSelected(currentSelected);
-//            _lastSelection  = _available.IndexOf(currentSelected);
-//            _setScroll      = true;
-//            ImGui.SetKeyboardFocusHere();
-//        }
-//
-//        // Draw the text input.
-//        ImGui.SetNextItemWidth(width);
-//        if (LowerString.InputWithHint("##filter", "Filter...", ref _filter))
-//        {
-//            _filterDirty = true;
-//            if (SearchByParts)
-//                _filterParts = _filter.Lower.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-//        }
-//    }
-//
-//    protected virtual void DrawList(float width, float itemHeight)
-//    {
-//        // A child for the items, so that the filter remains visible.
-//        // Height is based on default combo height minus the filter input.
-//        var       height = ImGui.GetTextLineHeightWithSpacing() * 12 - ImGui.GetFrameHeight() - ImGui.GetStyle().WindowPadding.Y;
-//        using var _      = ImRaii.Child("ChildL", new Vector2(width, height));
-//        using var indent = ImRaii.PushIndent(ImGuiHelpers.GlobalScale);
-//        if (_setScroll)
-//            ImGui.SetScrollFromPosY(_lastSelection * itemHeight - ImGui.GetScrollY());
-//
-//        // Draw all available objects with their name.
-//        ImGuiClip.ClippedDraw(_available, DrawSelectableInternal, itemHeight);
-//    }
-//
-//    protected virtual bool DrawSelectable(int globalIdx, bool selected)
-//    {
-//        var obj  = Items[globalIdx];
-//        var name = ToString(obj);
-//        return ImGui.Selectable(name, selected);
-//    }
-//
-//    private void DrawSelectableInternal(int globalIdx, int localIdx)
-//    {
-//        using var id = ImRaii.PushId(globalIdx);
-//        if (DrawSelectable(globalIdx, _lastSelection == localIdx))
-//        {
-//            NewSelection = globalIdx;
-//            _closePopup  = true;
-//        }
-//    }
-//
-//    // Does not handle Enter.
-//    protected void DrawKeyboardNavigation()
-//    {
-//        // Enable keyboard navigation for going up and down,
-//        // jumping if reaching the end. This also scrolls to the element.
-//        if (_available.Count > 0)
-//        {
-//            if (ImGui.IsKeyPressed(ImGuiKey.DownArrow))
-//                (_lastSelection, _setScroll) = ((_lastSelection + 1) % _available.Count, true);
-//            else if (ImGui.IsKeyPressed(ImGuiKey.UpArrow))
-//                (_lastSelection, _setScroll) = ((_lastSelection - 1 + _available.Count) % _available.Count, true);
-//        }
-//
-//        // Escape closes the popup without selection
-//        _closePopup = ImGui.IsKeyPressed(ImGuiKey.Escape);
-//
-//        // Enter selects the current selection if any, or the first available item.
-//        if (ImGui.IsKeyPressed(ImGuiKey.Enter))
-//        {
-//            if (_lastSelection >= 0)
-//                NewSelection = _available[_lastSelection];
-//            else if (_available.Count > 0)
-//                NewSelection = _available[0];
-//            _closePopup = true;
-//        }
-//    }
-//
-//    protected virtual void OnClosePopup()
-//    { }
-//
-//    protected virtual void OnMouseWheel(string preview, ref int currentSelection, int steps)
-//    { }
-//
-//    protected void ClosePopup(uint id, string label)
-//    {
-//        if (!_closePopup)
-//            return;
-//
-//        // Close the popup and reset state.
-//        ImGui.CloseCurrentPopup();
-//        _popupState.Remove(id);
-//        OnClosePopup();
-//        ClearStorage(label);
-//    }
-//
-//    // Basic Draw.
-//    public virtual bool Draw(string label, string preview, string tooltip, ref int currentSelection, float previewWidth, float itemHeight,
-//        ImGuiComboFlags flags = ImGuiComboFlags.None)
-//    {
-//        DrawCombo(label, preview, tooltip, currentSelection, previewWidth, itemHeight, flags);
-//        if (CheckMouseWheel(AllowMouseWheel) && ImGui.IsItemHovered())
-//        {
-//            ImGuiInternal.ItemSetUsingMouseWheel();
-//            var mw = (int)ImGui.GetIO().MouseWheel;
-//            if (mw != 0)
-//                OnMouseWheel(preview, ref currentSelection, mw);
-//        }
-//
-//        if (NewSelection == null)
-//            return false;
-//
-//        currentSelection = NewSelection.Value;
-//        NewSelection     = null;
-//        return true;
-//    }
-//
-//
-//    // Be stateful and update the filter whenever it gets dirty.
-//    // This is when the string is changed or on manual calls.
-//    private void UpdateFilter()
-//    {
-//        if (!_filterDirty)
-//            return;
-//
-//        _filterDirty = false;
-//        _available.EnsureCapacity(Im.Native.Methods.Items.Count);
-//
-//        // Keep the selected key if possible.
-//        var lastSelection = _lastSelection == -1 ? -1 : _available[_lastSelection];
-//        _lastSelection = -1;
-//
-//        _available.Clear();
-//        for (var idx = 0; idx < Im.Native.Methods.Items.Count; ++idx)
-//        {
-//            if (!IsVisible(idx, _filter))
-//                continue;
-//
-//            if (lastSelection == idx)
-//                _lastSelection = _available.Count;
-//            _available.Add(idx);
-//        }
-//    }
-//}
+    public abstract StringU8 DisplayString(in T value);
+    public abstract string   FilterString(in T value);
+
+    public virtual ColorParameter TextColor(in T value)
+        => ColorParameter.Default;
+
+    public virtual StringU8 Tooltip(in T value)
+        => StringU8.Empty;
+
+    public abstract IEnumerable<T> GetBaseItems();
+
+    protected internal override IEnumerable<SimpleCacheItem<T>> GetItems()
+        => GetBaseItems().Select(i => new SimpleCacheItem<T>(i, DisplayString(i), FilterString(i), TextColor(i), Tooltip(i)));
+
+    protected internal override float ItemHeight
+        => Im.Style.TextHeightWithSpacing;
+
+    protected internal override bool DrawItem(in SimpleCacheItem<T> item, int globalIndex)
+    {
+        using var color = Im.Color.Push(ImGuiColor.Text, item.TextColor);
+        var       ret   = Im.Selectable(item.DisplayString, false);
+        Im.Tooltip.OnHover(item.Tooltip);
+        return ret;
+    }
+}
+
+public abstract class FilterComboBase<TCacheItem>
+{
+    public    IFilter<TCacheItem> Filter          { get; init; } = NopFilter<TCacheItem>.Instance;
+    public    MouseWheelType      AllowMouseWheel { get; init; } = MouseWheelType.None;
+    public    ComboFlags          Flags           { get; init; } = ComboFlags.None;
+    protected ImGuiId             CurrentId;
+    protected bool                SetScroll;
+    protected bool                ClosePopup;
+
+    protected internal abstract IEnumerable<TCacheItem> GetItems();
+
+    protected virtual bool DrawFilter()
+    {
+        if (Filter is NopFilter<TCacheItem>)
+            return false;
+
+        PreDrawFilter();
+        var ret = Filter.DrawFilter("Filter..."u8, Im.ContentRegion.Available);
+        PostDrawFilter();
+        return ret;
+    }
+
+    protected internal abstract float ItemHeight { get; }
+
+    protected internal abstract bool DrawItem(in TCacheItem item, int globalIndex);
+
+    protected virtual FilterComboBaseCache<TCacheItem> CreateCache()
+        => new(this);
+
+    public virtual bool Draw(Utf8LabelHandler label, Utf8TextHandler preview, Utf8HintHandler tooltip, float previewWidth, out TCacheItem? ret)
+    {
+        using var id = Im.Id.Push(label);
+        CurrentId = Im.Id.Current;
+
+        PreDrawCombo(previewWidth);
+        Im.Item.SetNextWidth(previewWidth);
+        using var combo = Im.Combo.Begin(label, preview, Flags | ComboFlags.HeightLarge);
+        if (tooltip.GetSpan(out var tooltipSpan) && !tooltipSpan.IsEmpty)
+        {
+            using var enabled = Im.Enabled();
+            Im.Tooltip.OnHover(tooltipSpan);
+        }
+
+        PostDrawCombo(previewWidth);
+
+        if (!combo)
+        {
+            ret = default;
+            return false;
+        }
+
+        if (DrawFilter())
+            CacheManager.Instance.SetCustomDirty(CurrentId);
+
+        var currentIndex = 0;
+        var cache        = CacheManager.Instance.GetOrCreateCache(CurrentId, CreateCache);
+
+        if (!cache.DrawList(out var globalIndex))
+        {
+            ret = default;
+            return false;
+        }
+
+        ret = cache.AllItems[globalIndex];
+        return true;
+    }
+
+    protected internal virtual int FindIndex(ReadOnlySpan<byte> displayText)
+        => -1;
+
+    protected internal virtual void PreDrawList()
+    { }
+
+    protected internal virtual void PostDrawList()
+    { }
+
+    protected internal virtual void PreDrawCombo(float width)
+    { }
+
+    protected internal virtual void PostDrawCombo(float width)
+    { }
+
+    protected internal virtual void PreDrawFilter()
+    { }
+
+    protected internal virtual void PostDrawFilter()
+    { }
+}
+
+public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent)
+    : FilterCache<TCacheItem>
+{
+    public float ComboWidth { get; protected set; }
+
+    public virtual bool DrawList(out int selectedGlobalIndex)
+    {
+        parent.PreDrawList();
+        var ret = false;
+        selectedGlobalIndex = -1;
+        using (var clipper = new Im.ListClipper(FilteredItems.Count, parent.ItemHeight))
+        {
+            foreach (var globalIndex in clipper.Iterate(FilteredItems))
+            {
+                if (!parent.DrawItem(UnfilteredItems[globalIndex], globalIndex))
+                    continue;
+
+                ret                 = true;
+                selectedGlobalIndex = globalIndex;
+            }
+        }
+
+        parent.PostDrawList();
+        return ret;
+    }
+
+    protected override bool WouldBeVisible(in TCacheItem item, int globalIndex)
+        => parent.Filter.WouldBeVisible(item, globalIndex);
+
+    protected override IEnumerable<TCacheItem> GetItems()
+        => parent.GetItems();
+
+    // Does not handle Enter.
+    protected void DrawKeyboardNavigation()
+    {
+        // Enable keyboard navigation for going up and down,
+        // jumping if reaching the end. This also scrolls to the element.
+        if (_available.Count > 0)
+        {
+            if (ImGui.IsKeyPressed(ImGuiKey.DownArrow))
+                (_lastSelection, _setScroll) = ((_lastSelection + 1) % _available.Count, true);
+            else if (ImGui.IsKeyPressed(ImGuiKey.UpArrow))
+                (_lastSelection, _setScroll) = ((_lastSelection - 1 + _available.Count) % _available.Count, true);
+        }
+
+        // Escape closes the popup without selection
+        _closePopup = ImGui.IsKeyPressed(ImGuiKey.Escape);
+
+        // Enter selects the current selection if any, or the first available item.
+        if (ImGui.IsKeyPressed(ImGuiKey.Enter))
+        {
+            if (_lastSelection >= 0)
+                NewSelection = _available[_lastSelection];
+            else if (_available.Count > 0)
+                NewSelection = _available[0];
+            _closePopup = true;
+        }
+    }
+
+    protected virtual void OnMouseWheel(string preview, ref int currentSelection, int steps)
+    { }
+}

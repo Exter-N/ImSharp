@@ -8,11 +8,15 @@ public abstract class FilterCache<TCacheItem> : BasicCache
     protected bool FilterDirty { get; set; } = true;
 
     /// <summary> The pre-processed list of all available items to display. </summary>
-    protected readonly List<TCacheItem> AllItems = [];
+    protected readonly List<TCacheItem> UnfilteredItems = [];
 
     /// <summary> The global indices of items that are currently visible according to the filters. </summary>
-    /// <remarks> Indices refer to <see cref="AllItems"/>. </remarks>
+    /// <remarks> Indices refer to <see cref="UnfilteredItems"/>. </remarks>
     protected readonly List<int> FilteredItems = [];
+
+    /// <inheritdoc cref="UnfilteredItems"/>
+    public IReadOnlyList<TCacheItem> AllItems
+        => UnfilteredItems;
 
     /// <summary> Update the actual item data if <see cref="BasicCache.CustomDirty"/>. </summary>
     protected virtual void UpdateData()
@@ -21,8 +25,8 @@ public abstract class FilterCache<TCacheItem> : BasicCache
             return;
 
         // Update all items and notify that we need to re-filter and re-sort.
-        AllItems.Clear();
-        AllItems.AddRange(GetItems());
+        UnfilteredItems.Clear();
+        UnfilteredItems.AddRange(GetItems());
         FilterDirty = true;
         OnDataUpdate();
     }
@@ -46,7 +50,7 @@ public abstract class FilterCache<TCacheItem> : BasicCache
 
         // Add all items that are visible according to all filters.
         FilteredItems.Clear();
-        foreach (var (idx, item) in AllItems.Index())
+        foreach (var (idx, item) in UnfilteredItems.Index())
         {
             if (WouldBeVisible(item, idx))
                 FilteredItems.Add(idx);

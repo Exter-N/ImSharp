@@ -65,7 +65,7 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
         // Draw the visible rows using a clipper.
         using var clipper = new Im.ListClipper(FilteredItems.Count, 0);
         foreach (var globalIndex in clipper.Iterate(FilteredItems))
-            DrawItem(table, AllItems[globalIndex], globalIndex);
+            DrawItem(table, UnfilteredItems[globalIndex], globalIndex);
 
         // Update the sort state. Needs to be done during the table's draw because it requires it's sort specifications.
         CheckSort(table);
@@ -105,7 +105,7 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
                 flags |= IManagedCache.DirtyFlags.Custom;
 
             if ((Dirty & flags) is not IManagedCache.DirtyFlags.Clean)
-                HeaderDefaultWidths[i] = header.ComputeWidth(AllItems);
+                HeaderDefaultWidths[i] = header.ComputeWidth(UnfilteredItems);
         }
     }
 
@@ -172,13 +172,13 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
         if (descending)
             tmpList.Sort((a, b) =>
             {
-                var ret = column.CompareInverse(AllItems[a.Item2], a.Item2, AllItems[b.Item2], b.Item2);
+                var ret = column.CompareInverse(UnfilteredItems[a.Item2], a.Item2, UnfilteredItems[b.Item2], b.Item2);
                 return ret != 0 ? ret : a.Item1.CompareTo(b.Item1);
             });
         else
             tmpList.Sort((a, b) =>
             {
-                var ret = column.Compare(AllItems[a.Item2], a.Item2, AllItems[b.Item2], b.Item2);
+                var ret = column.Compare(UnfilteredItems[a.Item2], a.Item2, UnfilteredItems[b.Item2], b.Item2);
                 return ret != 0 ? ret : a.Item1.CompareTo(b.Item1);
             });
         var i = 0;
@@ -237,7 +237,7 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
     protected override void OnDataUpdate()
     {
         SortDirty         = true;
-        parent.TotalItems = AllItems.Count;
+        parent.TotalItems = UnfilteredItems.Count;
     }
 
     /// <inheritdoc/>
