@@ -69,8 +69,7 @@ public static partial class Im
         [MethodImpl(ImSharpConfiguration.OptInl)]
         // ReSharper disable once EntityNameCapturedOnly.Global
         public static unsafe void OnHover(HoveredFlags flags,
-            [InterpolatedStringHandlerArgument(nameof(flags))]
-            ref HoverUtf8StringHandler text)
+            [InterpolatedStringHandlerArgument(nameof(flags))] ref HoverUtf8StringHandler text)
         {
             if (!text.GetEnd(out var end) || *text.Begin is 0)
                 return;
@@ -81,13 +80,17 @@ public static partial class Im
 
         /// <inheritdoc cref="OnHover(HoveredFlags,ref HoverUtf8StringHandler)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public static unsafe void OnHover(ref HoverUtf8StringHandler text)
+        public static unsafe void OnHover<T>(ref Utf8StringHandler<T> text, HoveredFlags flags = HoveredFlags.None) where T : IStringHandlerBuffer
         {
-            if (!text.GetEnd(out var end) || *text.Begin is 0)
+            if (!Native.Methods.Items.IsItemHovered(flags))
+                return;
+
+            var start = text.Start(out var end);
+            if (*text.Begin is 0 || start == end)
                 return;
 
             using var tt = Begin();
-            Native.Methods.Text.TextUnformatted(text.Begin, end);
+            Native.Methods.Text.TextUnformatted(start, end);
         }
     }
 }

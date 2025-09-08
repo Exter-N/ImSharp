@@ -19,10 +19,13 @@ public static unsafe class ImSharpConfiguration
     /// <remarks> Do not call this within a draw frame of the contained <see cref="Im.Native.Internal.Context"/>, only outside of drawing. </remarks>
     public static void SetContext(ImSharpContext* context)
     {
-        var imguiContext = (Im.Native.Internal.Context*)context->ImGuiContext;
+        if (context is not null)
+        {
+            var imguiContext = (Im.Native.Internal.Context*)context->ImGuiContext;
 
-        if (imguiContext != null && imguiContext->WithinFrameScope)
-            throw new Exception("Can not set a new context while in a frame.");
+            if (imguiContext != null && imguiContext->WithinFrameScope)
+                throw new Exception("Can not set a new context while in a frame.");
+        }
 
         if (Context is not null)
             Context->Dispose();
