@@ -60,8 +60,9 @@ public class CacheManager : IDisposable
             var cache = factory();
             if (_storedData.TryGetValue(id, out var data))
                 cache.ApplyStoredData(data);
+            cache.Update();
             _caches.Add(id, (cache, NextDeletion(cache.KeepAliveDuration)));
-            Logger.LogDebug("Created new cache of type {Type} for ID {ID}.", typeof(TResult), id.Id);
+            Logger.LogDebug("[CacheManager] Created new cache of type {Type:l} for ID {ID}.", typeof(TResult).Name, id.Id);
             return cache;
         }
 
@@ -72,11 +73,13 @@ public class CacheManager : IDisposable
             _storedData[id] = obj;
         (pair.Item1 as IDisposable)?.Dispose();
         var newCache = factory();
+        newCache.Update();
         if (_storedData.TryGetValue(id, out var newData))
             newCache.ApplyStoredData(newData);
         _caches[id] = (newCache, NextDeletion(newCache.KeepAliveDuration));
-        Logger.LogInformation("Replaced existing cache of type {OldType} with new type {NewType} for ID {ID}.", pair.Item1.GetType(),
-            typeof(TResult), id.Id);
+        Logger.LogInformation("[CacheManager] Replaced existing cache of type {OldType:l} with new type {NewType:l} for ID {ID}.",
+            new TypeWrapper(pair.Item1),
+            typeof(TResult).Name, id.Id);
         return newCache;
     }
 
@@ -97,8 +100,9 @@ public class CacheManager : IDisposable
             var cache = GetService<TResult>(key);
             if (_storedData.TryGetValue(id, out var data))
                 cache.ApplyStoredData(data);
+            cache.Update();
             _caches.Add(id, (cache, NextDeletion(cache.KeepAliveDuration)));
-            Logger.LogDebug("Created new cache of type {Type} for ID {ID}.", typeof(TResult), id.Id);
+            Logger.LogDebug("[CacheManager] Created new cache of type {Type:l} for ID {ID}.", typeof(TResult).Name, id.Id);
             return cache;
         }
 
@@ -109,11 +113,13 @@ public class CacheManager : IDisposable
             _storedData[id] = obj;
         (pair.Item1 as IDisposable)?.Dispose();
         var newCache = GetService<TResult>(key);
+        newCache.Update();
         if (_storedData.TryGetValue(id, out var newData))
             newCache.ApplyStoredData(newData);
         _caches[id] = (newCache, NextDeletion(newCache.KeepAliveDuration));
-        Logger.LogInformation("Replaced existing cache of type {OldType} with new type {NewType} for ID {ID}.", pair.Item1.GetType(),
-            typeof(TResult), id.Id);
+        Logger.LogInformation("[CacheManager] Replaced existing cache of type {OldType:l} with new type {NewType:l} for ID {ID}.",
+            new TypeWrapper(pair.Item1),
+            typeof(TResult).Name, id.Id);
         return newCache;
     }
 
@@ -130,7 +136,7 @@ public class CacheManager : IDisposable
                     _storedData[id] = obj;
                 (cache as IDisposable)?.Dispose();
                 _caches.Remove(id);
-                Logger.LogTrace("Removed cache for ID {ID}.", id.Id);
+                Logger.LogTrace("[CacheManager] Removed cache of type {Type:l} for ID {ID}.", new TypeWrapper(cache), id.Id);
             }
         }
     }
@@ -143,7 +149,7 @@ public class CacheManager : IDisposable
         if (_caches.TryGetValue(id, out var pair))
         {
             pair.Item1.Dirty |= IManagedCache.DirtyFlags.Custom;
-            Logger.LogTrace("Set custom dirty flag for ID {ID}.", id.Id);
+            Logger.LogTrace("[CacheManager] Set custom dirty flag for ID {ID}.", id.Id);
         }
     }
 
@@ -155,14 +161,14 @@ public class CacheManager : IDisposable
         if (_caches.TryGetValue(id, out var pair))
         {
             pair.Item1.Dirty |= IManagedCache.DirtyFlags.Dirty;
-            Logger.LogTrace("Set full dirty flag for ID {ID}.", id.Id);
+            Logger.LogTrace("[CacheManager] Set full dirty flag for ID {ID}.", id.Id);
         }
     }
 
     /// <summary> Set the font dirty flag for all caches. </summary>
     public void SetFontDirty()
     {
-        Logger.LogTrace("Set font size dirty flag for all caches.");
+        Logger.LogTrace("[CacheManager] Set font size dirty flag for all caches.");
         foreach (var (cache, _) in _caches.Values)
             cache.Dirty |= IManagedCache.DirtyFlags.Font;
     }
@@ -170,7 +176,7 @@ public class CacheManager : IDisposable
     /// <summary> Set the style dirty flag for all caches. </summary>
     public void SetStyleDirty()
     {
-        Logger.LogTrace("Set style dirty flag for all caches.");
+        Logger.LogTrace("[CacheManager] Set style dirty flag for all caches.");
         foreach (var (cache, _) in _caches.Values)
             cache.Dirty |= IManagedCache.DirtyFlags.Style;
     }
@@ -178,7 +184,7 @@ public class CacheManager : IDisposable
     /// <summary> Set the colors dirty flag for all caches. </summary>
     public void SetColorsDirty()
     {
-        Logger.LogTrace("Set colors dirty flag for all caches.");
+        Logger.LogTrace("[CacheManager] Set colors dirty flag for all caches.");
         foreach (var (cache, _) in _caches.Values)
             cache.Dirty |= IManagedCache.DirtyFlags.Style;
     }
@@ -241,5 +247,11 @@ public class CacheManager : IDisposable
         res.Update();
         _caches[id] = (res, NextDeletion(res.KeepAliveDuration));
         return res;
+    }
+
+    private readonly struct TypeWrapper(object obj)
+    {
+        public override string ToString()
+            => obj.GetType().Name;
     }
 }

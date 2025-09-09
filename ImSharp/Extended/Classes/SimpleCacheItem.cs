@@ -19,7 +19,7 @@ public record SimpleCacheItem<T>(T Item, StringU8 DisplayString, string FilterSt
         : this(item, displayString, filterString, textColor.CheckDefault(ImGuiColor.Text).ToVector(), tooltip)
     { }
 
-    /// <inheritdoc cref="SimpleCacheItem{T}(T,StringU8,string,ColorParameter,StringU8)"/>
+    /// <inheritdoc cref="SimpleCacheItem{T}"/>
     public SimpleCacheItem(T item, StringU8 displayString, string filterString, ColorParameter textColor = default)
         : this(item, displayString, filterString, textColor, StringU8.Empty)
     { }

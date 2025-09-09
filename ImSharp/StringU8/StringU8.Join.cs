@@ -97,90 +97,6 @@ public readonly partial struct StringU8
     }
 
     /// <inheritdoc cref="Join(byte,IReadOnlyCollection{StringU8})"/>
-    [OverloadResolutionPriority(50)]
-    [MethodImpl(ImSharpConfiguration.Opt)]
-    public static StringU8 Join(byte separator, params IReadOnlyCollection<object?> strings)
-    {
-        if (strings.Count is 0)
-            return Empty;
-
-        var array = ArrayPool.Rent(strings.Count * (1 + HoleEstimate));
-        if (strings.Count is 1)
-            return ToU8String(ref array, strings.First());
-
-        var idx = 0;
-        foreach (var text in strings.SkipLast(1))
-        {
-            AppendU8String(ref array, ref idx, text);
-            var span = array.AsSpan(idx);
-            if (span.Length < 1)
-                ExchangeArray(ref array, array.Length * 2, idx);
-            array[idx++] = separator;
-        }
-
-        AppendU8String(ref array, ref idx, strings.Last());
-        return new StringU8(AddNull(array.AsSpan(0, idx)));
-    }
-
-    /// <inheritdoc cref="Join(byte,IReadOnlyCollection{StringU8})"/>
-    [OverloadResolutionPriority(50)]
-    [MethodImpl(ImSharpConfiguration.Opt)]
-    public static StringU8 Join(ReadOnlySpan<byte> separator, params IReadOnlyCollection<object?> strings)
-    {
-        if (strings.Count is 0)
-            return Empty;
-
-        var array = ArrayPool.Rent(strings.Count * (separator.Length + HoleEstimate));
-        if (strings.Count is 1)
-            return ToU8String(ref array, strings.First());
-
-        var idx = 0;
-        foreach (var text in strings.SkipLast(1))
-        {
-            AppendU8String(ref array, ref idx, text);
-            while (!separator.TryCopyTo(array.AsSpan(idx)))
-                ExchangeArray(ref array, array.Length * 2, idx);
-            idx += separator.Length;
-        }
-
-        AppendU8String(ref array, ref idx, strings.Last());
-        return new StringU8(AddNull(array.AsSpan(0, idx)));
-    }
-
-    /// <inheritdoc cref="Join(byte,IReadOnlyCollection{StringU8})"/>
-    [OverloadResolutionPriority(50)]
-    [MethodImpl(ImSharpConfiguration.Opt)]
-    public static unsafe StringU8 Join(char separator, params IReadOnlyCollection<object?> strings)
-    {
-        var count = Encoding.UTF8.GetByteCount(&separator, 1);
-        if (count is 1)
-            return Join((byte)separator, strings);
-
-        Span<byte> sep = stackalloc byte[4];
-        sep = sep[..count];
-        Encoding.UTF8.GetBytes(new ReadOnlySpan<char>(&separator, 1), sep);
-
-        return Join(sep, strings);
-    }
-
-    /// <inheritdoc cref="Join(byte,IReadOnlyCollection{StringU8})"/>
-    [OverloadResolutionPriority(50)]
-    [MethodImpl(ImSharpConfiguration.Opt)]
-    public static StringU8 Join(ReadOnlySpan<char> separator, params IReadOnlyCollection<object?> strings)
-    {
-        var count = Encoding.UTF8.GetByteCount(separator);
-        if (count is 1)
-            return Join((byte)separator[0], strings);
-
-        var array = ArrayPool.Rent(count);
-        Encoding.UTF8.GetBytes(separator, array);
-
-        var ret = Join(array.AsSpan(0, count), strings);
-        ArrayPool.Return(array);
-        return ret;
-    }
-
-    /// <inheritdoc cref="Join(byte,IReadOnlyCollection{StringU8})"/>
     [OverloadResolutionPriority(100)]
     [MethodImpl(ImSharpConfiguration.Opt)]
     public static StringU8 Join(byte separator, params IReadOnlyCollection<string?> strings)
@@ -228,6 +144,41 @@ public readonly partial struct StringU8
         }
 
         AppendU8String(ref array, ref idx, strings.Last());
+        return new StringU8(AddNull(array.AsSpan(0, idx)));
+    }
+
+    /// <inheritdoc cref="Join(byte,IReadOnlyCollection{StringU8})"/>
+    [MethodImpl(ImSharpConfiguration.Opt)]
+    public static StringU8 Join<T>(byte separator, IEnumerable<T> data)
+    {
+        var array = ArrayPool.Rent((1 + HoleEstimate) * 16);
+        var idx   = 0;
+        foreach (var text in data)
+        {
+            AppendU8String(ref array, ref idx, text);
+            var span = array.AsSpan(idx);
+            if (span.Length < 1)
+                ExchangeArray(ref array, array.Length * 2, idx);
+            array[idx++] = separator;
+        }
+        return new StringU8(AddNull(array.AsSpan(0, idx - 1)));
+    }
+
+    /// <inheritdoc cref="Join(byte,IReadOnlyCollection{StringU8})"/>
+    [MethodImpl(ImSharpConfiguration.Opt)]
+    public static StringU8 Join<T>(ReadOnlySpan<byte> separator, IEnumerable<T> data)
+    {
+        var array = ArrayPool.Rent((separator.Length + HoleEstimate) * 16);
+        var idx = 0;
+        foreach (var text in data)
+        {
+            AppendU8String(ref array, ref idx, text);
+            while (!separator.TryCopyTo(array.AsSpan(idx)))
+                ExchangeArray(ref array, array.Length * 2, idx);
+            idx += separator.Length;
+        }
+
+        idx -= separator.Length;
         return new StringU8(AddNull(array.AsSpan(0, idx)));
     }
 

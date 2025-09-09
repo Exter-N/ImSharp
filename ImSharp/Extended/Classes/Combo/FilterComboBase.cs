@@ -8,7 +8,7 @@ public abstract class FilterComboBase<TCacheItem>
     public IFilter<TCacheItem> Filter { get; init; } = NopFilter<TCacheItem>.Instance;
 
     /// <summary> Whether to allow mouse-wheel scrolling while hovering the unexpanded combo, potentially only with specific key modifiers held. </summary>
-    public MouseWheelType AllowMouseWheel { get; init; } = MouseWheelType.None;
+    public MouseWheelType AllowMouseWheel { get; init; } = MouseWheelType.Control;
 
     /// <summary> Additional flags used to draw the combo. </summary>
     public ComboFlags Flags { get; init; } = ComboFlags.None;
@@ -61,8 +61,12 @@ public abstract class FilterComboBase<TCacheItem>
         CurrentId = Im.Id.Current;
 
         // Draw the combo and additional control handling.
-        var exit = DrawCombo(ref label, ref preview, ref tooltip, previewWidth, out ret);
-        exit |= DrawMouseWheelHandling(out ret!);
+        var exit = DrawCombo(ref label, ref preview, ref tooltip, previewWidth, out ret!);
+        if (DrawMouseWheelHandling(out var ret2))
+        {
+            ret  = ret2;
+            exit = true;
+        }
 
         if (exit)
         {
@@ -102,46 +106,48 @@ public abstract class FilterComboBase<TCacheItem>
 
         // If the combo is expanded, draw the filter and list.
         if (combo)
-            return DrawComboPopup(out ret);
+            return DrawComboPopup(previewWidth, out ret);
 
         ret = default;
         return false;
     }
 
     /// <summary> Draw the expanded combo popup. </summary>
+    /// <param name="previewWidth"> The width of the preview box for the combo. </param>
     /// <param name="ret"> If true is returned, a newly selected item. </param>
     /// <returns> True if a new item is selected by any means, false otherwise. </returns>
-    protected virtual bool DrawComboPopup([NotNullWhen(true)] out TCacheItem? ret)
+    protected virtual bool DrawComboPopup(float previewWidth, [NotNullWhen(true)] out TCacheItem? ret)
     {
         var cache = CacheManager.Instance.GetOrCreateCache(CurrentId, CreateCache);
-
+        var width = Math.Max(cache.ComboWidth, previewWidth);
         // If the filter is changed, set it dirty for the next frame.
-        if (DrawFilter(cache))
-            CacheManager.Instance.SetCustomDirty(CurrentId);
+        if (DrawFilter(width, cache))
+            cache.Dirty |= IManagedCache.DirtyFlags.Custom;
 
         // Draw the list.
-        PreDrawList();
-        if (cache.DrawList(out var globalIndex))
+        if (cache.DrawList(width, out var globalIndex))
         {
             PostDrawList();
             ret = cache.AllItems[globalIndex]!;
             return true;
         }
 
-        PostDrawList();
         ret = default;
         return false;
     }
 
     /// <summary> Draw the filter on top of the item list. </summary>
     /// <returns> True if the filter changed. </returns>
-    protected virtual bool DrawFilter(FilterComboBaseCache<TCacheItem> cache)
+    protected virtual bool DrawFilter(float width, FilterComboBaseCache<TCacheItem> cache)
     {
         if (Filter is NopFilter<TCacheItem>)
             return false;
 
         PreDrawFilter();
-        var ret = Filter.DrawFilter("Filter..."u8, new Vector2(cache.ComboWidth, Im.Style.FrameHeight));
+        if (Im.Window.Appearing)
+            Im.Keyboard.SetFocusHere();
+
+        var ret = Filter.DrawFilter("Filter..."u8, new Vector2(width, Im.Style.FrameHeight));
         PostDrawFilter();
         return ret;
     }

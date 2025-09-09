@@ -21,13 +21,14 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
     /// <summary> The width with which to draw the expanded popup window. </summary>
     public float ComboWidth { get; protected set; }
 
-    public virtual bool DrawList(out int selectedGlobalIndex)
+    public virtual bool DrawList(float width, out int selectedGlobalIndex)
     {
         // Create a child if we have drawn a filter before and thus the cursor isn't at 0.
         using var child = Im.Cursor.Y is 0
             ? default
-            : Im.Child.Begin(0, new Vector2(ComboWidth, parent.ItemHeight * 12 - Im.Cursor.Y - Im.Style.WindowPadding.Y));
+            : Im.Child.Begin("child"u8, new Vector2(width, parent.ItemHeight * 12 - Im.Cursor.Y - Im.Style.WindowPadding.Y));
 
+        using var id = Im.Id.Push("list"u8);
         // If this combo popup is appearing, call the function.
         if (Im.Window.Appearing)
             OnAppearing();
@@ -49,12 +50,15 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
         {
             foreach (var globalIndex in clipper.Iterate(FilteredItems))
             {
-                if (!parent.DrawItem(UnfilteredItems[globalIndex], globalIndex, CurrentGlobalSelectionIndex == globalIndex))
-                    continue;
+                id.Push(globalIndex);
+                if (parent.DrawItem(UnfilteredItems[globalIndex], globalIndex, CurrentGlobalSelectionIndex == globalIndex))
+                {
+                    ret                 = true;
+                    selectedGlobalIndex = globalIndex;
+                    ClosePopup          = true;
+                }
 
-                ret                 = true;
-                selectedGlobalIndex = globalIndex;
-                ClosePopup          = true;
+                id.Pop(globalIndex);
             }
         }
 
@@ -135,9 +139,9 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
 
         // If nothing is selected, treat it as starting from 0, otherwise, roll over.
         if (CurrentFilteredSelectionIndex <= 0)
-            CurrentFilteredSelectionIndex = (delta + FilteredItems.Count) % FilteredItems.Count;
+            CurrentFilteredSelectionIndex = (FilteredItems.Count - delta) % FilteredItems.Count;
         else
-            CurrentFilteredSelectionIndex = (delta + CurrentFilteredSelectionIndex + FilteredItems.Count) % FilteredItems.Count;
+            CurrentFilteredSelectionIndex = (CurrentFilteredSelectionIndex + FilteredItems.Count - delta) % FilteredItems.Count;
         CurrentGlobalSelectionIndex = FilteredItems[CurrentFilteredSelectionIndex];
         newIndex                    = CurrentGlobalSelectionIndex;
         return true;
@@ -173,9 +177,9 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
         if (Im.Keyboard.IsPressed(Key.Enter))
         {
             ClosePopup = true;
-            if (CurrentGlobalSelectionIndex >= 0)
+            if (CurrentFilteredSelectionIndex >= 0)
             {
-                selectedGlobalIndex = CurrentGlobalSelectionIndex;
+                selectedGlobalIndex = FilteredItems[CurrentFilteredSelectionIndex];
                 return true;
             }
 

@@ -34,6 +34,12 @@ public static partial class Im
         public static bool IsReleased(Key key)
             => Native.Methods.KeyState.IsKeyReleased(key);
 
+        /// <summary> Set the keyboard focus on the next drawn widget. </summary>
+        /// <param name="offset"> Use positive offsets to focus subcomponents of widgets consisting of multiple components. Use -1 to focus the previous widget. </param>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static void SetFocusHere(int offset = 0)
+            => Native.Methods.Focus.SetKeyboardFocusHere(offset);
+
         /// <summary> Get the number of triggered key presses in the last frame according to the passed values. </summary>
         /// <param name="key"> The key to check for. </param>
         /// <param name="repeatDelay"> The repeat delay to use, see <seealso cref="InputOutput.KeyRepeatDelay"/>. </param>

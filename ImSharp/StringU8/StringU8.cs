@@ -63,7 +63,7 @@ public readonly partial struct StringU8 : IReadOnlyList<byte>, IEquatable<String
         if (data[^1] is 0)
             _value = data.Length is 1
                 ? EmptyData
-                : new Memory<byte>(data, 0, data.Length - 1);
+                : data.AsMemory(0, data.Length - 1);
         else
             _value = AddNull(data);
     }
@@ -343,4 +343,31 @@ public readonly partial struct StringU8 : IReadOnlyList<byte>, IEquatable<String
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static bool operator <=(StringU8 left, StringU8 right)
         => left.CompareTo(right) <= 0;
+
+    public static StringU8 operator +(StringU8 left, ReadOnlySpan<byte> right)
+    {
+        var bytes = new byte[left.Length + right.Length + 1];
+        left.Span.CopyTo(bytes);
+        right.CopyTo(bytes.AsSpan(left.Length));
+        bytes[^1] = 0;
+        return new StringU8(bytes.AsMemory(0, bytes.Length - 1), true);
+    }
+
+    public static StringU8 operator +(ReadOnlySpan<byte> left, StringU8 right)
+    {
+        var bytes = new byte[left.Length + right.Length + 1];
+        left.CopyTo(bytes);
+        right.Span.CopyTo(bytes.AsSpan(left.Length));
+        bytes[^1] = 0;
+        return new StringU8(bytes.AsMemory(0, bytes.Length - 1), true);
+    }
+
+    public static StringU8 operator +(StringU8 left, StringU8 right)
+    {
+        var bytes = new byte[left.Length + right.Length + 1];
+        left.Span.CopyTo(bytes);
+        right.Span.CopyTo(bytes.AsSpan(left.Length));
+        bytes[^1] = 0;
+        return new StringU8(bytes.AsMemory(0, bytes.Length - 1), true);
+    }
 }
