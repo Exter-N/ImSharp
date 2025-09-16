@@ -2,6 +2,19 @@ namespace ImSharp;
 
 public static partial class ImEx
 {
+    /// <summary> Get a vector scaled with the current <see cref="Im.ImGuiStyle.GlobalScale"/>. </summary>
+    /// <param name="x"> The unscaled X-parameter. </param>
+    /// <param name="y"> The unscaled Y-parameter. </param>
+    /// <returns> The scaled vector. </returns>
+    public static Vector2 ScaledVector(float x, float y)
+        => new(x * Im.Style.GlobalScale, y * Im.Style.GlobalScale);
+
+    /// <summary> Get a vector whose elements have the same value scaled with the current <see cref="Im.ImGuiStyle.GlobalScale"/>. </summary>
+    /// <param name="x"> The unscaled X- and Y-parameter. </param>
+    /// <returns> The scaled vector. </returns>
+    public static Vector2 ScaledVector(float x)
+        => new(x * Im.Style.GlobalScale);
+
     /// <summary> Calculate and return the size of the given text and update the given size if it is non-positive. </summary>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     internal static ImVec2 CalcAndUpdateSize<T>(ref Utf8StringHandler<T> text, ref Vector2 size) where T : IStringHandlerBuffer
