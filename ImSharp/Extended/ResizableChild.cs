@@ -44,27 +44,27 @@ public static partial class ImEx
         const float delay           = 0.1f;
 
         var rectMin = Im.Cursor.ScreenPosition + new Vector2(halfBorderWidth);
-        var rectMax = (Im.Cursor.ScreenPosition + size).Round();
+        var rectMax = Im.Cursor.ScreenPosition + currentSize - new Vector2(halfBorderWidth);
 
         // If resizing in X direction is allowed, handle it.
         if (resizeX)
         {
             var id = Im.Id.Get("####x"u8);
             // Behaves as a splitter, so second size is the remainder.
-            var sizeInc      = size.X;
-            var sizeDec      = Im.ContentRegion.Available.X - size.X;
+            var sizeInc      = currentSize.X;
+            var sizeDec      = Im.ContentRegion.Available.X - currentSize.X;
             var remainderMin = Im.ContentRegion.Available.X - maxSize.X;
 
             using var color = Im.Color.Push(ImGuiColor.Separator, borderColor);
-            var rect = new ImRect(new Vector2(rectMax.X - halfBorderWidth, rectMin.Y + onlyInner),
-                new Vector2(rectMax.X + halfBorderWidth,                   rectMax.Y - onlyInner));
+            var rect = new ImRect(new Vector2(rectMax.X - halfBorderWidth, MathF.Floor(rectMin.Y + onlyInner)),
+                new Vector2(rectMax.X + halfBorderWidth,                   MathF.Ceiling(rectMax.Y - onlyInner)));
             if (Im.Behavior.Splitter(rect, id, Axis.X, ref sizeInc, ref sizeDec, minSize.X, remainderMin, hoverExtend, delay, 0))
             {
                 // Update internal state.
-                value   = sizeInc;
-                size    = size with { X = sizeInc };
-                rectMax = (Im.Cursor.ScreenPosition + size).Round();
-                state   = 1;
+                value       = sizeInc;
+                currentSize = currentSize with { X = sizeInc };
+                rectMax     = Im.Cursor.ScreenPosition + currentSize;
+                state       = 1;
             }
 
             if (Im.Item.Deactivated)
@@ -73,9 +73,9 @@ public static partial class ImEx
                 state = 0;
                 if (Im.Item.DeactivatedAfterEdit)
                 {
-                    size.X  = value;
-                    rectMax = (Im.Cursor.ScreenPosition + size).Round();
-                    setSize(size);
+                    currentSize.X  = value;
+                    rectMax = Im.Cursor.ScreenPosition + currentSize;
+                    setSize(currentSize);
                 }
             }
         }
@@ -85,8 +85,8 @@ public static partial class ImEx
             // Same as X just for the other direction. Y takes priority in length.
             var id = Im.Id.Get("####y"u8);
 
-            var sizeInc      = size.Y;
-            var sizeDec      = Im.ContentRegion.Available.Y - size.Y;
+            var sizeInc      = currentSize.Y;
+            var sizeDec      = Im.ContentRegion.Available.Y - currentSize.Y;
             var remainderMin = Im.ContentRegion.Available.Y - maxSize.Y;
 
             using var color = Im.Color.Push(ImGuiColor.Separator, borderColor);
@@ -94,10 +94,10 @@ public static partial class ImEx
                 new Vector2(rectMax.X - onlyInner,                   rectMax.Y + halfBorderWidth));
             if (Im.Behavior.Splitter(rect, id, Axis.Y, ref sizeInc, ref sizeDec, minSize.X, remainderMin, hoverExtend, delay, 0))
             {
-                value   = sizeInc;
-                size    = size with { Y = sizeInc };
-                rectMax = (Im.Cursor.ScreenPosition + size).Round();
-                state   = 2;
+                value       = sizeInc;
+                currentSize = currentSize with { Y = sizeInc };
+                rectMax     = Im.Cursor.ScreenPosition + currentSize;
+                state       = 2;
             }
 
             if (Im.Item.Deactivated)
@@ -105,9 +105,9 @@ public static partial class ImEx
                 state = 0;
                 if (Im.Item.DeactivatedAfterEdit)
                 {
-                    size.Y  = value;
-                    rectMax = (Im.Cursor.ScreenPosition + size).Round();
-                    setSize(size);
+                    currentSize.Y  = value;
+                    rectMax = Im.Cursor.ScreenPosition + currentSize;
+                    setSize(currentSize);
                 }
             }
         }
@@ -116,13 +116,13 @@ public static partial class ImEx
         if (rounding is 0)
         {
             // With no rounding, simply draw the lines not dealt with by the resizable lines.
-            if (!resizeX)
-                path.LineTo(new Vector2(rectMax.X, rectMax.Y));
-            path.LineTo(new Vector2(rectMax.X, rectMin.Y));
-            path.LineTo(rectMin);
-            path.LineTo(new Vector2(rectMin.X, rectMax.Y));
             if (!resizeY)
                 path.LineTo(rectMax);
+            path.LineTo(new Vector2(rectMin.X, rectMax.Y));
+            path.LineTo(rectMin);
+            path.LineTo(new Vector2(rectMax.X, rectMin.Y));
+            if (!resizeX)
+                path.LineTo(new Vector2(rectMax.X, rectMax.Y));
             path.FinishStroke(borderColor, ImDrawFlagsPath.None, borderWidth);
             if (resizeX && resizeY)
                 Im.Window.DrawList.Shape.RectangleFilled(rectMax - new Vector2(halfBorderWidth), rectMax + new Vector2(halfBorderWidth),
@@ -162,6 +162,6 @@ public static partial class ImEx
 
         idStack.Pop();
         using var c = Im.Color.Push(ImGuiColor.Border, Rgba32.Transparent);
-        return Im.Child.Begin(label, size, true, flags);
+        return Im.Child.Begin(label, currentSize, true, flags);
     }
 }
