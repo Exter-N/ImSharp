@@ -23,7 +23,7 @@ public static partial class ImNodes
 
                 [LibraryImport(Im.Version.CImNodesLibrary, EntryPoint = "imnodes_EditorContextGetPanning")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImVec2 GetPanning();
+                public static partial void GetPanning(ImVec2* ret);
 
                 [LibraryImport(Im.Version.CImNodesLibrary, EntryPoint = "imnodes_EditorContextResetPanning")]
                 [MethodImpl(ImSharpConfiguration.Inl)]

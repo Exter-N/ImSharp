@@ -72,11 +72,11 @@ public static partial class Im
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igGetWindowPos")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImVec2 GetWindowPos();
+                public static partial void GetWindowPos(ImVec2* ret);
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igGetWindowSize")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImVec2 GetWindowSize();
+                public static partial void GetWindowSize(ImVec2* ret);
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igGetWindowWidth")]
                 [MethodImpl(ImSharpConfiguration.Inl)]

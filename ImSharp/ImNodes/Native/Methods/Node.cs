@@ -19,7 +19,7 @@ public static partial class ImNodes
 
                 [LibraryImport(Im.Version.CImNodesLibrary, EntryPoint = "imnodes_GetNodeDimensions")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImVec2 GetNodeDimensions(NodeId id);
+                public static partial void GetNodeDimensions(ImVec2* ret, NodeId id);
 
                 [LibraryImport(Im.Version.CImNodesLibrary, EntryPoint = "imnodes_BeginNodeTitleBar")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
@@ -47,15 +47,15 @@ public static partial class ImNodes
 
                 [LibraryImport(Im.Version.CImNodesLibrary, EntryPoint = "imnodes_GetNodeScreenSpacePos")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImVec2 GetNodeScreenSpacePos(NodeId nodeId);
+                public static partial void GetNodeScreenSpacePos(ImVec2* ret, NodeId nodeId);
 
                 [LibraryImport(Im.Version.CImNodesLibrary, EntryPoint = "imnodes_GetNodeEditorSpacePos")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImVec2 GetNodeEditorSpacePos(NodeId nodeId);
+                public static partial void GetNodeEditorSpacePos(ImVec2* ret, NodeId nodeId);
 
                 [LibraryImport(Im.Version.CImNodesLibrary, EntryPoint = "imnodes_GetNodeGridSpacePos")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImVec2 GetNodeGridSpacePos(NodeId nodeId);
+                public static partial void GetNodeGridSpacePos(ImVec2* ret, NodeId nodeId);
 
                 [LibraryImport(Im.Version.CImNodesLibrary, EntryPoint = "imnodes_SnapNodeToGrid")]
                 [MethodImpl(ImSharpConfiguration.Inl)]

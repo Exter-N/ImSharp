@@ -46,7 +46,7 @@ public static partial class Im
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igGetCursorPos")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImVec2 GetCursorPos();
+                public static partial void GetCursorPos(ImVec2* ret);
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igGetCursorPosX")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
@@ -70,11 +70,11 @@ public static partial class Im
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igGetCursorStartPos")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImVec2 GetCursorStartPos();
+                public static partial void GetCursorStartPos(ImVec2* ret);
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igGetCursorScreenPos")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImVec2 GetCursorScreenPos();
+                public static partial void GetCursorScreenPos(ImVec2* ret);
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igSetCursorScreenPos")]
                 [MethodImpl(ImSharpConfiguration.Inl)]

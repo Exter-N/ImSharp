@@ -131,7 +131,12 @@ public static partial class Im
         public static Vector2 Position
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Native.Methods.Window.GetWindowPos();
+            get
+            {
+                ImVec2 ret;
+                Native.Methods.Window.GetWindowPos(&ret);
+                return ret;
+            }
         }
 
         /// <summary> Get the size of the current window in pixels. </summary>
@@ -139,7 +144,12 @@ public static partial class Im
         public static Vector2 Size
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Native.Methods.Window.GetWindowSize();
+            get
+            {
+                ImVec2 ret;
+                Native.Methods.Window.GetWindowSize(&ret);
+                return ret;
+            }
         }
 
         /// <summary> Get the width of the current window in pixels. </summary>

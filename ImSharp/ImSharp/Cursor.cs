@@ -27,16 +27,21 @@ public static partial class Im
     public static class Cursor
     {
         /// <summary> Get or set the cursor position in window coordinates. </summary>
-        public static Vector2 Position
+        public static unsafe Vector2 Position
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Native.Methods.Layout.GetCursorPos();
+            get
+            {
+                ImVec2 ret;
+                Native.Methods.Layout.GetCursorPos(&ret);
+                return ret;
+            }
             [MethodImpl(ImSharpConfiguration.OptInl)]
             set => Native.Methods.Layout.SetCursorPos(value);
         }
 
         /// <summary> Get or set the horizontal cursor position in window coordinates. </summary>
-        /// <remarks> Be careful with the vertical cursor position generally changing line after any widget when <seealso cref="Line.Same"/> is not called. </remarks>
+        /// <remarks> Be careful with the vertical cursor position generally changing line after any widget when <seealso cref="Line.Same()"/> is not called. </remarks>
         public static float X
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]
@@ -55,17 +60,27 @@ public static partial class Im
         }
 
         /// <summary> Get the initial cursor position in window coordinates. </summary>
-        public static Vector2 StartPosition
+        public static unsafe Vector2 StartPosition
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Native.Methods.Layout.GetCursorStartPos();
+            get
+            {
+                ImVec2 ret;
+                Native.Methods.Layout.GetCursorStartPos(&ret);
+                return ret;
+            }
         }
 
         /// <summary> Get or set the cursor position in absolute coordinates. </summary>
-        public static Vector2 ScreenPosition
+        public static unsafe Vector2 ScreenPosition
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Native.Methods.Layout.GetCursorScreenPos();
+            get
+            {
+                ImVec2 ret;
+                Native.Methods.Layout.GetCursorScreenPos(&ret);
+                return ret;
+            }
             [MethodImpl(ImSharpConfiguration.OptInl)]
             set => Native.Methods.Layout.SetCursorScreenPos(value);
         }
@@ -82,17 +97,17 @@ public static partial class Im
         public static float ScreenX
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Native.Methods.Layout.GetCursorScreenPos().X;
+            get => ScreenPosition.X;
             [MethodImpl(ImSharpConfiguration.OptInl)]
             set => Native.Methods.Layout.SetCursorScreenPos(ScreenPosition with { X = value });
         }
 
         /// <summary> Get or set the vertical cursor position in absolute coordinates. </summary>
-        /// <remarks> Be careful with the vertical cursor position generally changing line after any widget when <seealso cref="Line.Same"/> is not called. </remarks>
+        /// <remarks> Be careful with the vertical cursor position generally changing line after any widget when <seealso cref="Line.Same()"/> is not called. </remarks>
         public static float ScreenY
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Native.Methods.Layout.GetCursorScreenPos().Y;
+            get => ScreenPosition.Y;
             [MethodImpl(ImSharpConfiguration.OptInl)]
             set => Native.Methods.Layout.SetCursorScreenPos(ScreenPosition with { Y = value });
         }

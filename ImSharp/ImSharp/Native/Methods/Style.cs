@@ -40,7 +40,7 @@ public static partial class Im
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igGetFontTexUvWhitePixel")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImVec2 GetFontTexUvWhitePixel();
+                public static partial void GetFontTexUvWhitePixel(ImVec2* ret);
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igGetColorU32_Col")]
                 [MethodImpl(ImSharpConfiguration.Inl)]

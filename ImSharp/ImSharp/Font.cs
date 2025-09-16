@@ -104,7 +104,12 @@ public static partial class Im
         public static Vector2 WhitePixelUv
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]
-            get => Native.Methods.Style.GetFontTexUvWhitePixel();
+            get
+            {
+                ImVec2 ret;
+                Native.Methods.Style.GetFontTexUvWhitePixel(&ret);
+                return ret;
+            }
         }
 
         /// <summary> Calculate the required size to display the given text. </summary>

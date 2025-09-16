@@ -24,25 +24,25 @@ public static partial class Im
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igImBezierCubicCalc")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImVec2 ImBezierCubicCalc(ImVec2 p1, ImVec2 p2, ImVec2 p3, ImVec2 p4, float t);
+                public static partial void ImBezierCubicCalc(ImVec2* ret, ImVec2 p1, ImVec2 p2, ImVec2 p3, ImVec2 p4, float t);
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igImBezierCubicClosestPoint")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImVec2 ImBezierCubicClosestPoint(ImVec2 p1, ImVec2 p2, ImVec2 p3, ImVec2 p4, ImVec2 point,
+                public static partial void ImBezierCubicClosestPoint(ImVec2* ret, ImVec2 p1, ImVec2 p2, ImVec2 p3, ImVec2 p4, ImVec2 point,
                     int numSegments);
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igImBezierCubicClosestPointCasteljau")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImVec2 ImBezierCubicClosestPointCasteljau(ImVec2 p1, ImVec2 p2, ImVec2 p3, ImVec2 p4,
+                public static partial void ImBezierCubicClosestPointCasteljau(ImVec2* ret, ImVec2 p1, ImVec2 p2, ImVec2 p3, ImVec2 p4,
                     ImVec2 point, float tesselationTolerance);
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igImBezierQuadraticCalc")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImVec2 ImBezierQuadraticCalc(ImVec2 p1, ImVec2 p2, ImVec2 p3, float t);
+                public static partial void ImBezierQuadraticCalc(ImVec2* ret, ImVec2 p1, ImVec2 p2, ImVec2 p3, float t);
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igImLineClosestPoint")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImVec2 ImLineClosestPoint(ImVec2 a, ImVec2 b, ImVec2 point);
+                public static partial void ImLineClosestPoint(ImVec2* ret, ImVec2 a, ImVec2 b, ImVec2 point);
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igImTriangleContainsPoint")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
@@ -50,7 +50,7 @@ public static partial class Im
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igImTriangleClosestPoint")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImVec2 ImTriangleClosestPoint(ImVec2 a, ImVec2 b, ImVec2 c, ImVec2 point);
+                public static partial void ImTriangleClosestPoint(ImVec2* ret, ImVec2 a, ImVec2 b, ImVec2 c, ImVec2 point);
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igGetCurrentWindowRead")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
@@ -75,7 +75,7 @@ public static partial class Im
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igCalcWindowNextAutoFitSize")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImVec2 CalcWindowNextAutoFitSize(Native.Internal.Window* window);
+                public static partial void CalcWindowNextAutoFitSize(ImVec2* ret, Native.Internal.Window* window);
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igIsWindowChildOf")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
@@ -105,7 +105,7 @@ public static partial class Im
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igScrollToRectEx")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImVec2 ScrollToRectEx(Native.Internal.Window* window, in ImRect rect, ScrollFlags flags);
+                public static partial void ScrollToRectEx(ImVec2* ret, Native.Internal.Window* window, in ImRect rect, ScrollFlags flags);
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igGetItemID")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
