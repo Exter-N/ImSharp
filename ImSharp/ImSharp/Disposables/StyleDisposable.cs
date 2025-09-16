@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around style pushing. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct StyleDisposable : IDisposable
+    public sealed class StyleDisposable : IDisposable
     {
         /// <summary> The number of styles currently pushed using this disposable. </summary>
         public int Count { get; private set; }
@@ -85,7 +85,10 @@ public static partial class Im
         /// <summary> Pop all pushed styles. </summary>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public void Dispose()
-            => Pop(Count);
+        {
+            Native.Methods.Stacks.PopStyleVar(Count);
+            Count = 0;
+        }
 
         /// <summary> Pop a number of style variables. </summary>
         /// <param name="num"> The number of style variables to pop. The number is not checked against the style stack. </param>

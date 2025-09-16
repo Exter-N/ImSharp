@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around pushing text wrap positions. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct TextWrapDisposable : IDisposable
+    public sealed class TextWrapDisposable : IDisposable
     {
         /// <summary> The number of text wrap positions currently pushed using this disposable. </summary>
         public int Count { get; private set; }

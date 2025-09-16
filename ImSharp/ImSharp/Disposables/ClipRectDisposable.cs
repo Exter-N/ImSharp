@@ -6,7 +6,7 @@ public static partial class Im
 {
     /// <summary> Push a global ClipRect and pop it on leaving scope. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct ClipRectDisposable : IDisposable
+    public sealed class ClipRectDisposable : IDisposable
     {
         /// <summary> The number of ClipRects currently pushed with this object. </summary>
         public int Count { get; private set; }

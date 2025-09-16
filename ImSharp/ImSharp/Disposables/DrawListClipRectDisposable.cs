@@ -6,7 +6,7 @@ public static partial class Im
     /// <summary> Push a draw list specific ClipRect and pop it on leaving scope. </summary>
     /// <param name="drawList"> The native pointer to the draw list. </param>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public unsafe ref struct DrawListClipRectDisposable(Native.ImDrawList* drawList) : IDisposable
+    public unsafe sealed class DrawListClipRectDisposable(Native.ImDrawList* drawList) : IDisposable
     {
         /// <summary> The number of ClipRects currently pushed with this object. </summary>
         public int Count { get; private set; }

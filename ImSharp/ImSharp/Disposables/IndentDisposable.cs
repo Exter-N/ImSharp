@@ -4,12 +4,11 @@ public static partial class Im
 {
     /// <summary> A wrapper around indentation. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct IndentDisposable : IDisposable
+    public sealed class IndentDisposable : IDisposable
     {
         /// <summary> The current indentation pushed by this object. </summary>
         public float CurrentIndent { get; private set; }
 
-        // TODO REWORK
         /// <summary> Add to the current indentation. </summary>
         /// <param name="indent"> The value to change the indentation by. </param>
         /// <param name="condition"> If this is false, the current indent is not changed. </param>

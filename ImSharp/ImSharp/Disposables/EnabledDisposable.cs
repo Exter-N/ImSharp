@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around re-enabling the state. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct EnabledDisposable : IDisposable
+    public sealed class EnabledDisposable : IDisposable
     {
         /// <summary> The stored number of ended disposables as a workaround. </summary>
         public int Count { get; private set; }

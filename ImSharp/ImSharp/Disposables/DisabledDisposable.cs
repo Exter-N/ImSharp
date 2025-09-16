@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around disabled state. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct DisabledDisposable : IDisposable
+    public sealed class DisabledDisposable : IDisposable
     {
         /// <summary> The global count of disabled pushes to reenable. </summary>
         public static int GlobalCount

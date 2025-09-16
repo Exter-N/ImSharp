@@ -4,7 +4,7 @@ public static partial class Im
 {
     /// <summary> A wrapper around color pushing. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct ColorDisposable : IDisposable
+    public sealed class ColorDisposable : IDisposable
     {
         /// <summary> The number of colors currently pushed using this disposable. </summary>
         public int Count { get; private set; }
@@ -67,7 +67,10 @@ public static partial class Im
         /// <summary> Pop all pushed colors. </summary>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public void Dispose()
-            => Pop(Count);
+        {
+            Native.Methods.Stacks.PopStyleColor(Count);
+            Count = 0;
+        }
 
         /// <summary> Pop a number of colors. </summary>
         /// <param name="num"> The number of colors to pop. The number is not checked against the color stack. </param>
