@@ -20,7 +20,7 @@ public static partial class Im
             if (condition && indent is not 0)
             {
                 if (indent < 0)
-                    Native.Methods.Layout.Unindent(indent);
+                    Native.Methods.Layout.Unindent(-indent);
                 else
                     Native.Methods.Layout.Indent(indent);
                 CurrentIndent += indent;
@@ -42,7 +42,7 @@ public static partial class Im
                 if (indent < 0)
                     Native.Methods.Layout.Indent(indent);
                 else
-                    Native.Methods.Layout.Unindent(indent);
+                    Native.Methods.Layout.Unindent(-indent);
                 CurrentIndent -= indent;
             }
 
