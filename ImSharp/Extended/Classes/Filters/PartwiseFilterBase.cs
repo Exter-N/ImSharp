@@ -15,7 +15,7 @@ public abstract class PartwiseFilterBase<TCacheItem> : TextFilterBase<TCacheItem
 
     /// <summary> Update the filter and tokens. </summary>
     /// <inheritdoc/>
-    public override bool Set(string text)
+    protected override bool SetInternal(string text)
     {
         if (!base.Set(text))
             return false;

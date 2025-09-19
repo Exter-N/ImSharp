@@ -34,7 +34,7 @@ public abstract class NumberFilterBase<TNumber, TCacheItem> : RegexFilterBase<TC
     /// <summary> Update the filter and try to parse it as a number. </summary>
     /// <param name="text"> The new input text. </param>
     /// <returns> True if the filter changed.</returns>
-    public override bool Set(string text)
+    protected override bool SetInternal(string text)
     {
         if (!base.Set(text))
             return false;

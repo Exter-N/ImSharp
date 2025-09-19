@@ -13,13 +13,12 @@ public abstract class TextFilterBase<TCacheItem> : IFilter<TCacheItem>
     /// <summary> Set the filter value when the text changes. </summary>
     /// <param name="text"> The new filter value. </param>
     /// <returns> True if the filter changed. </returns>
-    /// <remarks> Does not trigger <see cref="FilterChanged"/> itself. </remarks>
-    public virtual bool Set(string text)
+    public bool Set(string text)
     {
-        if (Text == text)
+        if (!SetInternal(text))
             return false;
 
-        Text = text;
+        InvokeEvent();
         return true;
     }
 
@@ -38,10 +37,24 @@ public abstract class TextFilterBase<TCacheItem> : IFilter<TCacheItem>
 
         Im.Item.SetNextWidth(availableRegion.X);
         var tmp = Text;
-        if (!Im.Input.Text("##Filter"u8, ref tmp, label) || !Set(tmp))
+        if (!Im.Input.Text("##Filter"u8, ref tmp, label) || !SetInternal(tmp))
             return false;
 
         InvokeEvent();
+        return true;
+    }
+
+
+    /// <summary> Set the filter value when the text changes. </summary>
+    /// <param name="text"> The new filter value. </param>
+    /// <returns> True if the filter changed. </returns>
+    /// <remarks> Does not trigger <see cref="FilterChanged"/> itself. </remarks>
+    protected virtual bool SetInternal(string text)
+    {
+        if (Text == text)
+            return false;
+
+        Text = text;
         return true;
     }
 
@@ -63,7 +76,10 @@ public abstract class TextFilterBase<TCacheItem> : IFilter<TCacheItem>
 
     /// <inheritdoc/>
     public void Clear()
-        => Set(string.Empty);
+    {
+        if (Set(string.Empty))
+            InvokeEvent();
+    }
 }
 
 /// <summary> A basic text filter that compares against items that already are of type string. </summary>

@@ -12,9 +12,9 @@ public abstract class RegexFilterBase<TCacheItem> : TextFilterBase<TCacheItem>
 
     /// <summary> Update the filter and RegEx. </summary>
     /// <inheritdoc/>
-    public override bool Set(string text)
+    protected override bool SetInternal(string text)
     {
-        if (!base.Set(text))
+        if (!Set(text))
             return false;
 
         Regex = GetRegex(text);

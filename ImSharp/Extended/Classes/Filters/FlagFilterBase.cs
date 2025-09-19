@@ -143,5 +143,8 @@ public abstract class FlagFilterBase<TCacheItem, TEnum> : IFilter<TCacheItem>
 
     /// <inheritdoc/>
     public void Clear()
-        => SetValue(AllFlags, true);
+    {
+        if (SetValue(AllFlags, true))
+            InvokeEvent();
+    }
 }
