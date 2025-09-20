@@ -29,5 +29,9 @@ public sealed class NopFilter<TCacheItem> : IFilter<TCacheItem>
 
     /// <inheritdoc/>
     public void Clear()
-    {}
+    { }
+
+    /// <summary> Use <see cref="Instance"/> instead. </summary>
+    private NopFilter()
+    { }
 }
