@@ -65,11 +65,10 @@ public abstract class TableData<TCacheItem>
 }
 
 /// <summary> The base class for all actual tables. </summary>
-/// <typeparam name="TItem"> The type of the items to display. </typeparam>
 /// <typeparam name="TCacheItem"> The type of the cached transformation of the items to display. </typeparam>
 /// <typeparam name="TTableCache"> The type of the cache used for the table to actually draw it. </typeparam>
-/// <param name="id"><inheritdoc cref="TableData{TItem,TCacheItem}.Id"/></param>
-/// <param name="columns"><inheritdoc cref="TableData{TItem,TCacheItem}.Columns"/></param>
+/// <param name="id"><inheritdoc cref="TableData{TCacheItem}.Id"/></param>
+/// <param name="columns"><inheritdoc cref="TableData{TCacheItem}.Columns"/></param>
 public abstract class TableBase<TCacheItem, TTableCache>
     (StringU8 id, params IReadOnlyList<ITableColumn<TCacheItem>> columns) : TableData<TCacheItem>(id, columns)
     where TTableCache : TableCache<TCacheItem>
@@ -104,7 +103,6 @@ public abstract class TableBase<TCacheItem, TTableCache>
 }
 
 /// <summary> A default table with a simple, pre-implemented cache without extra functionality. </summary>
-/// <typeparam name="TItem"> The type of the items to display. </typeparam>
 /// <typeparam name="TCacheItem"> The type of the cached transformation of the items to display. </typeparam>
 /// <param name="id"><inheritdoc cref="TableData{TCacheItem}.Id"/></param>
 /// <param name="columns"><inheritdoc cref="TableData{TCacheItem}.Columns"/></param>

@@ -400,6 +400,16 @@ public static partial class Im
         public StyleDisposable Push(ImStyleDouble type, Vector2 value)
             => new StyleDisposable().Push(type, value);
 
+        /// <inheritdoc cref="StyleDisposable.PushDefault(ImStyleSingle)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public StyleDisposable PushDefault(ImStyleSingle type)
+            => new StyleDisposable().PushDefault(type);
+
+        /// <inheritdoc cref="StyleDisposable.PushDefault(ImStyleDouble)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public StyleDisposable PushDefault(ImStyleDouble type)
+            => new StyleDisposable().PushDefault(type);
+
         /// <inheritdoc cref="StyleDisposable.PushX(ImStyleDouble,float,bool)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public StyleDisposable PushX(ImStyleDouble type, float value, bool condition)

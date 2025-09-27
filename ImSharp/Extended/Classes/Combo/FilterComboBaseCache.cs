@@ -29,9 +29,9 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
             : Im.Child.Begin("child"u8, new Vector2(width, parent.ItemHeight * 12 - Im.Cursor.Y - Im.Style.WindowPadding.Y));
 
         using var id = Im.Id.Push("list"u8);
-        // If this combo popup is appearing, call the function.
-        if (Im.Window.Appearing)
-            OnAppearing();
+
+        // Try to find the current selection if we don't have one already.
+        FindSelection();
 
         // Apply keyboard navigation. This also handles Enter and Escape.
         var ret = DrawKeyboardNavigation(out selectedGlobalIndex);
@@ -75,8 +75,14 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
     }
 
     /// <summary> Invoked when the combo popup is newly opened. </summary>
-    protected virtual void OnAppearing()
+    protected virtual void FindSelection()
     {
+        // Skip this if the window is not newly appearing, and we have a valid current selection.
+        if (!Im.Window.Appearing
+         && CurrentGlobalSelectionIndex >= 0
+         && parent.IsSelected(AllItems[CurrentGlobalSelectionIndex], CurrentGlobalSelectionIndex))
+            return;
+
         // We want to set the scroll position to the currently selected item if possible.
         SetScroll = true;
 
@@ -137,7 +143,10 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
             return isChange;
         }
 
-        // If nothing is selected, treat it as starting from 0, otherwise, roll over.
+        // If nothing is selected, try to find a selection.
+        FindSelection();
+
+        // If nothing is selected still, treat it as starting from 0, otherwise, roll over.
         if (CurrentFilteredSelectionIndex <= 0)
             CurrentFilteredSelectionIndex = (FilteredItems.Count - delta) % FilteredItems.Count;
         else
@@ -199,7 +208,11 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
     protected override void Dispose(bool disposing)
     {
         if (parent.ClearFilterOnCacheDisposal)
+        {
             parent.Filter.Clear();
+            FilterDirty = true;
+        }
+
         base.Dispose(disposing);
     }
 

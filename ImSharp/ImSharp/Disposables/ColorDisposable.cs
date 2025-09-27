@@ -53,6 +53,22 @@ public static partial class Im
             return this;
         }
 
+        /// <summary> Push the default value, i.e. the value as if nothing was ever pushed to this, of a color to the color stack. </summary>
+        /// <param name="type"> The type of color to return to its default value. </param>
+        /// <returns> A disposable object that can be used to push further colors and pops those colors after leaving scope. Use with using. </returns>
+        /// <remarks> If you need to keep colors pushed longer than the current scope, use without using and use <seealso cref="PopUnsafe"/>. </remarks>
+        public ColorDisposable PushDefault(ImGuiColor type)
+        {
+            var current = Style[type];
+            foreach (var styleMod in Context.ColorStack.Where(m => m.Color == type))
+            {
+                current = styleMod.BackupValue;
+                break;
+            }
+
+            return Push(type, current);
+        }
+
         /// <summary> Pop a number of colors. </summary>
         /// <param name="num"> The number of colors to pop. This is clamped to the number of colors pushed by this object. </param>
         [MethodImpl(ImSharpConfiguration.OptInl)]

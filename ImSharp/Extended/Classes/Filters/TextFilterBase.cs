@@ -34,7 +34,6 @@ public abstract class TextFilterBase<TCacheItem> : IFilter<TCacheItem>
     public virtual bool DrawFilter(ReadOnlySpan<byte> label, Vector2 availableRegion)
     {
         using var style = ImStyleSingle.FrameRounding.Push(0);
-
         Im.Item.SetNextWidth(availableRegion.X);
         var tmp = Text;
         if (!Im.Input.Text("##Filter"u8, ref tmp, label) || !SetInternal(tmp))

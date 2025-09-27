@@ -41,6 +41,35 @@ public static partial class Im
             return this;
         }
 
+        /// <summary> Push the default value, i.e. the value as if nothing was ever pushed to this, of a style variable to the style stack. </summary>
+        /// <param name="type"> The type of style variable to return to its default value. </param>
+        /// <returns> A disposable object that can be used to push further style variables and pops those style variables after leaving scope. Use with using. </returns>
+        /// <remarks> If you need to keep styles pushed longer than the current scope, use without using and use <seealso cref="PopUnsafe"/>. </remarks>
+        public StyleDisposable PushDefault(ImStyleDouble type)
+        {
+            var current = Style[type];
+            foreach (var styleMod in Context.StyleStack.Where(m => m.VarIdx == (ImStyle)type))
+            {
+                current = styleMod.BackupVec;
+                break;
+            }
+
+            return Push(type, current);
+        }
+
+        /// <inheritdoc cref="PushDefault(ImStyleDouble)"/>
+        public StyleDisposable PushDefault(ImStyleSingle type)
+        {
+            var current = Style[type];
+            foreach (var styleMod in Context.StyleStack.Where(m => m.VarIdx == (ImStyle)type))
+            {
+                current = styleMod.BackupFloat1;
+                break;
+            }
+
+            return Push(type, current);
+        }
+
         /// <summary> Push only the first value of a double-value style to the style stack, keeping the second as-is. </summary>
         /// <param name="type"> The type of style variable to change. </param>
         /// <param name="value"> The value to change it to. </param>

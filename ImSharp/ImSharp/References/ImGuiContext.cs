@@ -84,6 +84,33 @@ public static partial class Im
             get => Pointer->DisabledStackSize;
         }
 
+        /// <summary> The current count of style pushes, see <seealso cref="StyleDisposable"/>. </summary>
+        public int StyleStackSize
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Pointer->StyleStack.Count;
+        }
+
+        /// <summary> The current count of color pushes, see <seealso cref="ColorDisposable"/>. </summary>
+        public int ColorStackSize
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Pointer->ColorStack.Count;
+        }
+
+        /// <summary> The current style pushes, see <seealso cref="StyleDisposable"/>. </summary>
+        public IReadOnlyList<Im.Native.Internal.StyleMod> StyleStack
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Pointer->StyleStack;
+        }
+
+        /// <summary> The current color pushes, see <seealso cref="ColorDisposable"/>. </summary>
+        public IReadOnlyList<Im.Native.Internal.ColorMod> ColorStack
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Pointer->ColorStack;
+        }
 
         /// <summary> Create a new context with an existing font atlas. </summary>
         /// <param name="fontAtlas"> The font atlas to re-use. </param>

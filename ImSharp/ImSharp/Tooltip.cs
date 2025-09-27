@@ -41,6 +41,7 @@ public static partial class Im
 
         /// <inheritdoc cref="OnHover(HoveredFlags,ReadOnlySpan{byte})"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
+        [OverloadResolutionPriority(100)]
         public static void OnHover(ReadOnlySpan<byte> text)
             => OnHover(HoveredFlags.None, text);
 
@@ -67,9 +68,11 @@ public static partial class Im
         /// <param name="flags"> The flags to check on hovering. </param>
         /// <param name="text"> The tooltip text as interpolated string. This will only get evaluated if the item is hovered. </param>
         [MethodImpl(ImSharpConfiguration.OptInl)]
+        [OverloadResolutionPriority(50)]
         // ReSharper disable once EntityNameCapturedOnly.Global
         public static unsafe void OnHover(HoveredFlags flags,
-            [InterpolatedStringHandlerArgument(nameof(flags))] ref HoverUtf8StringHandler text)
+            [InterpolatedStringHandlerArgument(nameof(flags))]
+            ref HoverUtf8StringHandler text)
         {
             if (!text.GetEnd(out var end) || *text.Begin is 0)
                 return;
@@ -80,7 +83,8 @@ public static partial class Im
 
         /// <inheritdoc cref="OnHover(HoveredFlags,ref HoverUtf8StringHandler)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public static unsafe void OnHover<T>(ref Utf8StringHandler<T> text, HoveredFlags flags = HoveredFlags.None) where T : IStringHandlerBuffer
+        public static unsafe void OnHover<T>(ref Utf8StringHandler<T> text, HoveredFlags flags = HoveredFlags.None)
+            where T : IStringHandlerBuffer
         {
             if (!Native.Methods.Items.IsItemHovered(flags))
                 return;

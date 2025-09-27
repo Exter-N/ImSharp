@@ -14,7 +14,7 @@ public abstract class FilterComboBase<TCacheItem>
     public ComboFlags Flags { get; init; } = ComboFlags.None;
 
     /// <summary> Whether the filter should be cleared whenever the selection is updated. </summary>
-    public bool ClearFilterOnSelection { get; init; } = false;
+    public bool ClearFilterOnSelection { get; init; }
 
     /// <summary> Whether the filter should be cleared whenever the combo cache is disposed. </summary>
     public bool ClearFilterOnCacheDisposal { get; init; } = true;
@@ -69,12 +69,7 @@ public abstract class FilterComboBase<TCacheItem>
         }
 
         if (exit)
-        {
-            // Clear the filter on selection change given the setting.
-            if (ClearFilterOnSelection)
-                Filter.Clear();
             return true;
-        }
 
         ret = default;
         return false;
@@ -129,6 +124,14 @@ public abstract class FilterComboBase<TCacheItem>
         {
             PostDrawList();
             ret = cache.AllItems[globalIndex]!;
+
+            // Clear the filter on selection change given the setting.
+            if (ClearFilterOnSelection)
+            {
+                Filter.Clear();
+                cache.Dirty |= IManagedCache.DirtyFlags.Custom;
+            }
+
             return true;
         }
 
@@ -170,6 +173,13 @@ public abstract class FilterComboBase<TCacheItem>
                 if (cache.HandleMouseWheel(delta, out var newIndex))
                 {
                     ret = cache.AllItems[newIndex]!;
+
+                    // Clear the filter on selection change given the setting.
+                    if (ClearFilterOnSelection)
+                    {
+                        Filter.Clear();
+                        cache.Dirty |= IManagedCache.DirtyFlags.Custom;
+                    }
                     return true;
                 }
             }
