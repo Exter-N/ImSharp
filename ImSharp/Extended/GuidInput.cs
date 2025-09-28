@@ -24,12 +24,16 @@ public static partial class ImEx
             size   = (ulong)TextStringHandlerBuffer.Size;
             var begin = initialText.Start(out var end);
             if (begin != TextStringHandlerBuffer.Buffer)
-                new ReadOnlySpan<byte>(begin, (int)(end - begin)).CopyTo(TextStringHandlerBuffer.Span);
+            {
+                var l = (int)(end - begin);
+                new ReadOnlySpan<byte>(begin, l).CopyTo(TextStringHandlerBuffer.Span);
+                TextStringHandlerBuffer.Buffer[l] = 0;
+            }
         }
 
-        var  hint   = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"u8;
-        var  empty  = "\0"u8;
-        var  length = 0;
+        var hint   = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"u8;
+        var empty  = "\0"u8;
+        var length = 0;
         using (Im.Font.PushMono())
         {
             var input = Im.Native.Methods.Inputs.InputTextWithHint(empty.Start(), hint.Start(), buffer, size,
@@ -65,8 +69,7 @@ public static partial class ImEx
             ret  = false;
         }
 
-        Im.Line.SameInner();
-        TextFrameAligned(ref label);
+        TextLabel(ref label);
 
         return ret;
     }

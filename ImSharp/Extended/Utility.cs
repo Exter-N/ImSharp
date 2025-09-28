@@ -31,7 +31,7 @@ public static partial class ImEx
     /// <param name="text"> The text. Does not have to be null-terminated. </param>
     /// <param name="visibleText"> The visible part of the text before any occurence of '##'. </param>
     /// <param name="id"> The ID computed from the full text, or the part after a '###' (including).</param>
-    /// <returns></returns>
+    /// <returns> True if the text could be obtained. </returns>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     internal static bool SplitLabel<T>(ref Utf8StringHandler<T> text, out ReadOnlySpan<byte> visibleText, out ImGuiId id)
         where T : IStringHandlerBuffer
@@ -55,6 +55,23 @@ public static partial class ImEx
 
         visibleText = visibleText[..pounds];
         id          = Im.Id.Get(label);
+        return true;
+    }
+
+    /// <summary> Obtain the visible text of a label. </summary>
+    /// <param name="text"> The text. Does not have to be null-terminated. </param>
+    /// <param name="visibleText"> The visible part of the text before any occurence of '##'. </param>
+    /// <returns> True if the text could be obtained. </returns>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    internal static bool VisibleLabel<T>(ref Utf8StringHandler<T> text, out ReadOnlySpan<byte> visibleText)
+        where T : IStringHandlerBuffer
+    {
+        if (!text.GetSpan(out visibleText))
+            return false;
+
+        var pounds = visibleText.IndexOf("##"u8);
+        if (pounds > 0)
+            visibleText = visibleText[..pounds];
         return true;
     }
 
