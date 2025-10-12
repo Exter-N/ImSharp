@@ -173,12 +173,8 @@ public unsafe ref struct Utf8StringHandler<T> where T : IStringHandlerBuffer
 
     [MethodImpl(ImSharpConfiguration.OptInl)]
     private Utf8StringHandler(StringU8 utf8)
-    {
-        fixed (byte* ptr = utf8.Span)
-        {
-            _data = new Data(ptr, utf8.Length);
-        }
-    }
+        : this(utf8.Span)
+    { }
 }
 
 [SkipLocalsInit, StructLayout(LayoutKind.Explicit)]

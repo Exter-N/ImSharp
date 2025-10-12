@@ -80,7 +80,7 @@ public static partial class Im
         public static FontDisposable PushMono()
         {
             if (ImSharpConfiguration.Context->MonoFont is null)
-                return default;
+                return new FontDisposable();
 
             return Push((Font)ImSharpConfiguration.Context->MonoFont);
         }
