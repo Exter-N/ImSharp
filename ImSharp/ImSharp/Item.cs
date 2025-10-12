@@ -17,11 +17,17 @@ public static partial class Im
         public static ItemWidthDisposable PushWidth(float width)
             => new ItemWidthDisposable().Push(width);
 
-        /// <summary> Set the width of the next common item+label widget </summary>
+        /// <summary> Set the width of the next common item+label widget. </summary>
         /// <param name="width"> If positive, the desired width in pixels. If negative, align to the right side by that many pixels. </param>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static void SetNextWidth(float width)
             => Native.Methods.Stacks.SetNextItemWidth(width);
+
+        /// <summary> Set the width of the next common item+label widget but scale the supplied width by <see cref="Im.ImGuiStyle.GlobalScale"/>. </summary>
+        /// <param name="width"> If positive, the desired width in pixels. If negative, align to the right side by that many pixels. </param>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static void SetNextWidthScaled(float width)
+            => Native.Methods.Stacks.SetNextItemWidth(width * Style.GlobalScale);
 
         /// <summary> Calculate the width of the last item given the pushed settings and current cursor position. </summary>
         /// <returns> The width in pixels. </returns>

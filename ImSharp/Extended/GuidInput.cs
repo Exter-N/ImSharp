@@ -74,6 +74,16 @@ public static partial class ImEx
         return ret;
     }
 
+    /// <inheritdoc cref="GuidInput(Utf8LabelHandler,Utf8TextHandler,out Guid, float)"/>
+    public static bool GuidInput(Utf8LabelHandler label, ref Guid? guid, Utf8TextHandler initialText, float width = 0)
+    {
+        if (!GuidInput(label, guid.HasValue ? $"{guid.Value}" : initialText, out var newGuid, width))
+            return false;
+
+        guid = newGuid;
+        return true;
+    }
+
     [UnmanagedCallersOnly]
     private static unsafe int FilterInput(Im.Native.InputTextCallbackData* input)
     {

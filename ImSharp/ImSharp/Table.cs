@@ -25,6 +25,11 @@ public static partial class Im
         /// <inheritdoc cref="TableDisposable.DrawColumn"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static bool DrawColumn(Utf8TextHandler text)
+            => DrawColumn(ref text);
+
+        /// <inheritdoc cref="TableDisposable.DrawColumn"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static bool DrawColumn<T>(ref Utf8StringHandler<T> text) where T : IStringHandlerBuffer
         {
             if (!Native.Methods.Table.TableNextColumn())
                 return false;
