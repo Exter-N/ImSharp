@@ -75,9 +75,21 @@ public static partial class ImEx
     }
 
     /// <inheritdoc cref="GuidInput(Utf8LabelHandler,Utf8TextHandler,out Guid, float)"/>
-    public static bool GuidInput(Utf8LabelHandler label, ref Guid? guid, Utf8TextHandler initialText, float width = 0)
+    public static bool GuidInput(Utf8LabelHandler label, ref Guid? guid, float width = 0)
     {
-        if (!GuidInput(label, guid.HasValue ? $"{guid.Value}" : initialText, out var newGuid, width))
+        Span<byte> span = stackalloc byte[37];
+        if (guid.HasValue)
+        {
+            span[^1] = 0;
+            if (!guid.Value.TryFormat(span, out var count) || count is not 36)
+                return false;
+        }
+        else
+        {
+            span[0] = 0;
+        }
+
+        if (!GuidInput(label, span, out var newGuid, width))
             return false;
 
         guid = newGuid;
