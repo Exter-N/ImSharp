@@ -75,7 +75,10 @@ public static partial class Im
 
         [MethodImpl(ImSharpConfiguration.OptInl)]
         private PopupDisposable(bool success)
-            => Success = success;
+        {
+            Success = success;
+            Alive   = true;
+        }
 
         /// <summary> Conversion to bool. </summary>
         [MethodImpl(ImSharpConfiguration.OptInl)]

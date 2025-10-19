@@ -1,5 +1,6 @@
 // ReSharper disable MemberHidesStaticFromOuterClass
 
+#pragma warning disable CS1573 // Parameter has no matching param tag in the XML comment (but other parameters do)
 namespace ImSharp;
 
 public static partial class Im
@@ -88,6 +89,12 @@ public static partial class Im
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static bool IsHoveringRectangle(Vector2 upperLeft, Vector2 lowerRight, bool clip = true)
             => Native.Methods.KeyState.IsMouseHoveringRect(upperLeft, lowerRight, clip);
+
+        /// <inheritdoc cref="IsHoveringRectangle(Vector2,Vector2,bool)"/>
+        /// <param name="rectangle"> The queried rectangle in screen coordinates. </param>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static bool IsHoveringRectangle(in Rectangle rectangle, bool clip = true)
+            => Native.Methods.KeyState.IsMouseHoveringRect(rectangle.Minimum, rectangle.Maximum, clip);
 
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static bool IsDragging(MouseButton button, float lockThreshold)

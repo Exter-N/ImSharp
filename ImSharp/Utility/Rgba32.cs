@@ -138,6 +138,32 @@ public readonly record struct Rgba32(uint Color) : ISpanFormattable, IUtf8SpanFo
         return r | (g << 8) | (b << 16) | 0xFF000000u;
     }
 
+    /// <summary> Return this color tinted by the given tint color. </summary>
+    /// <param name="tint"> The tint color. </param>
+    /// <returns> The tinted color. </returns>
+    [OverloadResolutionPriority(100)]
+    public Rgba32 Tinted(in Vector4 tint)
+        => TintColor(ToVector(), tint);
+
+    /// <inheritdoc cref="Tinted(in Vector4)"/>
+    [OverloadResolutionPriority(50)]
+    public Rgba32 Tinted(Rgba32 tint)
+        => TintColor(ToVector(), tint.ToVector());
+
+    /// <summary> Tint the first color with the second color according to the second color's alpha channel. </summary>
+    /// <param name="color"> The base color. </param>
+    /// <param name="tint"> The tint color. </param>
+    /// <returns> The tinted color. </returns>
+    public static Vector4 TintColor(in Vector4 color, in Vector4 tint)
+    {
+        var negAlpha = 1 - tint.W;
+        var newAlpha = negAlpha * color.W + tint.W;
+        var newR     = (negAlpha * color.W * color.X + tint.W * tint.X) / newAlpha;
+        var newG     = (negAlpha * color.W * color.Y + tint.W * tint.Y) / newAlpha;
+        var newB     = (negAlpha * color.W * color.Z + tint.W * tint.Z) / newAlpha;
+        return new Vector4(newR, newG, newB, newAlpha);
+    }
+
     /// <inheritdoc/>
     public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
     {

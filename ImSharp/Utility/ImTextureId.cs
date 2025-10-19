@@ -1,10 +1,12 @@
 namespace ImSharp;
 
 /// <summary> A wrapper around an arbitrary ID type for textures. Could be changed when compiling ImGui. </summary>
-public readonly record struct ImTextureId(nint Value) : ISpanFormattable, IUtf8SpanFormattable
+public readonly record struct ImTextureId(nint Value) : ISpanFormattable, IUtf8SpanFormattable, IComparable<ImTextureId>
 {
+    /// <summary> An empty texture ID. </summary>
     public static readonly ImTextureId Zero = new(nint.Zero);
 
+    /// <inheritdoc/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public override string ToString()
         => Value.ToString("X");
@@ -27,4 +29,8 @@ public readonly record struct ImTextureId(nint Value) : ISpanFormattable, IUtf8S
         [StringSyntax(StringSyntaxAttribute.NumericFormat)]
         ReadOnlySpan<char> format, IFormatProvider? provider)
         => Value.TryFormat(destination, out bytesWritten, format, provider);
+
+    /// <inheritdoc/>
+    public int CompareTo(ImTextureId other)
+        => Value.CompareTo(other.Value);
 };

@@ -192,8 +192,11 @@ public static partial class ImEx
     /// <param name="color"> The color. </param>
     public readonly ref struct ColorText(ReadOnlySpan<byte> text, ColorParameter color = default)
     {
-        public readonly ReadOnlySpan<byte> Text  = text;
-        public readonly ColorParameter     Color = color;
+        /// <summary> The text. </summary>
+        public readonly ReadOnlySpan<byte> Text = text;
+
+        /// <summary> The color. </summary>
+        public readonly ColorParameter Color = color;
     }
 
     /// <summary> Draw multiple pieces of text in different colors and no additional spacing between them. </summary>

@@ -34,6 +34,13 @@ public static partial class Im
             get => Pointer->Pos;
         }
 
+        /// <summary> Get the center of the viewport in pixels. </summary>
+        public Vector2 Center
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Position + 0.5f * Size;
+        }
+
         /// <summary> Set the position of the next drawn window relative to this viewport. </summary>
         /// <param name="position"> The desired position for the next window.</param>
         /// <param name="condition"> Conditions to set the position. </param>

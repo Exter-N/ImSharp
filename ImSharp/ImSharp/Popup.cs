@@ -44,7 +44,7 @@ public static partial class Im
 
         /// <inheritdoc cref="PopupDisposable.ContextItem(ref Utf8LabelHandler,PopupContextFlags)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public static PopupDisposable BeginContextItem(Utf8LabelHandler id, PopupContextFlags flags = PopupContextFlags.None)
+        public static PopupDisposable BeginContextItem(Utf8LabelHandler id, PopupContextFlags flags = PopupContextFlags.MouseButtonRight)
             => PopupDisposable.ContextItem(ref id, flags);
 
         /// <inheritdoc cref="PopupDisposable.ContextItem(PopupContextFlags)"/>
@@ -54,12 +54,12 @@ public static partial class Im
 
         /// <inheritdoc cref="PopupDisposable.ContextWindow"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public static PopupDisposable BeginContextWindow(Utf8LabelHandler id, PopupContextFlags flags = PopupContextFlags.None)
+        public static PopupDisposable BeginContextWindow(Utf8LabelHandler id, PopupContextFlags flags = PopupContextFlags.MouseButtonDefault)
             => PopupDisposable.ContextWindow(ref id, flags);
 
         /// <inheritdoc cref="PopupDisposable.ContextVoid"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public static PopupDisposable BeginContextVoid(Utf8LabelHandler id, PopupContextFlags flags = PopupContextFlags.None)
+        public static PopupDisposable BeginContextVoid(Utf8LabelHandler id, PopupContextFlags flags = PopupContextFlags.MouseButtonDefault)
             => PopupDisposable.ContextVoid(ref id, flags);
 
         /// <inheritdoc cref="PopupDisposable(ref Utf8LabelHandler,WindowFlags)"/>

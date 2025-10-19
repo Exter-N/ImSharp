@@ -125,6 +125,19 @@ public static partial class Im
             return ret;
         }
 
+        /// <summary> Calculate the required size to display the given text as a button. </summary>
+        /// <param name="text"> The given text as text. Does not have to be null-terminated. </param>
+        /// <param name="wrapWidth"> The text wrap width to use for wrapping. 0 uses the current wrapping position, if any. </param>
+        /// <returns> The required size to display the button. </returns>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static Vector2 CalculateButtonSize(Utf8TextHandler text, float wrapWidth = 0)
+        {
+            ImVec2 ret;
+            Native.Methods.Text.CalcTextSize(&ret, text.Start(out var end), end, true, wrapWidth);
+            ret += Style.FramePadding;
+            return ret;
+        }
+
         /// <inheritdoc cref="CalculateSize(Utf8TextHandler,bool,float)"/>
         /// <typeparam name="T"> The buffer type. </typeparam>
         [MethodImpl(ImSharpConfiguration.OptInl)]
