@@ -202,6 +202,6 @@ public static class ImGuiColorExtensions
 
     /// <inheritdoc cref="Im.Color.Get"/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static Rgba32 Get(this ImGuiColor type)
-        => Im.Color.Get(type);
+    public static Rgba32 Get(this ImGuiColor type, float alphaMultiplier = 1.0f)
+        => Im.Color.Get(type, alphaMultiplier);
 }

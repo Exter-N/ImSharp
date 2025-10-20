@@ -89,7 +89,7 @@ public static partial class ImEx
     {
         var size      = knownWidth <= 0 ? Im.Font.CalculateSize(text, false).X : knownWidth;
         var available = Im.ContentRegion.Available.X;
-        Im.Cursor.X = available - size - offset;
+        Im.Cursor.X += available - size - offset;
         Im.Text(ref text);
     }
 
@@ -98,7 +98,7 @@ public static partial class ImEx
     {
         var size      = knownWidth <= 0 ? Im.Font.CalculateSize(ref text, false).X : knownWidth;
         var available = Im.ContentRegion.Available.X;
-        Im.Cursor.X = available - size - offset;
+        Im.Cursor.X += available - size - offset;
         Im.Text(ref text);
     }
 

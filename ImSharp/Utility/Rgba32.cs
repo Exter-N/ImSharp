@@ -103,6 +103,11 @@ public readonly record struct Rgba32(uint Color) : ISpanFormattable, IUtf8SpanFo
         return formattable.ToString(formatProvider);
     }
 
+    /// <summary> Get this color with a full alpha channel. </summary>
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    public Rgba32 FullAlpha()
+        => new(Color | 0xFF000000);
+
     /// <summary> Obtain an approximation of the intensity of a color without taking into consideration the alpha value. </summary>
     /// <param name="color"> The color. </param>
     /// <returns> The approximated intensity. </returns>

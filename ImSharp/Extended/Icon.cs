@@ -70,17 +70,16 @@ public static partial class ImEx
         {
             var size = new Vector2(config.Size.X is 0 ? Im.Style.FrameHeight : config.Size.X,
                 config.Size.Y is 0 ? Im.Style.FrameHeight : config.Size.Y);
-
-            using var color = Im.Color.Push(ImGuiColor.Button, config.ButtonColor)
-                .Push(ImGuiColor.ButtonHovered, config.HoveredColor)
-                .Push(ImGuiColor.ButtonActive,  config.ActiveColor)
-                .Push(ImGuiColor.Text,          config.TextColor)
-                .Push(ImGuiColor.Border,        config.BorderColor);
-            using var style = Im.Style.Push(ImStyleSingle.FrameBorderThickness, Im.Style.GlobalScale, config.BorderColor.IsVisible);
-            using var _     = Im.Disabled(config.Disabled);
+            using var _ = Im.Disabled(config.Disabled);
             bool      ret;
             using (T.Font.Push())
             {
+                using var style = ImStyleBorder.Frame.Push(config.BorderColor, Im.Style.GlobalScale, config.BorderColor.IsVisible)
+                    .Push(ImGuiColor.Button,        config.ButtonColor)
+                    .Push(ImGuiColor.ButtonHovered, config.HoveredColor)
+                    .Push(ImGuiColor.ButtonActive,  config.ActiveColor)
+                    .Push(ImGuiColor.Text,          config.TextColor);
+
                 ret = Im.Button(icon.Span, size, config.Flags);
             }
 
@@ -125,19 +124,20 @@ public static partial class ImEx
         /// <remarks> The tooltip is always evaluated. If this is expensive, prefer leaving it empty and using <seealso cref="Im.Tooltip.OnHover(HoveredFlags,ref HoverUtf8StringHandler)"/> manually. </remarks>
         [OverloadResolutionPriority(50)]
         public static bool Button<T>(T icon, Utf8TextHandler tooltip = default, bool disabled = false,
-            Rgba32? buttonColor = null, Rgba32? textColor = null, Vector2 size = default, ButtonFlags flags = ButtonFlags.None)
+            ColorParameter buttonColor = default, ColorParameter textColor = default, Vector2 size = default,
+            ButtonFlags flags = ButtonFlags.None)
             where T : IIconStandIn
         {
             if (size.X is 0)
                 size.X = Im.Style.FrameHeight;
             if (size.Y is 0)
                 size.Y = Im.Style.FrameHeight;
-            using var color = Im.Color.Push(ImGuiColor.Button, buttonColor)
-                .Push(ImGuiColor.Text, textColor);
             using var _ = Im.Disabled(disabled);
             bool      ret;
             using (T.Font.Push())
             {
+                using var color = Im.Color.Push(ImGuiColor.Button, buttonColor)
+                    .Push(ImGuiColor.Text, textColor);
                 ret = Im.Button(icon.Span, size, flags);
             }
 
@@ -147,7 +147,7 @@ public static partial class ImEx
         }
 
 
-        /// <inheritdoc cref="Button{T}(T,Utf8TextHandler,bool,Rgba32?,Rgba32?,Vector2,ButtonFlags)"/>
+        /// <inheritdoc cref="Button{T}(T,Utf8TextHandler,bool,ColorParameter,ColorParameter,Vector2,ButtonFlags)"/>
         [OverloadResolutionPriority(100)]
         public static bool Button<T>(T icon, Utf8TextHandler tooltip = default, bool disabled = false,
             Vector2 size = default, ButtonFlags flags = ButtonFlags.None) where T : IIconStandIn
@@ -168,7 +168,7 @@ public static partial class ImEx
             return ret;
         }
 
-        /// <inheritdoc cref="Button{T}(T,Utf8TextHandler,bool,Rgba32?,Rgba32?,Vector2,ButtonFlags)"/>
+        /// <inheritdoc cref="Button{T}(T,Utf8TextHandler,bool,ColorParameter,ColorParameter,Vector2,ButtonFlags)"/>
         [OverloadResolutionPriority(200)]
         public static bool Button<T>(T icon, Utf8TextHandler tooltip = default,
             Vector2 size = default, ButtonFlags flags = ButtonFlags.None) where T : IIconStandIn
