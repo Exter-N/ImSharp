@@ -114,7 +114,7 @@ public static partial class ImEx
     public static void TextCentered(Utf8TextHandler text, float knownWidth = 0)
     {
         var size      = knownWidth is 0 ? Im.Font.CalculateSize(ref text, false).X : knownWidth;
-        var available = Im.ContentRegion.Maximum.X;
+        var available = Im.ContentRegion.Available.X;
         Im.Cursor.X += (available - size) / 2;
         Im.Text(ref text);
     }

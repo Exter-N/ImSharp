@@ -180,9 +180,9 @@ public static class ImGuiColorExtensions
     public static Im.ColorDisposable Push(this ImGuiColor type, Rgba32 color, bool condition)
         => new Im.ColorDisposable().Push(type, color, condition);
 
-    /// <inheritdoc cref="Im.ColorDisposable.Push(ImGuiColor,Rgba32?)"/>
+    /// <inheritdoc cref="Im.ColorDisposable.Push(ImGuiColor,ColorParameter)"/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static Im.ColorDisposable Push(this ImGuiColor type, Rgba32? color)
+    public static Im.ColorDisposable Push(this ImGuiColor type, ColorParameter color)
         => new Im.ColorDisposable().Push(type, color);
 
     /// <inheritdoc cref="Im.ColorDisposable.Push(ImGuiColor,Vector4,bool)"/>
