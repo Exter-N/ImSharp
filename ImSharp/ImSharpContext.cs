@@ -21,6 +21,7 @@ public unsafe struct ImSharpContext : IDisposable
 
     public void* ImGuiContext;
     public void* MonoFont;
+    public void* DefaultFont;
 
     public static ImSharpContext* SetupDefault()
     {
@@ -39,6 +40,7 @@ public unsafe struct ImSharpContext : IDisposable
         ret->TextBufferSize = 4 * 1024 * 1024 - 1;
         ret->ImGuiContext   = Im.Context.Pointer;
         ret->MonoFont       = null;
+        ret->DefaultFont    = null;
 
         return ret;
     }
@@ -60,6 +62,7 @@ public unsafe struct ImSharpContext : IDisposable
         TextBuffer      = null;
         InputBuffer     = null;
         MonoFont        = null;
+        DefaultFont     = null;
         HintBufferSize  = 0;
         LabelBufferSize = 0;
         TextBufferSize  = 0;

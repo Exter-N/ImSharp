@@ -35,7 +35,7 @@ public static class ImTextExtensions
     internal static unsafe void CopyInto<T>(this ReadOnlySpan<byte> data) where T : IStringHandlerBuffer
     {
         if (data.Length >= T.Size)
-            throw new ImUtf8SizeException();
+            throw new ImSharpSizeException();
 
         data.CopyTo(T.Span);
         T.Buffer[data.Length] = 0;
@@ -46,7 +46,7 @@ public static class ImTextExtensions
     internal static unsafe void CopyInto<T>(this ReadOnlySpan<char> data, out int bytesWritten) where T : IStringHandlerBuffer
     {
         if (!Encoding.UTF8.TryGetBytes(data, T.Span, out bytesWritten) || bytesWritten == T.Size)
-            throw new ImUtf8SizeException();
+            throw new ImSharpSizeException();
 
         T.Buffer[bytesWritten] = 0;
     }

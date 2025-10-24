@@ -64,6 +64,11 @@ public static partial class Im
         public static void OnHover(ReadOnlySpan<char> text)
             => OnHover(HoveredFlags.None, text);
 
+        /// <inheritdoc cref="OnHover(HoveredFlags,ReadOnlySpan{byte})"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static void OnHover(Utf8TextHandler text, HoveredFlags flags = HoveredFlags.None)
+            => OnHover(ref text, flags);
+
         /// <summary> Add the given text to a tooltip when the prior item is hovered. </summary>
         /// <param name="flags"> The flags to check on hovering. </param>
         /// <param name="text"> The tooltip text as interpolated string. This will only get evaluated if the item is hovered. </param>

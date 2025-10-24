@@ -9,7 +9,7 @@ public class Utf8FormatException() : Exception("Could not format UTF8 String.");
 /// <summary>
 /// Exception thrown when the internal buffers do not suffice to store data.
 /// </summary>
-public class ImUtf8SizeException() : Exception("Input data is longer than buffer size.");
+public class ImSharpSizeException() : Exception("Input data is longer than buffer size.");
 
 /// <summary>
 /// Exception thrown only in debug mode when state-dependent ImGui functions are used in invalid state.

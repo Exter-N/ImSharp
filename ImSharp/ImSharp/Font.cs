@@ -75,6 +75,13 @@ public static partial class Im
             get => (Native.ImFont*)ImSharpConfiguration.Context->MonoFont;
         }
 
+        /// <summary> Get the configured default font, see <see cref="ImSharpContext.DefaultFont"/>. </summary>
+        public static Font Default
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => (Native.ImFont*)ImSharpConfiguration.Context->DefaultFont;
+        }
+
         /// <summary> Push the monospaced font configured in the <seealso cref="ImSharpContext"/> if it is available. </summary>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static FontDisposable PushMono()
@@ -83,6 +90,16 @@ public static partial class Im
                 return new FontDisposable();
 
             return Push((Font)ImSharpConfiguration.Context->MonoFont);
+        }
+
+        /// <summary> Push the default font configured in the <seealso cref="ImSharpContext"/> if it is available. </summary>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static FontDisposable PushDefault()
+        {
+            if (ImSharpConfiguration.Context->DefaultFont is null)
+                return new FontDisposable();
+
+            return Push((Font)ImSharpConfiguration.Context->DefaultFont);
         }
 
         /// <summary> Get the current font size. </summary>
