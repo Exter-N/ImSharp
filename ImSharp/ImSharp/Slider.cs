@@ -80,25 +80,25 @@ public static partial class Im
 
     /// <summary> Draw a slider specifically for angles in degrees radians. </summary>
     /// <param name="label"> The slider label as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
-    /// <param name="degreeRadians"> The angle in degrees radians. </param>
+    /// <param name="valueRadian"> The angle in radian, i.e. usually in [0, 2pi). </param>
     /// <param name="format"> The printf format-string to display the degrees in as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
-    /// <param name="minDegrees"> The minimum value for the degrees. This is only applied on manual input when the <seealso cref="SliderFlags.AlwaysClamp"/> flag is set. </param>
-    /// <param name="maxDegrees"> The maximum value for the degrees. This is only applied on manual input when the <seealso cref="SliderFlags.AlwaysClamp"/> flag is set. </param>
+    /// <param name="minDegrees"> The minimum value for the degrees, i.e. usually in [-360°, 360°]. This is only applied on manual input when the <seealso cref="SliderFlags.AlwaysClamp"/> flag is set. </param>
+    /// <param name="maxDegrees"> The maximum value for the degrees, usually in [-360°, 360°]. This is only applied on manual input when the <seealso cref="SliderFlags.AlwaysClamp"/> flag is set. </param>
     /// <param name="flags"> Additional flags controlling the sliders behavior. </param>
     /// <returns> Whether the value changed in this frame. </returns>
     /// <remarks> Sliders can be turned to input boxes with a Control-Click on them unless disabled by flags. </remarks>
     [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static unsafe bool SliderAngle(Utf8LabelHandler label, ref float degreeRadians, Utf8HintHandler format,
+    public static unsafe bool SliderAngle(Utf8LabelHandler label, ref float valueRadian, Utf8HintHandler format,
         float minDegrees = -360f, float maxDegrees = 360f, SliderFlags flags = SliderFlags.None)
-        => Native.Methods.Sliders.SliderAngle(label.Start(), (float*)Unsafe.AsPointer(ref degreeRadians), minDegrees, maxDegrees,
+        => Native.Methods.Sliders.SliderAngle(label.Start(), (float*)Unsafe.AsPointer(ref valueRadian), minDegrees, maxDegrees,
             format.Start(), flags);
 
     /// <summary> Draw a slider specifically for angles in degrees radians with the default format '%.0f deg'. </summary>
     /// <inheritdoc cref="SliderAngle(Utf8LabelHandler,ref float,Utf8HintHandler,float,float,SliderFlags)"/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static unsafe bool SliderAngle(Utf8LabelHandler label, ref float degreeRadians, float minDegrees = -360f, float maxDegrees = 360f,
+    public static unsafe bool SliderAngle(Utf8LabelHandler label, ref float valueRadian, float minDegrees = -360f, float maxDegrees = 360f,
         SliderFlags flags = SliderFlags.None)
-        => Native.Methods.Sliders.SliderAngle(label.Start(), (float*)Unsafe.AsPointer(ref degreeRadians), minDegrees, maxDegrees,
+        => Native.Methods.Sliders.SliderAngle(label.Start(), (float*)Unsafe.AsPointer(ref valueRadian), minDegrees, maxDegrees,
             DefaultAngleFormat.Start(), flags);
 
     /// <summary> Draw a drag slider, i.e. a button you can hold and drag to the side to change the value. </summary>
