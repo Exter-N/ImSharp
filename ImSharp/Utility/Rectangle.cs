@@ -17,7 +17,17 @@ public readonly record struct Rectangle(Vector2 Minimum, Vector2 Maximum)
     public static Rectangle FromSize(Vector2 minimum, Vector2 size)
         => new(minimum, minimum + size);
 
-    /// <inheritdoc cref="ImRect(float,float,float,float)"/>
+    /// <inheritdoc cref="ImRect.FromSize"/>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static Rectangle FromSize(Vector2 size)
+        => new(Vector2.Zero, size);
+
+    /// <inheritdoc cref="ImRect.FromSize"/>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static Rectangle FromSize(float sizeX, float sizeY)
+        => new(Vector2.Zero, new Vector2(sizeX, sizeY));
+
+    /// <inheritdoc cref="ImRect.(float,float,float,float)"/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public Rectangle(float xMinimum, float yMinimum, float xMaximum, float yMaximum)
         : this(new Vector2(xMinimum, yMinimum), new Vector2(xMaximum, yMaximum))

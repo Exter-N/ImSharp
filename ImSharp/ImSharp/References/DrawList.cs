@@ -1,7 +1,5 @@
 #pragma warning disable CS1573 // Parameter has no matching param tag in the XML comment (but other parameters do)
 
-using System.Drawing;
-
 namespace ImSharp;
 
 public static partial class Im
@@ -137,7 +135,8 @@ public static partial class Im
 
         /// <inheritdoc cref="Text(Font,float,Vector2,Rgba32,Utf8TextHandler,float)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public void Text<T>(Font font, float fontSize, Vector2 position, Rgba32 color, ref Utf8StringHandler<T> text, float wrapWidth = 0f) where T : IStringHandlerBuffer
+        public void Text<T>(Font font, float fontSize, Vector2 position, Rgba32 color, ref Utf8StringHandler<T> text, float wrapWidth = 0f)
+            where T : IStringHandlerBuffer
             => Native.ImDrawList.AddText(Pointer, font.Pointer, fontSize, position, color.Color, text.Start(out var end), end, wrapWidth, null);
 
         /// <param name="cpuFineClipRect"> A clipping Rectangle. </param>
@@ -253,6 +252,24 @@ public static partial class Im
             => Native.ImDrawList.AddImage(Pointer, userTextureId, rectangle.Minimum, rectangle.Maximum, uvRectangle.Minimum,
                 uvRectangle.Maximum,
                 color.Color);
+
+        /// <inheritdoc cref="Image(ImTextureId,Vector2,Vector2,Vector2,Vector2,Rgba32)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public void Image(ImTextureId userTextureId, Vector2 minimum, Vector2 maximum, Vector2 uvMinimum, Vector2 uvMaximum)
+            => Native.ImDrawList.AddImage(Pointer, userTextureId, minimum, maximum, uvMinimum, uvMaximum, 0xFFFFFFFF);
+
+        /// <param name="rectangle"> The rectangle to draw the image in screen coordinates. </param>
+        /// <inheritdoc cref="Image(ImTextureId,Vector2,Vector2,Vector2,Vector2,Rgba32)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public void Image(ImTextureId userTextureId, in Rectangle rectangle, Vector2 uvMinimum, Vector2 uvMaximum)
+            => Native.ImDrawList.AddImage(Pointer, userTextureId, rectangle.Minimum, rectangle.Maximum, uvMinimum, uvMaximum, 0xFFFFFFFF);
+
+        /// <param name="uvRectangle"> The rectangle of the normalized texture coordinate, usually (0, 0) to (1, 1). </param>
+        /// <inheritdoc cref="Image(ImTextureId,in Rectangle,Vector2,Vector2,Rgba32)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public void Image(ImTextureId userTextureId, in Rectangle rectangle, in Rectangle uvRectangle)
+            => Native.ImDrawList.AddImage(Pointer, userTextureId, rectangle.Minimum, rectangle.Maximum, uvRectangle.Minimum,
+                uvRectangle.Maximum, 0xFFFFFFFF);
 
         /// <inheritdoc cref="Image(ImTextureId,in Rectangle,Vector2,Vector2,Rgba32)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]

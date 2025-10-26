@@ -109,7 +109,7 @@ public abstract class TriStateFlagFilterBase<TCacheItem, TEnum> : IFilter<TCache
         var color = ImGuiColor.FrameBackground.Push(ImEx.Table.ActiveFilterColor, !all);
         var combo = Im.Combo.Begin(""u8, label, ComboFlags);
         color.Dispose();
-        changes = Im.Item.Clicked(MouseButton.Right) && SetValue(AllFlags, true);
+        changes = Im.Item.RightClicked() && SetValue(AllFlags, true);
         if (!all)
             Im.Tooltip.OnHover("Right-click to clear filters."u8);
 

@@ -72,6 +72,18 @@ public static partial class Im
         public static bool Clicked(MouseButton button = MouseButton.Left)
             => Native.Methods.Items.IsItemClicked(button);
 
+        /// <summary> Get whether the last drawn item has been right-clicked in this frame. </summary>
+        /// <returns> True if the item has been right-clicked. </returns>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static bool RightClicked()
+            => Native.Methods.Items.IsItemClicked(MouseButton.Right);
+
+        /// <summary> Get whether the last drawn item has been middle-clicked in this frame. </summary>
+        /// <returns> True if the item has been middle-clicked. </returns>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static bool MiddleClicked()
+            => Native.Methods.Items.IsItemClicked(MouseButton.Middle);
+
         /// <summary> Get whether the last drawn item is currently being hovered by the cursor. </summary>
         /// <param name="flags"> Additional flags to control the behaviour, see <seealso cref="HoveredFlags"/>. </param>
         /// <returns> True if the item is hovered according to the flags. </returns>

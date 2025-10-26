@@ -6,6 +6,13 @@ public readonly record struct ImTextureId(nint Value) : ISpanFormattable, IUtf8S
     /// <summary> An empty texture ID. </summary>
     public static readonly ImTextureId Zero = new(nint.Zero);
 
+    /// <summary> Get whether this is an invalid ID. </summary>
+    public bool IsNull
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get => Value == nint.Zero;
+    }
+
     /// <inheritdoc/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public override string ToString()

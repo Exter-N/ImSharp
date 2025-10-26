@@ -63,7 +63,7 @@ public abstract class FlagFilterBase<TCacheItem, TEnum> : IFilter<TCacheItem>
         var color = ImGuiColor.FrameBackground.Push(ImEx.Table.ActiveFilterColor, !all);
         var combo = Im.Combo.Begin(""u8, label, ComboFlags);
         color.Dispose();
-        changes = Im.Item.Clicked(MouseButton.Right) && SetValue(AllFlags, true);
+        changes = Im.Item.RightClicked() && SetValue(AllFlags, true);
         if (!all)
             Im.Tooltip.OnHover("Right-click to clear filters."u8);
 
@@ -80,7 +80,7 @@ public abstract class FlagFilterBase<TCacheItem, TEnum> : IFilter<TCacheItem>
         {
             ret |= SetValue(flag, tmp);
         }
-        else if (Im.Item.Clicked(MouseButton.Right))
+        else if (Im.Item.RightClicked())
         {
             if (tmp)
             {

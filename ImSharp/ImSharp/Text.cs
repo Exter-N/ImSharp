@@ -49,17 +49,20 @@ public static unsafe partial class Im
     }
 
     /// <summary> Can be used to avoid copying an already established <seealso cref="Utf8TextHandler"/>. </summary>
-    [MethodImpl(ImSharpConfiguration.OptInl), OverloadResolutionPriority(100)]
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    [OverloadResolutionPriority(100)]
     public static void Text<T>(ref Utf8StringHandler<T> text) where T : IStringHandlerBuffer
         => Native.Methods.Text.TextUnformatted(text.Start(out var end), end);
 
     /// <inheritdoc cref="TextWrapDisposable.Push(float)"/>
-    [MethodImpl(ImSharpConfiguration.OptInl), OverloadResolutionPriority(100)]
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    [OverloadResolutionPriority(100)]
     public static TextWrapDisposable PushTextWrapPosition(float localX = 0)
         => new TextWrapDisposable().Push(localX);
 
     /// <inheritdoc cref="TextWrapDisposable.Push(float,bool)"/>
-    [MethodImpl(ImSharpConfiguration.OptInl), OverloadResolutionPriority(50)]
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    [OverloadResolutionPriority(50)]
     public static TextWrapDisposable PushTextWrapPosition(float localX = 0, bool condition = true)
         => condition ? new TextWrapDisposable().Push(localX) : new TextWrapDisposable();
 
@@ -78,6 +81,15 @@ public static unsafe partial class Im
     /// <param name="wrapPosition"> <inheritdoc cref="PushTextWrapPosition(float)"/> </param>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static void TextWrapped(Utf8TextHandler text, float wrapPosition = 0)
+    {
+        using var wrap = PushTextWrapPosition(wrapPosition);
+        Text(ref text);
+    }
+
+    /// <inheritdoc cref="TextWrapped(Utf8TextHandler,float)"/>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static void TextWrapped<T>(ref Utf8StringHandler<T> text, float wrapPosition = 0)
+        where T : IStringHandlerBuffer
     {
         using var wrap = PushTextWrapPosition(wrapPosition);
         Text(ref text);

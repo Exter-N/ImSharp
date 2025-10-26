@@ -50,7 +50,7 @@ public abstract class MultiStateCheckbox<T>
             newValue = NextValue(currentValue);
         else
         {
-            returnValue = Im.Item.Clicked(MouseButton.Right);
+            returnValue = Im.Item.RightClicked();
             if (returnValue)
                 newValue = PreviousValue(currentValue);
         }
