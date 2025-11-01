@@ -15,12 +15,12 @@ public static partial class Im
     /// <inheritdoc cref="IndentDisposable.Indent(float,bool)"/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static IndentDisposable Indent(bool condition)
-        => new IndentDisposable().Indent(0, condition);
+        => new IndentDisposable().Indent(Style.IndentSpacing, condition);
 
     /// <inheritdoc cref="IndentDisposable.Indent(float,bool)"/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static IndentDisposable Indent()
-        => new IndentDisposable().Indent(0);
+        => new IndentDisposable().Indent(Style.IndentSpacing);
 
     /// <summary> A wrapper class for cursor-related queries or actions in the current window. </summary>
     /// <remarks> Window coordinates are relative to the window position, absolute coordinates are relative to the viewport. </remarks>

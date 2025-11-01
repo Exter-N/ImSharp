@@ -12,7 +12,7 @@ public static partial class Im
                 [MethodImpl(ImSharpConfiguration.Inl)]
                 public static partial ImBool BeginListBox(byte* label, ImVec2 size);
 
-                [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igEndListbox")]
+                [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igEndListBox")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
                 public static partial void EndListBox();
 

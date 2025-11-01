@@ -17,7 +17,7 @@ public abstract class PartwiseFilterBase<TCacheItem> : TextFilterBase<TCacheItem
     /// <inheritdoc/>
     protected override bool SetInternal(string text)
     {
-        if (!base.Set(text))
+        if (!base.SetInternal(text))
             return false;
 
         Parts = text.Split(Splitter, SplitOptions);

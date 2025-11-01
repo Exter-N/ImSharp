@@ -43,6 +43,24 @@ public class CacheManager : IDisposable
         ImSharpConfiguration.LoggerChanged += UpdateLogger;
     }
 
+    /// <summary> Try to obtain an existing cache of a specific type without triggering any updates on it or recreating it for false types. </summary>
+    /// <typeparam name="TResult"> The expected type of the cache. </typeparam>
+    /// <param name="id"> The ID of the queried cache. </param>
+    /// <param name="result"> On success, the returned existing cache, otherwise null. </param>
+    /// <returns> True if the cache exists and is assignable to the expected type. </returns>
+    public bool TryGetCache<TResult>(ImGuiId id, [NotNullWhen(true)] out TResult? result)
+        where TResult : class, IManagedCache
+    {
+        if (_caches.TryGetValue(id, out var cache) && cache.Cache is TResult c)
+        {
+            result = c;
+            return true;
+        }
+
+        result = null;
+        return false;
+    }
+
     /// <summary> Get or create a new cache for a given ID, and update the last access for it. </summary>
     /// <typeparam name="TResult"> The type of the cache. </typeparam>
     /// <param name="id"> The ID to store the cache under. </param>

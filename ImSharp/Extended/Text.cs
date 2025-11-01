@@ -186,4 +186,27 @@ public static partial class ImEx
 
         drawList.Text(position, foregroundColor.CheckDefault(ImGuiColor.Text), ref text);
     }
+
+    /// <summary>
+    ///   Create a centered, modal help popup with the given content for the given label.
+    ///   It has a centered 'Understood' button to close the window.
+    /// </summary>
+    /// <param name="id"> The popup ID. </param>
+    /// <param name="size"> The size of the popup. </param>
+    /// <param name="content"> The action to draw the content of the popup. </param>
+    public static void HelpPopup(Utf8LabelHandler id, Vector2 size, Action content)
+    {
+        Im.Window.SetNextPosition(Im.Viewport.Main.Center, Condition.Always, new Vector2(0.5f));
+        Im.Window.SetNextSize(size);
+        using var pop = Im.Popup.Begin(id, WindowFlags.Modal | WindowFlags.NoResize | WindowFlags.NoMove);
+        if (!pop)
+            return;
+
+        content();
+        var buttonSize   = Math.Max(size.X / 5, Im.Font.CalculateButtonSize("Understood"u8).X);
+        var buttonCenter = (size.X - buttonSize) / 2 - Im.Style.WindowPadding.X;
+        Im.Cursor.Position = new Vector2(buttonCenter, size.Y - 1.75f * Im.Style.FrameHeight);
+        if (Im.Button("Understood"u8, new Vector2(buttonSize, 0)))
+            Im.Popup.CloseCurrent();
+    }
 }

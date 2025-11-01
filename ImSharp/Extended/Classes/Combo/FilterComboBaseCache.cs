@@ -21,14 +21,19 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
     /// <summary> The width with which to draw the expanded popup window. </summary>
     public float ComboWidth { get; protected set; }
 
-    public virtual bool DrawList(float width, out int selectedGlobalIndex)
+    public virtual bool DrawList(out int selectedGlobalIndex)
     {
-        // Create a child if we have drawn a filter before and thus the cursor isn't at 0.
-        using var child = Im.Cursor.Y is 0
-            ? default
-            : Im.Child.Begin("child"u8, new Vector2(width, parent.ItemHeight * 12 - Im.Cursor.Y - Im.Style.WindowPadding.Y));
+        // Create a child if we have drawn a filter before and thus the cursor isn't at 0, and we have more items than can be displayed.
+        // We do not need a child if we have no filter, or can display all items either way.
+        var beginChild = parent.Filter is not NopFilter<TCacheItem> && AllItems.Count > parent.MaximumItems;
+        // Move the cursor upwards to center the selectables better, or remove the forced frame padding before the child.
+        if (!beginChild)
+            Im.Cursor.Y = Im.Style.ItemSpacing.Y / 2;
+        else
+            Im.Cursor.X = 0;
 
-        using var id = Im.Id.Push("list"u8);
+        using var child = beginChild ? Im.Child.Begin("child"u8, Im.Window.Size - new Vector2(0, Im.Style.FrameHeight)) : default;
+        using var id    = Im.Id.Push("list"u8);
 
         // Try to find the current selection if we don't have one already.
         FindSelection();
@@ -46,11 +51,19 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
 
         // Draw the clipped list of filtered items.
         parent.PreDrawList();
+
+        // Center the selectables better inside the child.
+        if (beginChild)
+            Im.Cursor.Y = Im.Style.ItemSpacing.Y / 2;
         using (var clipper = new Im.ListClipper(FilteredItems.Count, parent.ItemHeight))
         {
             foreach (var globalIndex in clipper.Iterate(FilteredItems))
             {
                 id.Push(globalIndex);
+                // We need to move the selectables to align the text with the preview, if inside the child.
+                if (beginChild)
+                    Im.Cursor.X += Im.Style.FramePadding.X;
+
                 if (parent.DrawItem(UnfilteredItems[globalIndex], globalIndex, CurrentGlobalSelectionIndex == globalIndex))
                 {
                     ret                 = true;
@@ -78,9 +91,7 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
     protected virtual void FindSelection()
     {
         // Skip this if the window is not newly appearing, and we have a valid current selection.
-        if (!Im.Window.Appearing
-         && CurrentGlobalSelectionIndex >= 0
-         && parent.IsSelected(AllItems[CurrentGlobalSelectionIndex], CurrentGlobalSelectionIndex))
+        if (!Im.Window.Appearing && CurrentGlobalSelectionIndex >= 0)
             return;
 
         // We want to set the scroll position to the currently selected item if possible.
@@ -161,6 +172,7 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
     /// <returns> True if Enter is pressed and we have a selection. </returns>
     protected virtual bool DrawKeyboardNavigation(out int selectedGlobalIndex)
     {
+        Im.GetIo().CaptureTextInput = true;
         // Enable keyboard navigation for going up and down,
         // jumping if reaching the end. This also scrolls to the element.
         if (FilteredItems.Count > 0)

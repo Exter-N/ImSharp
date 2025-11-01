@@ -86,7 +86,7 @@ public static partial class Im
         /// <param name="flags"> Additional flags controlling the input behavior. </param>
         /// <returns> Whether the value changed in this frame. </returns>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public static bool Multiline(Utf8LabelHandler label, Span<byte> buffer, out StringU8 result, Vector2 size = default,
+        public static bool MultiLine(Utf8LabelHandler label, Span<byte> buffer, out StringU8 result, Vector2 size = default,
             InputTextFlags flags = InputTextFlags.None)
         {
             var length = 0ul;
@@ -109,11 +109,11 @@ public static partial class Im
         /// <param name="flags"> Additional flags controlling the input behavior. </param>
         /// <returns> Whether the value changed in this frame. </returns>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public static bool Multiline(Utf8LabelHandler label, Span<byte> buffer, out ulong length, Vector2 size = default,
+        public static bool MultiLine(Utf8LabelHandler label, Span<byte> buffer, out ulong length, Vector2 size = default,
             InputTextFlags flags = InputTextFlags.None)
         {
             length = 0ul;
-            return Native.Methods.Inputs.InputTextMultiline(label.Start(), buffer.Start(), (ulong)buffer.Length, size, flags,
+            return Native.Methods.Inputs.InputTextMultiline(label.Start(), buffer.Start(), (ulong)buffer.Length, size, flags | InputTextFlags.CallbackAlways,
                 &GetTextLength, (ulong*)Unsafe.AsPointer(ref length));
         }
 
@@ -124,13 +124,13 @@ public static partial class Im
         /// <param name="flags"> Additional flags controlling the input behavior. </param>
         /// <returns> Whether the value changed in this frame. </returns>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public static bool Multiline(Utf8LabelHandler label, ref StringU8 text, Vector2 size = default,
+        public static bool MultiLine(Utf8LabelHandler label, ref StringU8 text, Vector2 size = default,
             InputTextFlags flags = InputTextFlags.None)
         {
             text.Span.CopyInto<InputStringHandlerBuffer>();
             var length = 0ul;
             var ret = Native.Methods.Inputs.InputTextMultiline(label.Start(), InputStringHandlerBuffer.Buffer,
-                (ulong)InputStringHandlerBuffer.Size, size, flags, &GetTextLength, &length);
+                (ulong)InputStringHandlerBuffer.Size, size, flags | InputTextFlags.CallbackAlways, &GetTextLength, &length);
             if (Item.Edited)
                 text = new StringU8(new ReadOnlySpan<byte>(InputStringHandlerBuffer.Buffer, (int)length), false);
             return ret;
@@ -143,13 +143,13 @@ public static partial class Im
         /// <param name="flags"> Additional flags controlling the input behavior. </param>
         /// <returns> Whether the value changed in this frame. </returns>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public static bool Multiline(Utf8LabelHandler label, ref string text, Vector2 size = default,
+        public static bool MultiLine(Utf8LabelHandler label, ref string text, Vector2 size = default,
             InputTextFlags flags = InputTextFlags.None)
         {
             text.AsSpan().CopyInto<InputStringHandlerBuffer>(out _);
             var length = 0ul;
             var ret = Native.Methods.Inputs.InputTextMultiline(label.Start(), InputStringHandlerBuffer.Buffer,
-                (ulong)InputStringHandlerBuffer.Size, size, flags, &GetTextLength, &length);
+                (ulong)InputStringHandlerBuffer.Size, size, flags | InputTextFlags.CallbackAlways, &GetTextLength, &length);
             if (Item.Edited)
                 text = Encoding.UTF8.GetString(new ReadOnlySpan<byte>(InputStringHandlerBuffer.Buffer, (int)length));
             return ret;

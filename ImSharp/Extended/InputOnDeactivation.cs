@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 namespace ImSharp;
 
 public static partial class ImEx
@@ -280,7 +282,7 @@ public static partial class ImEx
             }
 
             flags &= ~InputTextFlags.EnterReturnsTrue;
-            if (Im.Input.Multiline(label, new Span<byte>(buffer, size), out ulong length, widgetSize, flags) || Im.Item.Activated)
+            if (Im.Input.MultiLine(label, new Span<byte>(buffer, size), out ulong length, widgetSize, flags) || Im.Item.Activated)
                 if (buffer != InputStringHandlerBuffer.Buffer)
                 {
                     TextStringHandlerBuffer.Span[..(int)length].CopyTo(InputStringHandlerBuffer.Span);

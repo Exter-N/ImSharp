@@ -94,4 +94,19 @@ public static unsafe partial class Im
         using var wrap = PushTextWrapPosition(wrapPosition);
         Text(ref text);
     }
+
+    /// <summary> Draw a bullet point for enumerations followed by the given text. </summary>
+    /// <param name="text"> The given text. Does not have to be null-terminated. </param>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static void BulletText(Utf8TextHandler text)
+        => BulletText(ref text);
+
+    /// <inheritdoc cref="BulletText(Utf8TextHandler)"/>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static void BulletText<T>(ref Utf8StringHandler<T> text)
+        where T : IStringHandlerBuffer
+    {
+        Bullet();
+        Text(ref text);
+    }
 }

@@ -133,7 +133,7 @@ public static partial class Im
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igSetWindowSize_Vec2")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial void SetWindowSize(ImVec2 pos, Condition condition);
+                public static partial void SetWindowSize(ImVec2 size, Condition condition);
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igSetWindowCollapsed_bool")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
