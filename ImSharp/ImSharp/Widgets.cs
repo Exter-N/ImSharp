@@ -107,7 +107,7 @@ public static partial class Im
     /// <typeparam name="T"> A basic enumeration type with backing type using at most 4 bytes. </typeparam>
     /// <exception cref="ArgumentException"> If sizeof(T) > 4. </exception>
     [MethodImpl(ImSharpConfiguration.OptInl)]
-    public static unsafe bool Checkbox<T>(ReadOnlySpan<byte> label, ref T value, T flags) where T : unmanaged, Enum
+    public static unsafe bool Checkbox<T>(Utf8LabelHandler label, ref T value, T flags) where T : unmanaged, Enum
     {
         var (val, f) = ConvertEnum(value, flags);
         if (!Native.Methods.Internal.CheckboxFlags(label.Start(), &val, f))

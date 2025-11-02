@@ -4,6 +4,16 @@ public static partial class Im
 {
     /// <inheritdoc cref="IndentDisposable.Indent(float,bool)"/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static IndentDisposable Indent(int width, bool condition)
+        => new IndentDisposable().Indent(width * Style.IndentSpacing, condition);
+
+    /// <inheritdoc cref="IndentDisposable.Indent(float,bool)"/>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static IndentDisposable Indent(int width)
+        => new IndentDisposable().Indent(width * Style.IndentSpacing);
+
+    /// <inheritdoc cref="IndentDisposable.Indent(float,bool)"/>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
     public static IndentDisposable Indent(float width, bool condition)
         => new IndentDisposable().Indent(width, condition);
 
