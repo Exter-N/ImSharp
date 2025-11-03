@@ -66,10 +66,10 @@ public unsafe ref struct HoverUtf8StringHandler
         }
         else
         {
-            IsHovered = true;
             _handler = new Utf8.TryWriteInterpolatedStringHandler(literalLength, formattedCount,
                 new Span<byte>(TextStringHandlerBuffer.Buffer, TextStringHandlerBuffer.Size),
                 out shouldAppend);
+            IsHovered = true;
         }
     }
 
@@ -82,9 +82,9 @@ public unsafe ref struct HoverUtf8StringHandler
         }
         else
         {
-            IsHovered = true;
             _handler = new Utf8.TryWriteInterpolatedStringHandler(literalLength, formattedCount, TextStringHandlerBuffer.Span,
                 out shouldAppend);
+            IsHovered = true;
         }
     }
 
@@ -98,9 +98,9 @@ public unsafe ref struct HoverUtf8StringHandler
         }
         else
         {
-            IsHovered = true;
             _handler = new Utf8.TryWriteInterpolatedStringHandler(literalLength, formattedCount, TextStringHandlerBuffer.Span, provider,
                 out shouldAppend);
+            IsHovered = true;
         }
     }
 

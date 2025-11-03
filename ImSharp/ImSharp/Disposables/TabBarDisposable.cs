@@ -15,7 +15,7 @@ public static partial class Im
         /// <inheritdoc cref="TabItemDisposable(ref Utf8LabelHandler,ref bool, TabItemFlags)"/>
         /// <remarks> Only call this if the tab bar object evaluates to true. </remarks>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public TabItemDisposable Item(Utf8LabelHandler label, ref bool open, TabItemFlags flags = TabItemFlags.None)
+        public readonly TabItemDisposable Item(Utf8LabelHandler label, ref bool open, TabItemFlags flags = TabItemFlags.None)
         {
             ImGuiStateException.CheckState(Success, Alive, "TabItem", "TabBar");
             return new TabItemDisposable(ref label, ref open, flags);
@@ -24,7 +24,7 @@ public static partial class Im
         /// <inheritdoc cref="TabItemDisposable(ref Utf8LabelHandler, TabItemFlags)"/>
         /// <remarks> Only call this if the tab bar object evaluates to true. </remarks>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public TabItemDisposable Item(Utf8LabelHandler label, TabItemFlags flags = TabItemFlags.None)
+        public readonly TabItemDisposable Item(Utf8LabelHandler label, TabItemFlags flags = TabItemFlags.None)
         {
             ImGuiStateException.CheckState(Success, Alive, "TabItem", "TabBar");
             return new TabItemDisposable(ref label, flags);
@@ -36,7 +36,7 @@ public static partial class Im
         /// <returns> True if the button has been clicked in this frame. </returns>
         /// <remarks> Only call this if the tab bar object evaluates to true. </remarks>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public bool Button(Utf8LabelHandler label, TabItemFlags flags = TabItemFlags.None)
+        public readonly bool Button(Utf8LabelHandler label, TabItemFlags flags = TabItemFlags.None)
         {
             ImGuiStateException.CheckState(Success, Alive, "TabItemButton", "TabBar");
             return Native.Methods.TabBar.TabItemButton(label.Start(), flags);
@@ -48,7 +48,10 @@ public static partial class Im
         /// <returns> A disposable object that evaluates to true if any part of the begun tab bar is currently visible. Use with using. </returns>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         internal TabBarDisposable(scoped ref Utf8LabelHandler label, TabBarFlags flags)
-            => Success = Native.Methods.TabBar.BeginTabBar(label.Start(), flags);
+        {
+            Success = Native.Methods.TabBar.BeginTabBar(label.Start(), flags);
+            Alive   = true;
+        }
 
         /// <summary> Conversion to bool. </summary>
         [MethodImpl(ImSharpConfiguration.OptInl)]
