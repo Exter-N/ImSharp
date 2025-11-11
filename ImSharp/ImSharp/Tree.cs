@@ -51,5 +51,10 @@ public static partial class Im
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static void SetNextOpen(bool openState = true, Condition condition = Condition.None)
             => Native.Methods.Tree.SetNextItemOpen(openState, condition);
+
+        /// <summary> Query whether the last drawn tree node was toggled open or closed in this frame. </summary>
+        /// <returns> True if the item was toggled in this frame.</returns>
+        public static bool ToggledOpen()
+            => Native.Methods.Items.IsItemToggledOpen();
     }
 }
