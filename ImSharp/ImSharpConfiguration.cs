@@ -31,7 +31,7 @@ public static unsafe class ImSharpConfiguration
             Context->Dispose();
 
         Context = context is null ? ImSharpContext.EmptyPointer : context;
-        Logger.LogDebug("Set ImSharp context to {Context}.", context is null ? "Empty Context" : $"0x{(nint)context:X}");
+        Logger.LogDebug("Set ImSharp context to {Context:l}.", context is null ? "Empty Context" : $"0x{(nint)context:X}");
     }
 
     /// <summary> Set or remove a global logger for ImSharp. </summary>
@@ -49,7 +49,7 @@ public static unsafe class ImSharpConfiguration
 
         Logger = logger ?? NullLogger.Instance;
         LoggerChanged?.Invoke(Logger);
-        Logger.LogDebug("Set ImSharp Logger to {Logger}.", logger is null ? "NullLogger" : "new logger");
+        Logger.LogDebug("Set ImSharp Logger to {Logger:l}.", logger is null ? "NullLogger" : "new logger");
     }
 
     /// <summary> The array pool used internally to rent arrays. </summary>
