@@ -49,7 +49,7 @@ public static partial class Im
 
         /// <inheritdoc cref="PopupDisposable.ContextItem(PopupContextFlags)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public static PopupDisposable BeginContextItem(PopupContextFlags flags = PopupContextFlags.None)
+        public static PopupDisposable BeginContextItem(PopupContextFlags flags = PopupContextFlags.MouseButtonRight)
             => PopupDisposable.ContextItem(flags);
 
         /// <inheritdoc cref="PopupDisposable.ContextWindow"/>
