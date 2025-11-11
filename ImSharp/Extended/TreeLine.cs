@@ -4,13 +4,13 @@ namespace ImSharp;
 public interface IFlattenedTreeNode
 {
     /// <summary> The local index of the parent of this node, -1 if no parent exists. </summary>
-    public int ParentIndex { get; }
+    public int ParentIndex { get; set; }
 
     /// <summary> The index of the last direct child node of this node. -1 if this has no child nodes. </summary>
-    public int StartsLineTo { get; }
+    public int StartsLineTo { get; set; }
 
     /// <summary> The indentation depth, or depth inside the tree, of this node. Or the number of ancestors. </summary>
-    public int IndentationDepth { get; }
+    public int IndentationDepth { get; set; }
 
     /// <summary> Draw this node. Should not indent itself. </summary>
     public void Draw();
@@ -42,8 +42,6 @@ public static class TreeLine
         var lineOffset = new Vector2(spacing - 0.5f, itemHeight);
         // The general offset for the horizontal line from the cursor point. The -0.5 is for optimizing DX line rendering.
         var horizontalOffset = new Vector2(spacing - lineOffset.X, itemHeight / 2 - 0.5f);
-        // Magic number for good looks on average.
-        var lineSize = MathF.Max(0, indentationWidth - 9 * Im.Style.GlobalScale) - 0.5f;
 
         // Clip the list, despite the continuous lines.
         using var clipper    = new Im.ListClipper(list.Count, itemHeightWithSpacing);
@@ -79,7 +77,7 @@ public static class TreeLine
                 // and we go back according to the indentation difference, which ~should~ always be 1.
                 var start = Im.Cursor.ScreenPosition + horizontalOffset;
                 var diff  = currentDepth - list[currentItem.ParentIndex].IndentationDepth;
-                var end   = start with { X = start.X - diff * indentationWidth + lineSize };
+                var end   = start with { X = start.X - diff * indentationWidth + lineOffset.X };
                 drawList.Line(start, end, lineColor, lineWidth);
             }
 
