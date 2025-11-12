@@ -102,6 +102,22 @@ public static class TreeLine
             currentItem.Draw();
         } while (enumerator.MoveNext());
 
+        // Draw lines that stretch from before the first item to after the last item.
+        if (hasMissingParents > 0)
+        {
+            var start = Im.Window.Position;
+            start.X += lineOffset.X + Im.Style.WindowPadding.X;
+            var end = start;
+            end.Y += Im.Window.Size.Y;
+            do
+            {
+                var s = start with { X = start.X + (hasMissingParents - 1) * indentationWidth };
+                var e = end with { X = s.X };
+                drawList.Line(s, e, lineColor, lineWidth);
+                --hasMissingParents;
+            } while (hasMissingParents > 0);
+        }
+
         return;
 
         void StartLine(in Im.DrawList.DrawListShapes drawList, in IFlattenedTreeNode node, int nodeIndex, Vector2 startPosition)
