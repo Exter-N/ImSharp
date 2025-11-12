@@ -57,11 +57,12 @@ public static class TreeLine
         var firstIndex        = enumerator.Current;
         var hasMissingParents = list[firstIndex].IndentationDepth;
 
-        var       currentDepth = 0;
-        using var indent       = new Im.IndentDisposable();
+        var                currentDepth = 0;
+        using var          indent       = new Im.IndentDisposable();
+        IFlattenedTreeNode currentItem;
         do
         {
-            var currentItem = list[enumerator.Current];
+            currentItem = list[enumerator.Current];
 
             // Handle new indentation due to changed depth.
             if (currentItem.IndentationDepth != currentDepth)
@@ -103,7 +104,7 @@ public static class TreeLine
         } while (enumerator.MoveNext());
 
         // Draw lines that stretch from before the first item to after the last item.
-        if (hasMissingParents > 0)
+        if (hasMissingParents > 0 && currentItem.IndentationDepth > 0)
         {
             var start = Im.Window.Position;
             start.X += lineOffset.X + Im.Style.WindowPadding.X;
