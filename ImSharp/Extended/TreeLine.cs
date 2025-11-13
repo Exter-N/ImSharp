@@ -56,13 +56,21 @@ public static class TreeLine
         // and keep track of how many lines we are still missing.
         var firstIndex        = enumerator.Current;
         var hasMissingParents = list[firstIndex].IndentationDepth;
-
-        var                currentDepth = 0;
-        using var          indent       = new Im.IndentDisposable();
-        IFlattenedTreeNode currentItem;
+        var startInFocusStep  = clipper.IsInFocusStep;
+        var       currentDepth = 0;
+        using var indent       = new Im.IndentDisposable();
         do
         {
-            currentItem = list[enumerator.Current];
+            var currentItem = list[enumerator.Current];
+
+            // If an item is focused or active, the stepper produces one step that draws the active item,
+            // then another that draws the rest, so we reset the first item in this case.
+            if (startInFocusStep && !clipper.IsInFocusStep)
+            {
+                hasMissingParents = currentItem.IndentationDepth;
+                firstIndex        = enumerator.Current;
+                startInFocusStep  = false;
+            }
 
             // Handle new indentation due to changed depth.
             if (currentItem.IndentationDepth != currentDepth)
@@ -104,7 +112,7 @@ public static class TreeLine
         } while (enumerator.MoveNext());
 
         // Draw lines that stretch from before the first item to after the last item.
-        if (hasMissingParents > 0 && currentItem.IndentationDepth > 0)
+        if (hasMissingParents > 0)
         {
             var start = Im.Window.Position;
             start.X += lineOffset.X + Im.Style.WindowPadding.X;

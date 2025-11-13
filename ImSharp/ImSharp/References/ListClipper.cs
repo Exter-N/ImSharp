@@ -51,6 +51,31 @@ public partial class Im
             get => ref Pointer->StartPosY;
         }
 
+        /// <summary> The current step in the process of iterating the list clipper. </summary>
+        public int CurrentStep
+        {
+            [MethodImpl(ImSharpConfiguration.Inl)]
+            get => Pointer->TempData is null ? 0 : Pointer->TempData->StepNo;
+        }
+
+        /// <summary> Get whether the current step is a navigation or focus step instead of the visible item step. </summary>
+        public bool IsInFocusStep
+        {
+            get
+            {
+                var data = Pointer->TempData;
+                if (data is null)
+                    return false;
+                if (data->Ranges.Count <= 1)
+                    return false;
+
+                if (data->Ranges[data->StepNo - 1].Count > 1)
+                    return false;
+
+                return true;
+            }
+        }
+
         /// <summary> Create a new ListClipper. </summary>
         [MethodImpl(ImSharpConfiguration.Inl)]
         public ListClipper()
@@ -99,7 +124,8 @@ public partial class Im
         }
 
         /// <summary> Iterate over all items in the list to be drawn with the current ListClipper settings. </summary>
-        [MethodImpl(ImSharpConfiguration.OptInl), OverloadResolutionPriority(100)]
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        [OverloadResolutionPriority(100)]
         public readonly IEnumerable<T> Iterate<T>(IReadOnlyList<T> list)
         {
             while (Step())
@@ -110,7 +136,8 @@ public partial class Im
         }
 
         /// <inheritdoc cref="Iterate{T}(IReadOnlyList{T})"/>
-        [MethodImpl(ImSharpConfiguration.OptInl), OverloadResolutionPriority(50)]
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        [OverloadResolutionPriority(50)]
         public readonly IEnumerable<T> Iterate<T>(IList<T> list)
         {
             while (Step())
@@ -121,7 +148,8 @@ public partial class Im
         }
 
         /// <summary> Iterate over all items in the enumerable to be drawn with the current ListClipper settings. </summary>
-        [MethodImpl(ImSharpConfiguration.OptInl), OverloadResolutionPriority(0)]
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        [OverloadResolutionPriority(0)]
         public readonly IEnumerable<T> Iterate<T>(IEnumerable<T> list)
         {
             // Shortcut for random access.
