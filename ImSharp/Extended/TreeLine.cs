@@ -13,7 +13,8 @@ public interface IFlattenedTreeNode
     public int IndentationDepth { get; set; }
 
     /// <summary> Draw this node. Should not indent itself. </summary>
-    public void Draw();
+    /// <param name="flattenedIndex"> The index of the object</param>
+    public void Draw(int flattenedIndex);
 }
 
 public static class TreeLine
