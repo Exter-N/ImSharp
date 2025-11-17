@@ -5,15 +5,17 @@ public static partial class ImEx
     /// <summary> Draw a tree node with an optional list of icon-buttons in the same line, while clipping any overextending text. </summary>
     /// <typeparam name="TIcon"> The type of the icons to draw. </typeparam>
     /// <typeparam name="TData"> Additional data relevant to the tree node and its icons. </typeparam>
+    /// <typeparam name="TData2"> Assignable from <see cref="TData"/>. </typeparam>
     /// <param name="label"> The label used for the tree node as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
     /// <param name="flags"> Additional flags to pass to the tree node. </param>
     /// <param name="data"> The data to pass to the icon buttons. </param>
     /// <param name="toggledOpen"> Returns whether this tree node was toggled open in this frame. </param>
     /// <param name="icons"> A number of icons to draw right-aligned on the available space for this tree-node. </param>
     /// <returns> A disposable object that evaluates to true if the begun tree node is currently expanded. Use with using. </returns>
-    public static Im.TreeNodeDisposable IconTreeNode<TIcon, TData>(Utf8LabelHandler label, TreeNodeFlags flags, in TData data,
-        out bool toggledOpen, params IReadOnlyCollection<IStatusIcon<TIcon, TData>> icons)
+    public static Im.TreeNodeDisposable IconTreeNode<TIcon, TData, TData2>(Utf8LabelHandler label, TreeNodeFlags flags, in TData data,
+        out bool toggledOpen, params IReadOnlyCollection<IStatusIcon<TIcon, TData2>> icons)
         where TIcon : IIconStandIn
+        where TData : TData2
     {
         // We only care about visible icons.
         var visibleCount = 0;

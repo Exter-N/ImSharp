@@ -55,11 +55,11 @@ public static class TreeLine
 
         // Keep track of the first index to differentiate potential parents clipped away,
         // and keep track of how many lines we are still missing.
-        var firstIndex        = enumerator.Current;
-        var hasMissingParents = list[firstIndex].IndentationDepth;
-        var startInFocusStep  = clipper.IsInFocusStep;
-        var       currentDepth = 0;
-        using var indent       = new Im.IndentDisposable();
+        var       firstIndex        = enumerator.Current;
+        var       hasMissingParents = list[firstIndex].IndentationDepth;
+        var       startInFocusStep  = clipper.IsInFocusStep;
+        var       currentDepth      = 0;
+        using var indent            = new Im.IndentDisposable();
         do
         {
             var currentItem = list[enumerator.Current];
@@ -109,7 +109,7 @@ public static class TreeLine
 
             // Draw the item itself under the ID of the current index.
             using var id = Im.Id.Push(enumerator.Current);
-            currentItem.Draw();
+            currentItem.Draw(enumerator.Current);
         } while (enumerator.MoveNext());
 
         // Draw lines that stretch from before the first item to after the last item.
