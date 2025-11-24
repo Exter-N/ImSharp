@@ -1,11 +1,16 @@
+using ImSharp.Containers;
+
 namespace ImSharp;
 
 /// <summary> A base cache for items that are transformed for a cache and then can be filtered.  </summary>
 /// <typeparam name="TCacheItem"> The transformed, cached item type. </typeparam>
-public abstract class FilterCache<TCacheItem> : BasicCache
+public abstract class FilterCache<TCacheItem> : BasicCache, IReadOnlyList<TCacheItem>
 {
     /// <summary> Whether the next update should re-filter the global data. </summary>
     protected bool FilterDirty { get; set; } = true;
+
+    /// <summary> Whether the cache owns the <see cref="UnfilteredItems"/> list and should dispose it on disposal. </summary>
+    protected bool DisposeItems { get; set; } = true;
 
     /// <summary> The pre-processed list of all available items to display. </summary>
     protected IReadOnlyList<TCacheItem> UnfilteredItems = [];
@@ -29,17 +34,18 @@ public abstract class FilterCache<TCacheItem> : BasicCache
         UnfilteredItems = items as IReadOnlyList<TCacheItem> ?? items.ToList();
         FilterDirty     = true;
         OnDataUpdate();
+        Dirty &= ~IManagedCache.DirtyFlags.Custom;
     }
 
     /// <summary> Update the cache. Called whenever it is fetched. </summary>
     public override void Update()
     {
-        if (Dirty is IManagedCache.DirtyFlags.Clean)
-            return;
+        HandleAdapter();
+        if (Dirty is not IManagedCache.DirtyFlags.Clean)
+            UpdateData();
 
-        UpdateData();
-        UpdateFilter();
-        Dirty = IManagedCache.DirtyFlags.Clean;
+        if (FilterDirty)
+            UpdateFilter();
     }
 
     /// <summary> Update the filtered items. </summary>
@@ -77,4 +83,70 @@ public abstract class FilterCache<TCacheItem> : BasicCache
     /// <summary> Invoked when the global items have been freshly filtered. </summary>
     protected virtual void OnFilterUpdate()
     { }
+
+    /// <inheritdoc/>
+    public IEnumerator<TCacheItem> GetEnumerator()
+        => FilteredItems.Select(i => AllItems[i]).GetEnumerator();
+
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator()
+        => GetEnumerator();
+
+    /// <summary> The number of filtered items. </summary>
+    public int Count
+        => FilteredItems.Count;
+
+    /// <summary> Get a filtered item by its index. </summary>
+    public TCacheItem this[int index]
+        => AllItems[FilteredItems[index]];
+
+    /// <summary> Handle the case where our unfiltered list of items is a cache adapter. </summary>
+    protected virtual void HandleAdapter()
+    {
+        if (UnfilteredItems is not CacheListAdapter adapter)
+            return;
+
+        // If we have a cache adapter, we do not care for the custom dirty flag.
+        // Instead, we check only the adapter's own dirty flag and act accordingly.
+        Dirty &= ~IManagedCache.DirtyFlags.Custom;
+        if (!adapter.Dirty)
+            return;
+
+        FilterDirty = true;
+        OnDataUpdate();
+        adapter.Dirty = false;
+    }
+}
+
+/// <summary> A basic filter cache associated with a filter. </summary>
+/// <typeparam name="TCacheItem"> The transformed, cached item type. </typeparam>
+public abstract class BasicFilterCache<TCacheItem> : FilterCache<TCacheItem>
+{
+    /// <summary> The associated filter. </summary>
+    public readonly IFilter<TCacheItem> Filter;
+
+    /// <summary> Create a basic filter cache. </summary>
+    /// <param name="filter"> The associated filter. </param>
+    public BasicFilterCache(IFilter<TCacheItem> filter)
+    {
+        Filter               =  filter;
+        Filter.FilterChanged += OnFilterChanged;
+    }
+
+    /// <inheritdoc/>
+    protected override bool WouldBeVisible(in TCacheItem item, int globalIndex)
+        => Filter.WouldBeVisible(item, globalIndex);
+
+    /// <inheritdoc/>
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(true);
+        Filter.FilterChanged -= OnFilterChanged;
+        if (DisposeItems)
+            (UnfilteredItems as IDisposable)?.Dispose();
+    }
+
+    /// <summary> Set the filter dirty. </summary>
+    private void OnFilterChanged()
+        => FilterDirty = true;
 }

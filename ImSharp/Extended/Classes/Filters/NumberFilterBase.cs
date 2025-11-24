@@ -36,7 +36,7 @@ public abstract class NumberFilterBase<TNumber, TCacheItem> : RegexFilterBase<TC
     /// <returns> True if the filter changed.</returns>
     protected override bool SetInternal(string text)
     {
-        if (!base.Set(text))
+        if (!base.SetInternal(text))
             return false;
 
         if (TNumber.TryParse(text, NumberStyles.Any, null, out var number))

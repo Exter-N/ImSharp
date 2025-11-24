@@ -245,48 +245,48 @@ public static class ImGuiStyleExtensions
     public static Im.StyleDisposable PushY(this ImStyleDouble type, float value)
         => new Im.StyleDisposable().PushY(type, value);
 
-    /// <inheritdoc cref="Im.ColorStyleDisposable.PushBorder(ImStyleBorder,ColorParameter,float,bool)"/>
+    /// <inheritdoc cref="Im.ColorStyleDisposable.Push(ImSharp.ImStyleBorder,ImSharp.ColorParameter,float,bool)"/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static Im.ColorStyleDisposable Push(this ImStyleBorder borderType, ColorParameter color, float thickness, bool condition)
-        => new Im.ColorStyleDisposable().PushBorder(borderType, color, thickness, condition);
+        => new Im.ColorStyleDisposable().Push(borderType, color, thickness, condition);
 
-    /// <inheritdoc cref="Im.ColorStyleDisposable.PushBorder(ImStyleBorder,ColorParameter,float)"/>
+    /// <inheritdoc cref="Im.ColorStyleDisposable.Push(ImSharp.ImStyleBorder,ImSharp.ColorParameter,float)"/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static Im.ColorStyleDisposable Push(this ImStyleBorder borderType, ColorParameter color, float thickness)
-        => new Im.ColorStyleDisposable().PushBorder(borderType, color, thickness);
+        => new Im.ColorStyleDisposable().Push(borderType, color, thickness);
 
-    /// <inheritdoc cref="Im.ColorStyleDisposable.PushBorder(ImStyleBorder,ColorParameter)"/>
+    /// <inheritdoc cref="Im.ColorStyleDisposable.Push(ImSharp.ImStyleBorder,ImSharp.ColorParameter)"/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static Im.ColorStyleDisposable Push(this ImStyleBorder borderType, ColorParameter color)
-        => new Im.ColorStyleDisposable().PushBorder(borderType, color);
+        => new Im.ColorStyleDisposable().Push(borderType, color);
 
-    /// <inheritdoc cref="Im.ColorStyleDisposable.PushBorder(ImStyleBorder,Rgba32,float,bool)"/>
+    /// <inheritdoc cref="Im.ColorStyleDisposable.Push(ImSharp.ImStyleBorder,ImSharp.Rgba32,float,bool)"/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static Im.ColorStyleDisposable Push(this ImStyleBorder borderType, Rgba32 color, float thickness, bool condition)
-        => new Im.ColorStyleDisposable().PushBorder(borderType, color, thickness, condition);
+        => new Im.ColorStyleDisposable().Push(borderType, color, thickness, condition);
 
-    /// <inheritdoc cref="Im.ColorStyleDisposable.PushBorder(ImStyleBorder,Rgba32,float)"/>
+    /// <inheritdoc cref="Im.ColorStyleDisposable.Push(ImSharp.ImStyleBorder,ImSharp.Rgba32,float)"/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static Im.ColorStyleDisposable Push(this ImStyleBorder borderType, Rgba32 color, float thickness)
-        => new Im.ColorStyleDisposable().PushBorder(borderType, color, thickness);
+        => new Im.ColorStyleDisposable().Push(borderType, color, thickness);
 
-    /// <inheritdoc cref="Im.ColorStyleDisposable.PushBorder(ImStyleBorder,Rgba32)"/>
+    /// <inheritdoc cref="Im.ColorStyleDisposable.Push(ImSharp.ImStyleBorder,ImSharp.Rgba32)"/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static Im.ColorStyleDisposable Push(this ImStyleBorder borderType, Rgba32 color)
-        => new Im.ColorStyleDisposable().PushBorder(borderType, color);
+        => new Im.ColorStyleDisposable().Push(borderType, color);
 
-    /// <inheritdoc cref="Im.ColorStyleDisposable.PushBorder(ImStyleBorder,Vector4,float,bool)"/>
+    /// <inheritdoc cref="Im.ColorStyleDisposable.Push(ImSharp.ImStyleBorder,System.Numerics.Vector4,float,bool)"/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static Im.ColorStyleDisposable Push(this ImStyleBorder borderType, Vector4 color, float thickness, bool condition)
-        => new Im.ColorStyleDisposable().PushBorder(borderType, color, thickness, condition);
+        => new Im.ColorStyleDisposable().Push(borderType, color, thickness, condition);
 
-    /// <inheritdoc cref="Im.ColorStyleDisposable.PushBorder(ImStyleBorder,Vector4,float)"/>
+    /// <inheritdoc cref="Im.ColorStyleDisposable.Push(ImSharp.ImStyleBorder,System.Numerics.Vector4,float)"/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static Im.ColorStyleDisposable Push(this ImStyleBorder borderType, Vector4 color, float thickness)
-        => new Im.ColorStyleDisposable().PushBorder(borderType, color, thickness);
+        => new Im.ColorStyleDisposable().Push(borderType, color, thickness);
 
-    /// <inheritdoc cref="Im.ColorStyleDisposable.PushBorder(ImStyleBorder,Vector4)"/>
+    /// <inheritdoc cref="Im.ColorStyleDisposable.Push(ImSharp.ImStyleBorder,System.Numerics.Vector4)"/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static Im.ColorStyleDisposable Push(this ImStyleBorder borderType, Vector4 color)
-        => new Im.ColorStyleDisposable().PushBorder(borderType, color);
+        => new Im.ColorStyleDisposable().Push(borderType, color);
 }

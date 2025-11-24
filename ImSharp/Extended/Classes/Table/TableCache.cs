@@ -74,14 +74,16 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
     /// <summary> Update the cache. Called whenever it is fetched. </summary>
     public override void Update()
     {
-        if (Dirty is IManagedCache.DirtyFlags.Clean)
-            return;
+        HandleAdapter();
+        if (Dirty is not IManagedCache.DirtyFlags.Clean)
+        {
+            UpdateData();
+            UpdateColumnWidths();
+            Dirty = IManagedCache.DirtyFlags.Clean;
+        }
 
-        UpdateData();
-        UpdateColumnWidths();
         UpdateFilter();
         UpdateSort();
-        Dirty = IManagedCache.DirtyFlags.Clean;
     }
 
     /// <summary> Update the column widths if the font or style changed, or the available items have changed and the column definition cares for that. </summary>
@@ -172,14 +174,14 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
         if (descending)
             tmpList.Sort((a, b) =>
             {
-                var ret = column.CompareInverse(UnfilteredItems[a.Item2], a.Item2, UnfilteredItems[b.Item2], b.Item2);
-                return ret != 0 ? ret : a.Item1.CompareTo(b.Item1);
+                var ret = column.CompareInverse(UnfilteredItems[a.Item], a.Item, UnfilteredItems[b.Item], b.Item);
+                return ret is not 0 ? ret : a.Index.CompareTo(b.Index);
             });
         else
             tmpList.Sort((a, b) =>
             {
-                var ret = column.Compare(UnfilteredItems[a.Item2], a.Item2, UnfilteredItems[b.Item2], b.Item2);
-                return ret != 0 ? ret : a.Item1.CompareTo(b.Item1);
+                var ret = column.Compare(UnfilteredItems[a.Item], a.Item, UnfilteredItems[b.Item], b.Item);
+                return ret is not 0 ? ret : a.Index.CompareTo(b.Index);
             });
         var i = 0;
         foreach (var (_, item) in tmpList)
@@ -210,11 +212,11 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
     protected virtual void CheckSort(in Im.TableDisposable table)
     {
         var fullSpecs = table.SortSpecifications;
-        SortDirty       |= fullSpecs.Dirty;
-        fullSpecs.Dirty =  false;
-        if (!SortDirty)
+        if (!fullSpecs.Dirty)
             return;
 
+        fullSpecs.Dirty = false;
+        SortDirty       = true;
         // No sort specifications at all.
         if (fullSpecs.Count is 0)
         {

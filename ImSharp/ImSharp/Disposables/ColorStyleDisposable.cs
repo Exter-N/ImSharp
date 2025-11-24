@@ -12,12 +12,36 @@ public static partial class Im
         /// <inheritdoc cref="StyleDisposable.Count"/>
         public int StyleCount { get; private set; }
 
+        /// <summary> Push all style and colors to return to their default values, and return to the current state on disposal. </summary>
+        /// <returns> A disposable object that can be used to push further colors and styles and pops those colors after leaving scope. Use with using. </returns>
+        public ColorStyleDisposable PushDefault()
+        {
+            var priorCount = Context.StyleStackSize;
+            for (var idx = priorCount - 1; idx >= 0; --idx)
+            {
+                var styleMod = Context.StyleStack[idx];
+                Native.Methods.Stacks.PushStyleVar(styleMod.VarIdx, styleMod.BackupVec);
+                ++StyleCount;
+            }
+
+            priorCount = Context.ColorStackSize;
+            for (var idx = priorCount - 1; idx >= 0; --idx)
+            {
+                var colorMod = Context.ColorStack[idx];
+                Native.Methods.Stacks.PushStyleColor(colorMod.Color, colorMod.BackupValue);
+                ++ColorCount;
+            }
+
+            return this;
+        }
+
         /// <summary> Push a border color while also pushing the border thickness for the chosen type to be <see cref="ImGuiStyle.GlobalScale"/> if the color is not transparent and 0 otherwise. </summary>
         /// <param name="borderType"> The type of widget for which the border thickness should be pushed. </param>
         /// <param name="color"> The color to push. </param>
         /// <returns> A disposable object that can be used to push further colors and styles and pops those colors after leaving scope. Use with using. </returns>
-        [OverloadResolutionPriority(50), MethodImpl(ImSharpConfiguration.OptInl)]
-        public ColorStyleDisposable PushBorder(ImStyleBorder borderType, Rgba32 color)
+        [OverloadResolutionPriority(50)]
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public ColorStyleDisposable Push(ImStyleBorder borderType, Rgba32 color)
         {
             Native.Methods.Stacks.PushStyleColor(ImGuiColor.Border, color);
             Native.Methods.Stacks.PushStyleVar((ImStyle)borderType, color.IsTransparent ? 0 : Style.GlobalScale);
@@ -31,17 +55,18 @@ public static partial class Im
         /// <param name="color"> The color to push. If this is <see cref="ColorParameter.Default"/>, nothing is done. </param>
         /// <returns> A disposable object that can be used to push further colors and styles and pops those colors after leaving scope. Use with using. </returns>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public ColorStyleDisposable PushBorder(ImStyleBorder borderType, ColorParameter color)
+        public ColorStyleDisposable Push(ImStyleBorder borderType, ColorParameter color)
         {
             if (color.IsDefault)
                 return this;
 
-            return PushBorder(borderType, color.Color!.Value);
+            return Push(borderType, color.Color!.Value);
         }
 
-        /// <inheritdoc cref="PushBorder(ImStyleBorder,Rgba32)"/>
-        [OverloadResolutionPriority(100), MethodImpl(ImSharpConfiguration.OptInl)]
-        public ColorStyleDisposable PushBorder(ImStyleBorder borderType, Vector4 color)
+        /// <inheritdoc cref="Push(ImSharp.ImStyleBorder,ImSharp.Rgba32)"/>
+        [OverloadResolutionPriority(100)]
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public ColorStyleDisposable Push(ImStyleBorder borderType, Vector4 color)
         {
             Native.Methods.Stacks.PushStyleColor(ImGuiColor.Border, color);
             Native.Methods.Stacks.PushStyleVar((ImStyle)borderType, color.W is 0 ? 0 : Style.GlobalScale);
@@ -50,9 +75,10 @@ public static partial class Im
             return this;
         }
 
-        /// <inheritdoc cref="PushBorder(ImStyleBorder,Rgba32,float,bool)"/>
-        [OverloadResolutionPriority(50), MethodImpl(ImSharpConfiguration.OptInl)]
-        public ColorStyleDisposable PushBorder(ImStyleBorder borderType, Rgba32 color, float thickness)
+        /// <inheritdoc cref="Push(ImSharp.ImStyleBorder,ImSharp.Rgba32,float,bool)"/>
+        [OverloadResolutionPriority(50)]
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public ColorStyleDisposable Push(ImStyleBorder borderType, Rgba32 color, float thickness)
         {
             Native.Methods.Stacks.PushStyleColor(ImGuiColor.Border, color);
             Native.Methods.Stacks.PushStyleVar((ImStyle)borderType, thickness);
@@ -61,9 +87,9 @@ public static partial class Im
             return this;
         }
 
-        /// <inheritdoc cref="PushBorder(ImStyleBorder,ColorParameter,float,bool)"/>
+        /// <inheritdoc cref="Push(ImSharp.ImStyleBorder,ImSharp.ColorParameter,float,bool)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public ColorStyleDisposable PushBorder(ImStyleBorder borderType, ColorParameter color, float thickness)
+        public ColorStyleDisposable Push(ImStyleBorder borderType, ColorParameter color, float thickness)
         {
             if (color.IsDefault)
             {
@@ -72,12 +98,13 @@ public static partial class Im
                 return this;
             }
 
-            return PushBorder(borderType, color.Color!.Value, thickness);
+            return Push(borderType, color.Color!.Value, thickness);
         }
 
-        /// <inheritdoc cref="PushBorder(ImStyleBorder,Vector4,float,bool)"/>
-        [OverloadResolutionPriority(100), MethodImpl(ImSharpConfiguration.OptInl)]
-        public ColorStyleDisposable PushBorder(ImStyleBorder borderType, Vector4 color, float thickness)
+        /// <inheritdoc cref="Push(ImSharp.ImStyleBorder,System.Numerics.Vector4,float,bool)"/>
+        [OverloadResolutionPriority(100)]
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public ColorStyleDisposable Push(ImStyleBorder borderType, Vector4 color, float thickness)
         {
             Native.Methods.Stacks.PushStyleColor(ImGuiColor.Border, color);
             Native.Methods.Stacks.PushStyleVar((ImStyle)borderType, thickness);
@@ -92,9 +119,10 @@ public static partial class Im
         /// <param name="thickness"> The thickness to push. This is pushed even if <paramref name="color"/> is transparent. </param>
         /// <param name="condition"> A condition to push the style at all. If this is false, nothing is done. </param>
         /// <returns> A disposable object that can be used to push further colors and styles and pops those colors after leaving scope. Use with using. </returns>
-        [OverloadResolutionPriority(50), MethodImpl(ImSharpConfiguration.OptInl)]
-        public ColorStyleDisposable PushBorder(ImStyleBorder borderType, Rgba32 color, float thickness, bool condition)
-            => condition ? PushBorder(borderType, color, thickness) : this;
+        [OverloadResolutionPriority(50)]
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public ColorStyleDisposable Push(ImStyleBorder borderType, Rgba32 color, float thickness, bool condition)
+            => condition ? Push(borderType, color, thickness) : this;
 
         /// <summary> Push a border color while also pushing the border thickness for the chosen type. </summary>
         /// <param name="borderType"> The type of widget for which the border thickness should be pushed. </param>
@@ -103,13 +131,14 @@ public static partial class Im
         /// <param name="condition"> A condition to push the style at all. If this is false, nothing is done. </param>
         /// <returns> A disposable object that can be used to push further colors and styles and pops those colors after leaving scope. Use with using. </returns>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public ColorStyleDisposable PushBorder(ImStyleBorder borderType, ColorParameter color, float thickness, bool condition)
-            => condition ? PushBorder(borderType, color, thickness) : this;
+        public ColorStyleDisposable Push(ImStyleBorder borderType, ColorParameter color, float thickness, bool condition)
+            => condition ? Push(borderType, color, thickness) : this;
 
-        /// <inheritdoc cref="PushBorder(ImStyleBorder,Rgba32,float,bool)"/>
-        [OverloadResolutionPriority(100), MethodImpl(ImSharpConfiguration.OptInl)]
-        public ColorStyleDisposable PushBorder(ImStyleBorder borderType, Vector4 color, float thickness, bool condition)
-            => condition ? PushBorder(borderType, color, thickness) : this;
+        /// <inheritdoc cref="Push(ImSharp.ImStyleBorder,ImSharp.Rgba32,float,bool)"/>
+        [OverloadResolutionPriority(100)]
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public ColorStyleDisposable Push(ImStyleBorder borderType, Vector4 color, float thickness, bool condition)
+            => condition ? Push(borderType, color, thickness) : this;
 
 
         /// <inheritdoc cref="ColorDisposable.Push(ImGuiColor,Rgba32,bool)"/>
@@ -137,7 +166,8 @@ public static partial class Im
         }
 
         /// <inheritdoc cref="ColorDisposable.Push(ImGuiColor,Vector4,bool)"/>
-        [MethodImpl(ImSharpConfiguration.OptInl), OverloadResolutionPriority(100)]
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        [OverloadResolutionPriority(100)]
         public ColorStyleDisposable Push(ImGuiColor type, Vector4 color, bool condition)
         {
             if (!condition)
@@ -159,7 +189,8 @@ public static partial class Im
         }
 
         /// <inheritdoc cref="Push(ImGuiColor,Vector4,bool)"/>
-        [MethodImpl(ImSharpConfiguration.OptInl), OverloadResolutionPriority(100)]
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        [OverloadResolutionPriority(100)]
         public ColorStyleDisposable Push(ImGuiColor type, Vector4 color)
         {
             Native.Methods.Stacks.PushStyleColor(type, color);

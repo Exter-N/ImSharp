@@ -11,7 +11,6 @@ public abstract class TableData<TCacheItem>
       | TableFlags.ScrollY
       | TableFlags.ScrollX
       | TableFlags.PreciseWidths
-      | TableFlags.SizingFixedFit
       | TableFlags.BordersInnerVertical
       | TableFlags.NoBordersInBodyUntilResize;
 

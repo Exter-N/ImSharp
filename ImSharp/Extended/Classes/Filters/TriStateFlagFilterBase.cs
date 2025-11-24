@@ -24,6 +24,17 @@ public abstract class TriStateFlagFilterBase<TCacheItem, TEnum> : IFilter<TCache
     /// <inheritdoc/>
     public event Action? FilterChanged;
 
+    /// <summary> Load a given value as the filter. </summary>
+    /// <param name="value"> The new value for the filter. </param>
+    public virtual void LoadValue(TEnum value)
+    {
+        var oldValue = FilterValue;
+        SetValue(AllFlags, false);
+        SetValue(value,    true);
+        if (!FilterValue.Equals(oldValue))
+            InvokeEvent();
+    }
+
     /// <summary> Set a value according to the optional bool. </summary>
     /// <param name="onValue"> The flag representing the on state. </param>
     /// <param name="offValue"> The flag representing the off state. </param>
@@ -121,17 +132,11 @@ public abstract class TriStateFlagFilterBase<TCacheItem, TEnum> : IFilter<TCache
     /// <param name="value"> Whether to turn the flags on or off. </param>
     /// <returns> True if the filter value changed. </returns>
     /// <exception cref="InvalidOperationException"> Only thrown for non-standard enum types. </exception>
-    protected virtual unsafe bool SetValue(TEnum flags, bool value)
+    protected virtual bool SetValue(TEnum flags, bool value)
     {
-        var newValue = sizeof(TEnum) switch
-        {
-            1 => FlagFilterBase<TCacheItem, TEnum>.Convert<byte>(FilterValue, flags, value),
-            2 => FlagFilterBase<TCacheItem, TEnum>.Convert<ushort>(FilterValue, flags, value),
-            4 => FlagFilterBase<TCacheItem, TEnum>.Convert<uint>(FilterValue, flags, value),
-            8 => FlagFilterBase<TCacheItem, TEnum>.Convert<ulong>(FilterValue, flags, value),
-            _ => throw new InvalidOperationException(
-                $"Can not set value of type {typeof(TEnum).Name} since its size is {sizeof(TEnum)}. Must be 1, 2, 4 or 8."),
-        };
+        var newValue = value
+            ? FilterValue.Or(flags)
+            : FilterValue.AndNot(flags);
         if (newValue.Equals(FilterValue))
             return false;
 

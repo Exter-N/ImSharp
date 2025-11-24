@@ -400,6 +400,10 @@ public static partial class Im
         public StyleDisposable Push(ImStyleDouble type, Vector2 value)
             => new StyleDisposable().Push(type, value);
 
+        /// <inheritdoc cref="ColorStyleDisposable.PushDefault"/>
+        public ColorStyleDisposable PushDefault()
+            => new ColorStyleDisposable().PushDefault();
+
         /// <inheritdoc cref="StyleDisposable.PushDefault(ImStyleSingle)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public StyleDisposable PushDefault(ImStyleSingle type)
@@ -430,50 +434,50 @@ public static partial class Im
         public StyleDisposable PushY(ImStyleDouble type, float value)
             => new StyleDisposable().PushY(type, value);
 
-        /// <inheritdoc cref="ColorStyleDisposable.PushBorder(ImStyleBorder,ColorParameter,float,bool)"/>
+        /// <inheritdoc cref="ColorStyleDisposable.Push(ImSharp.ImStyleBorder,ImSharp.ColorParameter,float,bool)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public ColorStyleDisposable PushBorder(ImStyleBorder borderType, ColorParameter color, float thickness, bool condition)
-            => new ColorStyleDisposable().PushBorder(borderType, color, thickness, condition);
+            => new ColorStyleDisposable().Push(borderType, color, thickness, condition);
 
-        /// <inheritdoc cref="ColorStyleDisposable.PushBorder(ImStyleBorder,ColorParameter,float)"/>
+        /// <inheritdoc cref="ColorStyleDisposable.Push(ImSharp.ImStyleBorder,ImSharp.ColorParameter,float)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public ColorStyleDisposable PushBorder(ImStyleBorder borderType, ColorParameter color, float thickness)
-            => new ColorStyleDisposable().PushBorder(borderType, color, thickness);
+            => new ColorStyleDisposable().Push(borderType, color, thickness);
 
-        /// <inheritdoc cref="ColorStyleDisposable.PushBorder(ImStyleBorder,ColorParameter)"/>
+        /// <inheritdoc cref="ColorStyleDisposable.Push(ImSharp.ImStyleBorder,ImSharp.ColorParameter)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public ColorStyleDisposable PushBorder(ImStyleBorder borderType, ColorParameter color)
-            => new ColorStyleDisposable().PushBorder(borderType, color);
+            => new ColorStyleDisposable().Push(borderType, color);
 
-        /// <inheritdoc cref="ColorStyleDisposable.PushBorder(ImStyleBorder,Rgba32,float,bool)"/>
+        /// <inheritdoc cref="ColorStyleDisposable.Push(ImSharp.ImStyleBorder,ImSharp.Rgba32,float,bool)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public ColorStyleDisposable PushBorder(ImStyleBorder borderType, Rgba32 color, float thickness, bool condition)
-            => new ColorStyleDisposable().PushBorder(borderType, color, thickness, condition);
+            => new ColorStyleDisposable().Push(borderType, color, thickness, condition);
 
-        /// <inheritdoc cref="ColorStyleDisposable.PushBorder(ImStyleBorder,Rgba32,float)"/>
+        /// <inheritdoc cref="ColorStyleDisposable.Push(ImSharp.ImStyleBorder,ImSharp.Rgba32,float)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public ColorStyleDisposable PushBorder(ImStyleBorder borderType, Rgba32 color, float thickness)
-            => new ColorStyleDisposable().PushBorder(borderType, color, thickness);
+            => new ColorStyleDisposable().Push(borderType, color, thickness);
 
-        /// <inheritdoc cref="ColorStyleDisposable.PushBorder(ImStyleBorder,Rgba32)"/>
+        /// <inheritdoc cref="ColorStyleDisposable.Push(ImSharp.ImStyleBorder,ImSharp.Rgba32)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public ColorStyleDisposable PushBorder(ImStyleBorder borderType, Rgba32 color)
-            => new ColorStyleDisposable().PushBorder(borderType, color);
+            => new ColorStyleDisposable().Push(borderType, color);
 
-        /// <inheritdoc cref="ColorStyleDisposable.PushBorder(ImStyleBorder,Rgba32,float,bool)"/>
+        /// <inheritdoc cref="ColorStyleDisposable.Push(ImSharp.ImStyleBorder,ImSharp.Rgba32,float,bool)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public ColorStyleDisposable PushBorder(ImStyleBorder borderType, Vector4 color, float thickness, bool condition)
-            => new ColorStyleDisposable().PushBorder(borderType, color, thickness, condition);
+            => new ColorStyleDisposable().Push(borderType, color, thickness, condition);
 
-        /// <inheritdoc cref="ColorStyleDisposable.PushBorder(ImStyleBorder,Rgba32,float)"/>
+        /// <inheritdoc cref="ColorStyleDisposable.Push(ImSharp.ImStyleBorder,ImSharp.Rgba32,float)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public ColorStyleDisposable PushBorder(ImStyleBorder borderType, Vector4 color, float thickness)
-            => new ColorStyleDisposable().PushBorder(borderType, color, thickness);
+            => new ColorStyleDisposable().Push(borderType, color, thickness);
 
-        /// <inheritdoc cref="ColorStyleDisposable.PushBorder(ImStyleBorder,Rgba32)"/>
+        /// <inheritdoc cref="ColorStyleDisposable.Push(ImSharp.ImStyleBorder,ImSharp.Rgba32)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public ColorStyleDisposable PushBorder(ImStyleBorder borderType, Vector4 color)
-            => new ColorStyleDisposable().PushBorder(borderType, color);
+            => new ColorStyleDisposable().Push(borderType, color);
 
 
         /// <summary> Get the current text line height. </summary>

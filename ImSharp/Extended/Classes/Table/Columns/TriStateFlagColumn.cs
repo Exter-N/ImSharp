@@ -30,6 +30,10 @@ public abstract class TriStateFlagColumn<TEnum, TCacheItem> : BasicColumn<TCache
         => DisplayString(lhs, lhsGlobalIndex).CompareTo(DisplayString(rhs, rhsGlobalIndex));
 
     /// <inheritdoc/>
+    public override bool WouldBeVisible(in TCacheItem item, int globalIndex)
+        => Filter.WouldBeVisible(item, globalIndex);
+
+    /// <inheritdoc/>
     public override void DrawColumn(in TCacheItem item, int globalIndex)
     {
         Im.Text(DisplayString(item, globalIndex));
@@ -43,17 +47,31 @@ public abstract class TriStateFlagColumn<TEnum, TCacheItem> : BasicColumn<TCache
     protected virtual void DrawTooltip(in TCacheItem item, int globalIndex)
     { }
 
-    protected class TriStateFlagFilter(TriStateFlagColumn<TEnum, TCacheItem> parent) : TriStateFlagFilterBase<TCacheItem, TEnum>
+    /// <summary> Draw an expandable combo filter for the separate flags. </summary>
+    /// <inheritdoc/>
+    public override bool DrawFilter()
+        => Filter.DrawFilter(Label, FilterContentRegion);
+
+    protected class TriStateFlagFilter : TriStateFlagFilterBase<TCacheItem, TEnum>
     {
+        private readonly TriStateFlagColumn<TEnum, TCacheItem> _parent;
+
+        public TriStateFlagFilter(TriStateFlagColumn<TEnum, TCacheItem> parent)
+        {
+            _parent     = parent;
+            AllFlags    = _parent.TriEnumData.Aggregate(default(TEnum), (a, b) => a.Or(b.On).Or(b.Off));
+            FilterValue = AllFlags;
+        }
+
         /// <inheritdoc/>
-        public override TEnum FilterValue { get; protected set; }
+        public sealed override TEnum FilterValue { get; protected set; }
 
         /// <inheritdoc/>
         public override IReadOnlyList<(TEnum On, TEnum Off, StringU8 Name)> EnumData
-            => parent.TriEnumData;
+            => _parent.TriEnumData;
 
         /// <inheritdoc/>
         public override bool GetValue(in TCacheItem item, int globalIndex, int triEnumIndex)
-            => parent.GetValue(item, globalIndex, triEnumIndex);
+            => _parent.GetValue(item, globalIndex, triEnumIndex);
     }
 }

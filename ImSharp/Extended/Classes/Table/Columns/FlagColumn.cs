@@ -29,6 +29,10 @@ public abstract class FlagColumn<TEnum, TCacheItem> : BasicColumn<TCacheItem>
         => Comparer<TEnum>.Default.Compare(Filter.GetValue(lhs, lhsGlobalIndex), Filter.GetValue(rhs, rhsGlobalIndex));
 
     /// <inheritdoc/>
+    public override bool WouldBeVisible(in TCacheItem item, int globalIndex)
+        => Filter.WouldBeVisible(item, globalIndex);
+
+    /// <inheritdoc/>
     public override void DrawColumn(in TCacheItem item, int globalIndex)
     {
         Im.Text(DisplayString(item, globalIndex));
@@ -42,17 +46,31 @@ public abstract class FlagColumn<TEnum, TCacheItem> : BasicColumn<TCacheItem>
     protected virtual void DrawTooltip(in TCacheItem item, int globalIndex)
     { }
 
-    protected class FlagFilter(FlagColumn<TEnum, TCacheItem> parent) : FlagFilterBase<TCacheItem, TEnum>
+    /// <summary> Draw an expandable combo filter for the separate flags. </summary>
+    /// <inheritdoc/>
+    public override bool DrawFilter()
+        => Filter.DrawFilter(Label, FilterContentRegion);
+
+    protected class FlagFilter : FlagFilterBase<TCacheItem, TEnum>
     {
+        private readonly FlagColumn<TEnum, TCacheItem> _parent;
+
+        public FlagFilter(FlagColumn<TEnum, TCacheItem> parent)
+        {
+            _parent     = parent;
+            AllFlags    = _parent.EnumData.Aggregate(default(TEnum), (a, b) => a.Or(b.Value));
+            FilterValue = AllFlags;
+        }
+
         /// <inheritdoc/>
         public override IReadOnlyList<(TEnum Value, StringU8 Name)> EnumData
-            => parent.EnumData;
+            => _parent.EnumData;
 
         /// <inheritdoc/>
         public override TEnum GetValue(in TCacheItem item, int globalIndex)
-            => parent.GetValue(item, globalIndex);
+            => _parent.GetValue(item, globalIndex);
 
         /// <inheritdoc/>
-        public override TEnum FilterValue { get; protected set; }
+        public sealed override TEnum FilterValue { get; protected set; }
     }
 }

@@ -22,6 +22,7 @@ public abstract class TextColumn<TCacheItem> : BasicColumn<TCacheItem>
 
     /// <summary> Get the text displayed in the column from the item. </summary>
     /// <param name="item"> The row to fetch. </param>
+    /// <param name="globalIndex"> The global index of the row. </param>
     /// <returns> Text that is displayed. </returns>
     protected abstract StringU8 DisplayText(in TCacheItem item, int globalIndex);
 

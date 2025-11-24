@@ -7,7 +7,7 @@ public abstract class FlagFilterBase<TCacheItem, TEnum> : IFilter<TCacheItem>
     where TEnum : unmanaged, Enum
 {
     /// <summary> The flags used to draw the combo of checkboxes. </summary>
-    public ComboFlags ComboFlags { get; init; } = ComboFlags.NoArrowButton;
+    public ComboFlags ComboFlags { get; init; } = ComboFlags.NoArrowButton | ComboFlags.HeightLarge;
 
     /// <summary> The value used when no filter is enabled. </summary>
     public TEnum AllFlags { get; init; }
@@ -16,7 +16,7 @@ public abstract class FlagFilterBase<TCacheItem, TEnum> : IFilter<TCacheItem>
     public abstract IReadOnlyList<(TEnum Value, StringU8 Name)> EnumData { get; }
 
     /// <summary> Get the current filter value. </summary>
-    public abstract TEnum FilterValue { get; protected set; }
+    public abstract TEnum FilterValue { get; protected set;  }
 
     /// <summary> Get the set of flags for a row. </summary>
     /// <param name="item"> The row to check. </param>
@@ -30,6 +30,17 @@ public abstract class FlagFilterBase<TCacheItem, TEnum> : IFilter<TCacheItem>
 
     /// <inheritdoc/>
     public event Action? FilterChanged;
+
+    /// <summary> Load a given value as the filter. </summary>
+    /// <param name="value"> The new value for the filter. </param>
+    public virtual void LoadValue(TEnum value)
+    {
+        var oldValue = FilterValue;
+        SetValue(AllFlags, false);
+        SetValue(value,    true);
+        if (!FilterValue.Equals(oldValue))
+            InvokeEvent();
+    }
 
     /// <summary> Draw a filter that expands a combo of multiple checkboxes on click. </summary>
     /// <inheritdoc/>
@@ -109,36 +120,14 @@ public abstract class FlagFilterBase<TCacheItem, TEnum> : IFilter<TCacheItem>
     /// <exception cref="InvalidOperationException"> Only thrown for non-standard enum types. </exception>
     protected virtual unsafe bool SetValue(TEnum flags, bool value)
     {
-        var newValue = sizeof(TEnum) switch
-        {
-            1 => Convert<byte>(FilterValue, flags, value),
-            2 => Convert<ushort>(FilterValue, flags, value),
-            4 => Convert<uint>(FilterValue, flags, value),
-            8 => Convert<ulong>(FilterValue, flags, value),
-            _ => throw new InvalidOperationException(
-                $"Can not set value of type {typeof(TEnum).Name} since its size is {sizeof(TEnum)}. Must be 1, 2, 4 or 8."),
-        };
+        var newValue = value
+            ? FilterValue.Or(flags)
+            : FilterValue.AndNot(flags);
         if (newValue.Equals(FilterValue))
             return false;
 
         FilterValue = newValue;
         return true;
-    }
-
-    /// <summary> Apply bitwise operators on the enum. </summary>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    protected internal static unsafe TEnum Convert<T>(TEnum lhs, TEnum rhs, bool on) where T : unmanaged, IBitwiseOperators<T, T, T>
-    {
-        if (on)
-        {
-            var ret = *(T*)&lhs | *(T*)&rhs;
-            return *(TEnum*)&ret;
-        }
-        else
-        {
-            var ret = *(T*)&lhs & ~(*(T*)&rhs);
-            return *(TEnum*)&ret;
-        }
     }
 
     /// <inheritdoc/>
