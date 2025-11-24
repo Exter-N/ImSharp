@@ -175,6 +175,9 @@ public unsafe ref struct Utf8StringHandler<T> where T : IStringHandlerBuffer
     private Utf8StringHandler(StringU8 utf8)
         : this(utf8.Span)
     { }
+
+    public override string ToString()
+        => GetSpan(out var span) ? Encoding.UTF8.GetString(span) : "<ERROR";
 }
 
 [SkipLocalsInit, StructLayout(LayoutKind.Explicit)]

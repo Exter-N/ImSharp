@@ -186,7 +186,7 @@ public readonly partial struct StringU8 : IReadOnlyList<byte>, IEquatable<String
         var bytes = new byte[count + 1];
         bytes[count] = 0;
         data.AsSpan(0, count).CopyTo(bytes);
-        _value = bytes;
+        _value = bytes.AsMemory(0, count);
         ArrayPool.Return(data);
     }
 
