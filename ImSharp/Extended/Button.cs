@@ -18,8 +18,12 @@ public static partial class ImEx
             .Push(ImGuiColor.Border,        config.BorderColor);
         using var style = Im.Style.Push(ImStyleSingle.FrameBorderThickness, Im.Style.GlobalScale, config.BorderColor.IsVisible);
 
-        using var _   = Im.Disabled(config.Disabled);
-        var       ret = Im.Button(label, config.Size, config.Flags);
+        bool ret;
+        using (Im.Disabled(config.Disabled))
+        {
+            ret = Im.Button(label, config.Size, config.Flags);
+        }
+
         if (tooltip.GetSpan(out var span))
             Im.Tooltip.OnHover(HoveredFlags.AllowWhenDisabled, span);
         return ret;
@@ -62,8 +66,12 @@ public static partial class ImEx
     {
         using var color = Im.Color.Push(ImGuiColor.Button, buttonColor).Push(ImGuiColor.Text, textColor);
 
-        using var _   = Im.Disabled(disabled);
-        var       ret = Im.Button(label, size, flags);
+        bool ret;
+        using (Im.Disabled(disabled))
+        {
+            ret = Im.Button(label, size, flags);
+        }
+
         if (tooltip.GetSpan(out var span))
             Im.Tooltip.OnHover(HoveredFlags.AllowWhenDisabled, span);
         return ret;
@@ -74,8 +82,12 @@ public static partial class ImEx
     public static bool Button(Utf8LabelHandler label, Vector2 size = default, Utf8TextHandler tooltip = default, bool disabled = false,
         ButtonFlags flags = ButtonFlags.None)
     {
-        using var _   = Im.Disabled(disabled);
-        var       ret = Im.Button(label, size, flags);
+        bool ret;
+        using (Im.Disabled(disabled))
+        {
+            ret = Im.Button(label, size, flags);
+        }
+
         if (tooltip.GetSpan(out var span))
             Im.Tooltip.OnHover(HoveredFlags.AllowWhenDisabled, span);
         return ret;

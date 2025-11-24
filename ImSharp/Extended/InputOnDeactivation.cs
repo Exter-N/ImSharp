@@ -249,7 +249,11 @@ public static partial class ImEx
                 size   = TextStringHandlerBuffer.Size;
                 var begin = input.Start(out var end);
                 if (begin != TextStringHandlerBuffer.Buffer)
-                    new ReadOnlySpan<byte>(begin, (int)(end - begin)).CopyTo(TextStringHandlerBuffer.Span);
+                {
+                    var span = new ReadOnlySpan<byte>(begin, (int)(end - begin));
+                    span.CopyTo(TextStringHandlerBuffer.Span);
+                    buffer[span.Length] = 0;
+                }
             }
 
             var length = 0ul;
@@ -278,7 +282,11 @@ public static partial class ImEx
                 size   = TextStringHandlerBuffer.Size;
                 var begin = input.Start(out var end);
                 if (begin != TextStringHandlerBuffer.Buffer)
-                    new ReadOnlySpan<byte>(begin, (int)(end - begin)).CopyTo(TextStringHandlerBuffer.Span);
+                {
+                    var span = new ReadOnlySpan<byte>(begin, (int)(end - begin));
+                    span.CopyTo(TextStringHandlerBuffer.Span);
+                    buffer[span.Length] = 0;
+                }
             }
 
             flags &= ~InputTextFlags.EnterReturnsTrue;
