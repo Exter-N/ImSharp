@@ -43,12 +43,12 @@ public record SizedString
     { }
 
     /// <summary> A string with its size with the given font, mainly for use in caches. </summary>
-    /// <param name="Text"> The text. </param>
-    /// <param name="Size"> The font size of the text in pixels. </param>
-    public SizedString(StringU8 Text, Vector2 Size)
+    /// <param name="text"> The text. </param>
+    /// <param name="size"> The font size of the text in pixels. </param>
+    public SizedString(StringU8 text, Vector2 size)
     {
-        this.Text = Text;
-        this.Size = Size;
+        Text = text;
+        Size = size;
         Subscriber.Strings.TryAdd(this, 0);
     }
 
