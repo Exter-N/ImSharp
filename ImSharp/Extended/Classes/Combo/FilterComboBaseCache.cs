@@ -185,9 +185,11 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
             }
             else if (Im.Keyboard.IsPressed(Key.UpArrow))
             {
-                CurrentFilteredSelectionIndex = (CurrentFilteredSelectionIndex - 1 + FilteredItems.Count) % FilteredItems.Count;
-                CurrentGlobalSelectionIndex   = FilteredItems[CurrentFilteredSelectionIndex];
-                SetScroll                     = true;
+                CurrentFilteredSelectionIndex = CurrentFilteredSelectionIndex < 0
+                    ? FilteredItems.Count - 1
+                    : (CurrentFilteredSelectionIndex - 1 + FilteredItems.Count) % FilteredItems.Count;
+                CurrentGlobalSelectionIndex = FilteredItems[CurrentFilteredSelectionIndex];
+                SetScroll                   = true;
             }
         }
 
