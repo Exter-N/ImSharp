@@ -104,7 +104,7 @@ public static unsafe class ImSharpDebug
                 {
                     var arrayValue = subType.Invoke(array, BindingFlags.GetProperty, null, [i], CultureInfo.CurrentCulture);
                     Im.Text($"{arrayValue}, ");
-                    Im.Line.Same(0, 0);
+                    Im.Line.NoSpacing();
                 }
             }
             else

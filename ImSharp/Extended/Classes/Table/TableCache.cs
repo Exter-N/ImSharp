@@ -57,7 +57,7 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
             // Draw a header with no text to color the cell,
             // then draw the actual filter.
             table.Header(""u8);
-            Im.Line.Same(0, 0);
+            Im.Line.NoSpacing();
             if (header.DrawFilter())
                 FilterDirty = true;
         }

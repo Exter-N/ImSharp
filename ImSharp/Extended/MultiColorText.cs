@@ -32,7 +32,7 @@ public static partial class ImEx
         [MethodImpl(ImSharpConfiguration.Inl)]
         private MultiColorText(Utf8TextHandler text, Vector4 color, bool _)
         {
-            Im.Line.Same(0, 0);
+            Im.Line.NoSpacing();
             var c = ImGuiColor.Text.Push(color);
             Im.Text(text);
             c.Pop();
