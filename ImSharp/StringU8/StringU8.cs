@@ -20,8 +20,16 @@ public readonly partial struct StringU8 : IReadOnlyList<byte>, IEquatable<String
     /// <summary> The empty string. </summary>
     public static readonly StringU8 Empty = new(EmptyData);
 
+    /// <summary> A string that is actually null and does not contain data, to not need optionals. </summary>
+    public static readonly StringU8 Null = new(ReadOnlyMemory<byte>.Empty);
+
     /// <summary> A string representing null pointers. </summary>
     internal static readonly StringU8 NullString = new("<NULL>"u8);
+
+    /// <summary> Whether the string is null instead of empty. </summary>
+    /// <remarks> This should only be true for objects constructed with <c>default</c> or <see cref="Null"/>. </remarks>
+    public bool IsNull
+        => _value.IsEmpty;
 
     private static ArrayPool<byte> ArrayPool
     {

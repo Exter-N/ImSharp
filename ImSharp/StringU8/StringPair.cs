@@ -1,36 +1,58 @@
 namespace ImSharp;
 
 /// <summary> A text string encoded both in UTF16 and UTF8. </summary>
-/// <param name="Utf16"> The UTF16-encoded string. </param>
-/// <param name="Utf8"> The UTF8-encoded string. </param>
-public readonly record struct StringPair(string Utf16, StringU8 Utf8)
+/// <param name="utf16"> The UTF16-encoded string, or null if it is lazily computed from <paramref name="utf8"/>. </param>
+/// <param name="utf8"> The UTF8-encoded string, or <seealso cref="StringU8.Null"/> if it is lazily computed from <paramref name="utf16"/>. </param>
+public struct StringPair(string? utf16, StringU8 utf8)
 {
+    private string? _utf16 = utf16;
+
+    /// <summary> The UTF16-encoded string. </summary>
+    public string Utf16
+        => _utf16 ??= Utf8.ToString();
+
+    /// <summary> The UTF8-encoded string. </summary>
+    public StringU8 Utf8
+    {
+        get
+        {
+            if (field.IsNull)
+                field = new StringU8(Utf16);
+            return field;
+        }
+    } = utf8;
+
+    /// <summary> Create an empty string pair. </summary>
+    public StringPair()
+        : this(string.Empty, StringU8.Empty)
+    { }
+
     /// <summary> Create a pair from an existing UTF16-encoded string. </summary>
     /// <param name="text"> The UTF16-encoded string. </param>
     [OverloadResolutionPriority(20)]
     public StringPair(string text)
-        : this(text, new StringU8(text))
+        : this(text, StringU8.Null)
     { }
 
     /// <summary> Create a pair from an existing UTF8-encoded string. </summary>
     /// <param name="text"> The UTF8-encoded string. </param>
     [OverloadResolutionPriority(20)]
     public StringPair(StringU8 text)
-        : this(text.ToString(), text)
+        : this(null, text)
     { }
 
     /// <summary> Create a pair from an interpolated string. </summary>
     /// <param name="handler"> The interpolated string. </param>
     [OverloadResolutionPriority(100)]
     public StringPair(DefaultInterpolatedStringHandler handler)
-        : this(Convert(ref handler, out var u8), u8)
+        : this(handler.ToStringAndClear(), StringU8.Null)
     { }
 
     /// <summary> Create a pair from an interpolated string. </summary>
     /// <param name="handler"> The interpolated string. </param>
     [OverloadResolutionPriority(50)]
     public StringPair(Utf8InterpolatedStringHandler handler)
-        : this(Convert(ref handler, out var u8), u8)
+        : this(null, new StringU8(ref handler))
     { }
 
     /// <summary> Create a pair from a UTF8 byte span. </summary>
@@ -42,7 +64,7 @@ public readonly record struct StringPair(string Utf16, StringU8 Utf8)
 
     /// <summary> Get whether the string is empty. </summary>
     public bool IsEmpty
-        => Utf8.IsEmpty;
+        => _utf16 is null ? Utf8.IsEmpty : _utf16.Length is 0;
 
     public static implicit operator string(StringPair p)
         => p.Utf16;
@@ -55,19 +77,4 @@ public readonly record struct StringPair(string Utf16, StringU8 Utf8)
 
     public static implicit operator ReadOnlySpan<byte>(StringPair p)
         => p.Utf8;
-
-    /// <summary> Helper to create both types of strings from a handler. </summary>
-    internal static string Convert(ref DefaultInterpolatedStringHandler handler, out StringU8 t)
-    {
-        var ret = handler.ToStringAndClear();
-        t = new StringU8(ret);
-        return ret;
-    }
-
-    /// <summary> Helper to create both types of strings from a handler. </summary>
-    internal static string Convert(ref Utf8InterpolatedStringHandler handler, out StringU8 t)
-    {
-        t = new StringU8(ref handler);
-        return t.ToString();
-    }
 }
