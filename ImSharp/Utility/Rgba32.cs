@@ -44,11 +44,22 @@ public readonly record struct Rgba32(uint Color) : ISpanFormattable, IUtf8SpanFo
     public static implicit operator Rgba32(Vector4 color)
         => new(color);
 
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static implicit operator Rgba32(Vector3 color)
+        => new(new Vector4(color, 1));
+
     /// <summary> Convert the 4-float color into a RGBA32 color normalized to byte values for a color channel. </summary>
     /// <remarks> Values outside [0, 1] will be clamped to 0 and <seealso cref="byte.MaxValue"/> respectively. </remarks>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public Rgba32(Vector4 color)
         : this(Im.Native.Methods.Color.ColorConvertFloat4ToU32(color).Color)
+    { }
+
+    /// <summary> Convert the 3-float color into a RGBA32 color normalized to byte values for a color channel, with full alpha. </summary>
+    /// <remarks> Values outside [0, 1] will be clamped to 0 and <seealso cref="byte.MaxValue"/> respectively. </remarks>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public Rgba32(Vector3 color)
+        : this(Im.Native.Methods.Color.ColorConvertFloat4ToU32(new ImVec4(color.X, color.Y, color.Z, 1f)).Color)
     { }
 
     /// <summary> The red-channel byte. </summary>
@@ -142,6 +153,12 @@ public readonly record struct Rgba32(uint Color) : ISpanFormattable, IUtf8SpanFo
         var b = (((Color >> 16) & 0xFF) + ((other.Color >> 16) & 0xFF)) / 2;
         return r | (g << 8) | (b << 16) | 0xFF000000u;
     }
+
+    /// <summary> Blends this color with the given primary color. </summary>
+    /// <param name="overlayColor"> The blend color, can only be fully saturated <see cref="Black"/>, <see cref="White"/>, <see cref="Red"/>, <see cref="Green"/>, <see cref="Blue"/>, <see cref="Cyan"/>, <see cref="Magenta"/>, or <see cref="Yellow"/>. </param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Rgba32 HalfBlend(Rgba32 overlayColor)
+        => (Color & 0xFF000000u) | ((Color & 0x00FEFEFEu) >> 1) | (overlayColor.Color & 0x00808080u);
 
     /// <summary> Return this color tinted by the given tint color. </summary>
     /// <param name="tint"> The tint color. </param>

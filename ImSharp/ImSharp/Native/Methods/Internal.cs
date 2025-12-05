@@ -1,3 +1,4 @@
+using Dalamud.Bindings.ImGui;
 using ImSharp.Internal;
 
 namespace ImSharp;
@@ -290,6 +291,10 @@ public static partial class Im
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igSetItemUsingMouseWheel")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
                 public static partial void SetItemUsingMouseWheel();
+
+                [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igImRotate")]
+                [MethodImpl(ImSharpConfiguration.Inl)]
+                public static partial void ImRotate(ImVec2* ret, ImVec2 value, float cos, float sin);
             }
         }
     }

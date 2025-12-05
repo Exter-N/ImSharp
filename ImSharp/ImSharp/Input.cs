@@ -33,13 +33,16 @@ public static partial class Im
         /// <param name="length"> The new length of the data contained in the buffer. </param>
         /// <param name="hint"> An optional hint to display in the input box as long as the input is empty as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
         /// <param name="flags"> Additional flags controlling the input behavior. </param>
+        /// <param name="maxLength"> The maximum length of the input string. </param>
         /// <returns> Whether the value changed in this frame. </returns>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static bool Text(Utf8LabelHandler label, Span<byte> buffer, out ulong length, Utf8HintHandler hint = default,
-            InputTextFlags flags = InputTextFlags.None)
+            InputTextFlags flags = InputTextFlags.None, uint maxLength = uint.MaxValue)
         {
             length = 0ul;
-            return Text(label.Start(), buffer.Start(), (uint)buffer.Length, hint.Start(), flags, (ulong*)Unsafe.AsPointer(ref length));
+            if (maxLength >= buffer.Length)
+                maxLength = (uint)buffer.Length;
+            return Text(label.Start(), buffer.Start(), maxLength, hint.Start(), flags, (ulong*)Unsafe.AsPointer(ref length));
         }
 
         /// <summary> Draw a text input. </summary>
@@ -47,14 +50,17 @@ public static partial class Im
         /// <param name="text"> A UTF16 string to edit. This gets updated if the value changes. </param>
         /// <param name="hint"> An optional hint to display in the input box as long as the input is empty as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
         /// <param name="flags"> Additional flags controlling the input behavior. </param>
+        /// <param name="maxLength"> The maximum length of the input string. </param>
         /// <returns> Whether the value changed in this frame. </returns>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static bool Text(Utf8LabelHandler label, ref string text, Utf8HintHandler hint = default,
-            InputTextFlags flags = InputTextFlags.None)
+            InputTextFlags flags = InputTextFlags.None, uint maxLength = uint.MaxValue)
         {
             text.AsSpan().CopyInto<InputStringHandlerBuffer>(out _);
             var length = 0ul;
-            var ret = Text(label.Start(), InputStringHandlerBuffer.Buffer, (uint)InputStringHandlerBuffer.Size, hint.Start(), flags, &length);
+            if (maxLength >= InputStringHandlerBuffer.Size)
+                maxLength = (uint)InputStringHandlerBuffer.Size;
+            var ret = Text(label.Start(), InputStringHandlerBuffer.Buffer, maxLength, hint.Start(), flags, &length);
             if (Item.Edited)
                 text = Encoding.UTF8.GetString(new ReadOnlySpan<byte>(InputStringHandlerBuffer.Buffer, (int)length));
             return ret;
@@ -65,14 +71,17 @@ public static partial class Im
         /// <param name="text"> A UTF8 string to edit. This gets updated if the value changes. </param>
         /// <param name="hint"> An optional hint to display in the input box as long as the input is empty as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
         /// <param name="flags"> Additional flags controlling the input behavior. </param>
+        /// <param name="maxLength"> The maximum length of the input string. </param> 
         /// <returns> Whether the value changed in this frame. </returns>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static bool Text(Utf8LabelHandler label, ref StringU8 text, Utf8HintHandler hint = default,
-            InputTextFlags flags = InputTextFlags.None)
+            InputTextFlags flags = InputTextFlags.None, uint maxLength = uint.MaxValue)
         {
             text.Span.CopyInto<InputStringHandlerBuffer>();
             var length = 0ul;
-            var ret = Text(label.Start(), InputStringHandlerBuffer.Buffer, (uint)InputStringHandlerBuffer.Size, hint.Start(), flags, &length);
+            if (maxLength >= InputStringHandlerBuffer.Size)
+                maxLength = (uint)InputStringHandlerBuffer.Size;
+            var ret = Text(label.Start(), InputStringHandlerBuffer.Buffer, maxLength, hint.Start(), flags, &length);
             if (Item.Edited)
                 text = new StringU8(new ReadOnlySpan<byte>(InputStringHandlerBuffer.Buffer, (int)length), false);
             return ret;

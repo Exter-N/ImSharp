@@ -65,6 +65,13 @@ public static partial class Im
             get => (uint)(Pointer->IndexBuffer.Size * sizeof(Native.ImDrawIdx));
         }
 
+        /// <summary> Get the index of the current vertex. </summary>
+        public uint CurrentVertex
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Pointer->VertexCurrentIndex;
+        }
+
         /// <summary> Get the current clipping rectangle of this draw list. </summary>
         /// <returns> The clipping rectangle. </returns>
         [MethodImpl(ImSharpConfiguration.OptInl)]
@@ -93,6 +100,13 @@ public static partial class Im
 
         /// <summary> Add geometric shapes to the draw list. </summary>
         public DrawListShapes Shape
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => new(Pointer);
+        }
+
+        /// <summary> Add some pre-defined renders to the draw list. </summary>
+        public DrawListRender Render
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]
             get => new(Pointer);

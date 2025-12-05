@@ -33,6 +33,7 @@ public abstract class TextFilterBase<TCacheItem> : IFilter<TCacheItem>
     /// <inheritdoc/>
     public virtual bool DrawFilter(ReadOnlySpan<byte> label, Vector2 availableRegion)
     {
+        using var id    = Im.Id.Push(label);
         using var style = ImStyleSingle.FrameRounding.Push(0);
         Im.Item.SetNextWidth(availableRegion.X);
         var tmp = Text;

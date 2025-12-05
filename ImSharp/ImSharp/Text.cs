@@ -102,11 +102,27 @@ public static unsafe partial class Im
         => BulletText(ref text);
 
     /// <inheritdoc cref="BulletText(Utf8TextHandler)"/>
+    /// <remarks> Custom implementation based on ImGui's because ImGui uses printf formatting and varargs. </remarks>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static void BulletText<T>(ref Utf8StringHandler<T> text)
         where T : IStringHandlerBuffer
     {
-        Bullet();
-        Text(ref text);
+        if (Window.Current.SkipItems)
+            return;
+
+        var size      = Font.CalculateSize(ref text);
+        var totalSize = size with { X = Context.FontSize + size.X > 0 ? size.X + 2 * Style.FramePadding.X : 0f };
+        var pos       = Window.Current.CursorPosition;
+        pos.Y += Window.Current.CurrentLineTextBaseOffset;
+        Item.SetSize(totalSize, 0);
+        var boundingBox = Rectangle.FromSize(pos, totalSize);
+        if (!Item.Add(boundingBox, 0))
+            return;
+
+        var color        = ImGuiColor.Text.Get();
+        var bulletCenter = Style.FramePadding.X + Context.FontSize / 2;
+        // Ceil the Y-offset because it generally looks better and is more likely to be actually centered for the text.
+        Window.DrawList.Render.Bullet(pos + new Vector2(bulletCenter, (Context.FontSize + 1) / 2), color);
+        Window.DrawList.Text(pos + new Vector2(2 * bulletCenter,      0), color, ref text);
     }
 }

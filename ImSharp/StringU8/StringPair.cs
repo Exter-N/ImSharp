@@ -33,6 +33,13 @@ public readonly record struct StringPair(string Utf16, StringU8 Utf8)
         : this(Convert(ref handler, out var u8), u8)
     { }
 
+    /// <summary> Create a pair from a UTF8 byte span. </summary>
+    /// <param name="text"> The byte span. </param>
+    [OverloadResolutionPriority(10)]
+    public StringPair(ReadOnlySpan<byte> text)
+        : this(new StringU8(text))
+    { }
+
     /// <summary> Get whether the string is empty. </summary>
     public bool IsEmpty
         => Utf8.IsEmpty;

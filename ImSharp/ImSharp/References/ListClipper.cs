@@ -205,5 +205,29 @@ public partial class Im
         [MethodImpl(ImSharpConfiguration.Inl)]
         readonly IEnumerator IEnumerable.GetEnumerator()
             => GetEnumerator();
+
+        /// <summary> Draw the list of items clipped. </summary>
+        /// <typeparam name="T"> The type of item. </typeparam>
+        /// <param name="items"> The list of items. </param>
+        /// <param name="draw"> The draw function taking the item. </param>
+        /// <param name="itemHeight"> The height of each item. </param>
+        public static void Draw<T>(IReadOnlyList<T> items, Action<T> draw, float itemHeight)
+        {
+            using var clipper = new ListClipper(items.Count, itemHeight);
+            foreach (var item in clipper.Iterate(items))
+                draw(item);
+        }
+
+        /// <summary> Draw the list of items clipped. </summary>
+        /// <typeparam name="T"> The type of item. </typeparam>
+        /// <param name="items"> The list of items. </param>
+        /// <param name="draw"> The draw function taking the item and its global index. </param>
+        /// <param name="itemHeight"> The height of each item. </param>
+        public static void Draw<T>(IReadOnlyList<T> items, Action<T, int> draw, float itemHeight)
+        {
+            using var clipper = new ListClipper(items.Count, itemHeight);
+            foreach (var globalIndex in clipper)
+                draw(items[globalIndex], globalIndex);
+        }
     }
 }

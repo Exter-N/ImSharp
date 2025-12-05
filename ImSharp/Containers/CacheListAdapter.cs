@@ -1,5 +1,3 @@
-using Luna;
-
 namespace ImSharp.Containers;
 
 /// <summary> Type-less base class for cache list adapters. </summary>
@@ -65,27 +63,34 @@ public class CacheListAdapter<TSourceItem, TCacheItem> : CacheListAdapter<TCache
     /// <summary> Subscribe to the events of the associated list if it is observable. </summary>
     private void Subscribe()
     {
-        if (_source is not ObservableList<TSourceItem> observable)
-            return;
+        EnsureCount(CacheItems, _source.Count);
+        if (_source is ObservableList<TSourceItem> observable)
+            observable.OnChange += OnChange;
+    }
 
-        observable.OnClear    += OnClear;
-        observable.OnAdd      += OnAdd;
-        observable.OnRemove   += OnRemove;
-        observable.OnAddRange += OnAddRange;
-        observable.OnUpdate   += OnUpdate;
+    private void OnChange(in ObservableList<TSourceItem>.ChangeArguments args)
+    {
+        switch (args.Type)
+        {
+            case ListChangeType.Clear:       CacheItems.Clear(); break;
+            case ListChangeType.Add:         CacheItems.Add(null); break;
+            case ListChangeType.AddRange:    CacheItems.AddRange(Enumerable.Repeat<TCacheItem?>(null, args.Count)); break;
+            case ListChangeType.Insert:      CacheItems.Insert(args.Index, null); break;
+            case ListChangeType.InsertRange: CacheItems.InsertRange(args.Index, Enumerable.Repeat<TCacheItem?>(null, args.Count)); break;
+            case ListChangeType.Remove:      CacheItems.RemoveAt(args.Index); break;
+            case ListChangeType.RemoveRange: CacheItems.RemoveRange(args.Index, args.Count); break;
+            case ListChangeType.Update:      CacheItems[args.Index] = null; break;
+        }
+
+        Dirty = true;
+        ++Revision;
     }
 
     /// <summary> Unsubscribe from the events of the associated list if it is observable. </summary>
     private void Unsubscribe()
     {
-        if (_source is not ObservableList<TSourceItem> observable)
-            return;
-
-        observable.OnClear    -= OnClear;
-        observable.OnAdd      -= OnAdd;
-        observable.OnRemove   -= OnRemove;
-        observable.OnAddRange -= OnAddRange;
-        observable.OnUpdate   -= OnUpdate;
+        if (_source is ObservableList<TSourceItem> observable)
+            observable.OnChange -= OnChange;
     }
 
     /// <inheritdoc/>
@@ -102,7 +107,7 @@ public class CacheListAdapter<TSourceItem, TCacheItem> : CacheListAdapter<TCache
     public sealed override IEnumerator<TCacheItem> GetEnumerator()
     {
         var count = _source.Count;
-        CacheItems.EnsureCount(count);
+        EnsureCount(CacheItems, count);
         for (var i = 0; i < count; ++i)
             yield return CacheItems[i] ??= _converter(_source[i]);
     }
@@ -119,42 +124,13 @@ public class CacheListAdapter<TSourceItem, TCacheItem> : CacheListAdapter<TCache
             if (index >= _source.Count)
                 throw new IndexOutOfRangeException();
 
-            CacheItems.EnsureCount(_source.Count);
+            EnsureCount(CacheItems, _source.Count);
             return CacheItems[index] ??= _converter(_source[index]);
         }
     }
 
-    private void OnClear()
-    {
-        CacheItems.Clear();
-        SetDirty();
-    }
-
-    private void OnAdd(TSourceItem _, int index)
-    {
-        if (index <= CacheItems.Count)
-            CacheItems.Insert(index, null);
-        SetDirty();
-    }
-
-    private void OnRemove(TSourceItem _, int index)
-    {
-        if (index <= CacheItems.Count)
-            CacheItems.RemoveAt(index);
-        SetDirty();
-    }
-
-    private void OnAddRange(int addedCount)
-        => SetDirty();
-
-    private void OnUpdate(TSourceItem _, TSourceItem _2, int index)
-    {
-        CacheItems[index] = null;
-        SetDirty();
-    }
-
     /// <summary> Ensure that the actual size, not just the capacity of the list is large enough. </summary>
-    private static int EnsureCount<T>(ICollection<T> list, int count)
+    private static int EnsureCount<T>(List<T> list, int count)
     {
         if (list.Count >= count)
             return 0;
@@ -163,12 +139,5 @@ public class CacheListAdapter<TSourceItem, TCacheItem> : CacheListAdapter<TCache
         for (var i = 0; i < toAdd; i++)
             list.Add(default!);
         return toAdd;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    private void SetDirty()
-    {
-        Dirty = true;
-        ++Revision;
     }
 }

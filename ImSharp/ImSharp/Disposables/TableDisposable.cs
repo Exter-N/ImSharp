@@ -97,6 +97,24 @@ public static partial class Im
         public readonly bool DrawFrameColumn(Utf8TextHandler text)
             => DrawFrameColumn(ref text);
 
+        /// <summary> Draw a data line consisting of a label and an arbitrary text. </summary>
+        /// <param name="label"> The label as text. Does not have to be null-terminated. Used in the first column. </param>
+        /// <param name="text"> The text. Does not have to be null-terminated. Used in the second column. </param>
+        /// <returns> True if either column is visible. </returns>
+        /// <remarks> Generally used with tables consisting of two columns that just group up labels with data. </remarks>
+        [MethodImpl(ImSharpConfiguration.Inl)]
+        public readonly bool DrawDataPair(Utf8LabelHandler label, Utf8TextHandler text)
+            => DrawColumn(ref label) | DrawColumn(ref text);
+
+        /// <summary> Draw a data line consisting of a label and arbitrary data put into an interpolated string. </summary>
+        /// <param name="label"> The label as text. Does not have to be null-terminated. Used in the first column. </param>
+        /// <param name="data"> The data. Used in the second column using its <see cref="object.ToString"/> method. </param>
+        /// <returns> True if either column is visible. </returns>
+        /// <remarks> Generally used with tables consisting of two columns that just group up labels with data. </remarks>
+        [MethodImpl(ImSharpConfiguration.Inl)]
+        public readonly bool DrawDataPair<T>(Utf8LabelHandler label, in T data)
+            => DrawColumn(ref label) | DrawColumn($"{data}");
+
         /// <summary> Jump to a specific column in this row. </summary>
         /// <param name="columnIndex"> The column to jump to. </param>
         /// <returns> True if the column is visible. </returns>

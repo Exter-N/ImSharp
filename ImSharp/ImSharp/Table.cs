@@ -38,7 +38,6 @@ public static partial class Im
             return true;
         }
 
-
         /// <inheritdoc cref="TableDisposable.GoToColumn"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static bool GoToColumn(int columnIndex)

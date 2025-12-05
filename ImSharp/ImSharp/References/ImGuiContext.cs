@@ -56,6 +56,13 @@ public static partial class Im
             get => Pointer->Font;
         }
 
+        /// <summary> Get the size of the current font of this context. </summary>
+        public float FontSize
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Pointer->FontSize;
+        }
+
         /// <summary> Get the current frame count. </summary>
         public int FrameCount
         {
