@@ -28,6 +28,10 @@ public sealed class NopFilter<TCacheItem> : IFilter<TCacheItem>
     }
 
     /// <inheritdoc/>
+    public bool IsVisible
+        => false;
+
+    /// <inheritdoc/>
     public void Clear()
     { }
 

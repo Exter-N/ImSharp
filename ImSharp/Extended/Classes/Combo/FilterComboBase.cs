@@ -11,7 +11,7 @@ public abstract class FilterComboBase<TCacheItem>
     public MouseWheelType AllowMouseWheel { get; init; } = MouseWheelType.Control;
 
     /// <summary> Additional flags used to draw the combo. </summary>
-    public ComboFlags Flags { get; init; } = ComboFlags.None;
+    public ComboFlags Flags { get; set; } = ComboFlags.None;
 
     /// <summary> Whether the width of the combo popup depends on the displayed items and should be computed. </summary>
     /// <remarks> If this is false, the preview width is used for the popup window too. </remarks>
@@ -60,7 +60,7 @@ public abstract class FilterComboBase<TCacheItem>
     /// <param name="previewWidth"> The width of the preview box for the combo. </param>
     /// <param name="ret"> If true is returned, a newly selected item. </param>
     /// <returns> True if a new item is selected by any means, false otherwise. </returns>
-    public virtual bool Draw(Utf8LabelHandler label, Utf8TextHandler preview, Utf8HintHandler tooltip, float previewWidth,
+    public virtual bool Draw(Utf8LabelHandler label, Utf8HintHandler preview, Utf8TextHandler tooltip, float previewWidth,
         [NotNullWhen(true)] out TCacheItem? ret)
     {
         // Push the ID and save it for this frame.
@@ -89,16 +89,16 @@ public abstract class FilterComboBase<TCacheItem>
     /// <param name="previewWidth"> The width of the preview box for the combo. </param>
     /// <param name="ret"> If true is returned, a newly selected item. </param>
     /// <returns> True if a new item is selected by any means, false otherwise. </returns>
-    protected virtual bool DrawCombo(ref Utf8LabelHandler label, ref Utf8TextHandler preview, ref Utf8HintHandler tooltip, float previewWidth,
+    protected virtual bool DrawCombo(ref Utf8LabelHandler label, ref Utf8HintHandler preview, ref Utf8TextHandler tooltip, float previewWidth,
         [NotNullWhen(true)] out TCacheItem? ret)
     {
+        using var style = Im.Style.PushDefault(ImStyleDouble.ItemSpacing);
         // Draw the combo itself.
         PreDrawCombo(previewWidth);
-        var padding = ImStyleDouble.WindowPadding.PushY(0);
         Im.Item.SetNextWidth(previewWidth);
-        SetPopupWindowSize(previewWidth);
-        using var combo = Im.Combo.Begin(label, preview, Flags | ComboFlags.HeightLarge);
-        padding.Pop();
+        var flags = Flags | ComboFlags.HeightLarge;
+        Im.Combo.DrawPreview(label, preview, out var id, out var boundingBox, flags);
+        PostDrawCombo(previewWidth);
 
         // Draw the tooltip if not empty.
         if (tooltip.GetSpan(out var tooltipSpan) && !tooltipSpan.IsEmpty)
@@ -107,11 +107,14 @@ public abstract class FilterComboBase<TCacheItem>
             Im.Tooltip.OnHover(tooltipSpan);
         }
 
-        PostDrawCombo(previewWidth);
-
         // If the combo is expanded, draw the filter and list.
-        if (combo)
+        if (Im.Popup.IsOpen(id))
+        {
+            SetPopupWindowSize(previewWidth);
+            style.PushX(ImStyleDouble.FramePadding, 0).Push(ImStyleDouble.WindowPadding, Vector2.Zero);
+            using var popup = Im.Combo.DrawPopup(id, boundingBox, flags);
             return DrawComboPopup(out ret);
+        }
 
         ret = default;
         return false;
@@ -123,17 +126,17 @@ public abstract class FilterComboBase<TCacheItem>
     {
         var width = previewWidth;
         // A filter adds a frame height to the window.
-        var additionalHeight = Filter is NopFilter<TCacheItem> ? 0 : Im.Style.FrameHeight;
+        var additionalHeight = Filter.IsVisible ? Im.Style.FrameHeight: 0;
         var height           = MaximumItems * ItemHeight + additionalHeight;
-
+        
         // If we have an active cache, we have information about the actual width and height needed.
         if (CacheManager.Instance.TryGetCache(CurrentId, out FilterComboBaseCache<TCacheItem>? cache))
         {
             if (ComputeWidth)
                 width = Math.Max(cache.ComboWidth, width);
 
-            if (cache.AllItems.Count < MaximumItems)
-                height = cache.AllItems.Count * ItemHeight + additionalHeight;
+            if (cache.Count < MaximumItems)
+                height = Math.Max(1, cache.Count) * ItemHeight + additionalHeight + Im.Style.ItemSpacing.Y / 2;
         }
 
         // Set the popup size to fixed values to avoid scroll bars and unnecessary padding.
@@ -147,7 +150,7 @@ public abstract class FilterComboBase<TCacheItem>
     protected virtual bool DrawComboPopup([NotNullWhen(true)] out TCacheItem? ret)
     {
         var       cache = CacheManager.Instance.GetOrCreateCache(CurrentId, CreateCache);
-        using var _     = Im.Drawing.PushClipRect(Rectangle.FromSize(Im.Window.Position, Im.Window.Size));
+        using var style = Im.Style.PushDefault(ImStyleDouble.FramePadding);
         // If the filter is changed, set it dirty for the next frame.
         if (DrawFilter(Im.Window.Width, cache))
             cache.Dirty |= IManagedCache.DirtyFlags.Custom;
@@ -176,7 +179,7 @@ public abstract class FilterComboBase<TCacheItem>
     /// <returns> True if the filter changed. </returns>
     protected virtual bool DrawFilter(float width, FilterComboBaseCache<TCacheItem> cache)
     {
-        if (Filter is NopFilter<TCacheItem>)
+        if (!Filter.IsVisible)
             return false;
 
         Im.Cursor.Position = Vector2.Zero;
@@ -239,7 +242,7 @@ public abstract class FilterComboBase<TCacheItem>
     protected virtual void PreDrawCombo(float width)
     { }
 
-    /// <summary> Function invoked after drawing the combo preview. </summary>
+    /// <summary> Function invoked after drawing the combo preview, before beginning the popup window (if it is open at all). </summary>
     protected virtual void PostDrawCombo(float width)
     { }
 

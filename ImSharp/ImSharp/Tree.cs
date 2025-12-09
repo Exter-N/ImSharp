@@ -9,6 +9,13 @@ public static partial class Im
         public static TreeNodeDisposable Node(Utf8LabelHandler label, TreeNodeFlags flags = TreeNodeFlags.None)
             => new(ref label, flags);
 
+        /// <summary> Draw a leaf-node that is not expandable and uses a bullet point instead. </summary>
+        /// <param name="label"> <inheritdoc cref="Node"/> </param>
+        /// <param name="flags"> <inheritdoc cref="Node"/> </param>
+        /// <remarks> Automatically disposes and passes the <see cref="TreeNodeFlags.Bullet"/> and <see cref="TreeNodeFlags.Leaf"/> flags. </remarks>
+        public static void Leaf(Utf8LabelHandler label, TreeNodeFlags flags = TreeNodeFlags.None)
+            => new TreeNodeDisposable(ref label, flags | TreeNodeFlags.Bullet | TreeNodeFlags.Leaf).Dispose();
+
         /// <inheritdoc cref="TreeNodeDisposable(ref Utf8LabelHandler)"/>
         public static TreeNodeDisposable Push(Utf8LabelHandler label)
             => new(ref label);

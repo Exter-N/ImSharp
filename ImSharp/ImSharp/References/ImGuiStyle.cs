@@ -516,7 +516,7 @@ public static partial class Im
         }
 
         /// <summary> Get the horizontal distance preceding a label when using a <seealso cref="Tree.Node"/> or <seealso cref="Bullet"/>. </summary>
-        /// <remarks> This is equal to <seealso cref="ImSharp.Im.Font.Size"/> + 2 * <seealso cref="ImGuiStyle.FramePadding"/>.X for regular tree nodes. </remarks>
+        /// <remarks> This is equal to <seealso cref="Font.CurrentSize"/> + 2 * <seealso cref="ImGuiStyle.FramePadding"/>.X for regular tree nodes. </remarks>
         public float TreeNodeToLabelSpacing
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]

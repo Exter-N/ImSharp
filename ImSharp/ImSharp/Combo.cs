@@ -1,3 +1,5 @@
+using ImSharp.Internal;
+
 namespace ImSharp;
 
 public static partial class Im
@@ -50,6 +52,92 @@ public static partial class Im
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static bool Draw(Utf8LabelHandler label, ref int currentIndex, params IReadOnlyList<string> items)
             => Draw(ref label, ref currentIndex, ComboFlags.None, items);
+
+        /// <summary> Draw only the preview part of a combo. </summary>
+        /// <param name="label"> The label of the combo. Does not have to be null-terminated. </param>
+        /// <param name="preview"> The preview text displayed. Does not have to be null-terminated. </param>
+        /// <param name="popupId"> The ID of the associated popup if the combo was drawn. </param>
+        /// <param name="boundingBox"> The bounding box of the drawn widget without the label. </param>
+        /// <param name="flags"> Additional flags to control the combos behaviour. </param>
+        /// <returns> True if the combo was clicked in this frame, regardless of the popup status. </returns>
+        /// <remarks>
+        ///   Only use this if you need to separate the behavior of the combo preview from the popup itself.<br/>
+        ///   Call <see cref="DrawPopup"/> with the returned ID afterward.<br/>
+        ///   You do not generally need to care about the return value.<br/>
+        ///   This is effectively copied from the original ImGui code for combos, just without opening the popup.
+        /// </remarks>
+        public static bool DrawPreview(Utf8LabelHandler label, Utf8HintHandler preview, out ImGuiId popupId, out Rectangle boundingBox,
+            ComboFlags flags = ComboFlags.None)
+        {
+            var window = Window.Current;
+            popupId     = 0;
+            boundingBox = default;
+            if (window.SkipItems)
+                return false;
+
+            var context     = Context;
+            var windowFlags = context.Pointer->NextWindowData.Flags;
+            context.Pointer->NextWindowData.Flags = NextWindowDataFlags.None;
+            var id          = Id.Get(ref label);
+            var hasPreview  = !flags.HasFlag(ComboFlags.NoPreview);
+            var hasArrow    = !flags.HasFlag(ComboFlags.NoArrowButton);
+            var labelSize   = Font.CalculateSize(ref label);
+            var arrowSize   = hasArrow ? Style.FrameHeight : 0;
+            var widgetWidth = hasPreview ? Item.CalculateWidth() : arrowSize;
+            var widgetSize  = new Vector2(widgetWidth, labelSize.Y + 2 * Style.FramePadding.Y);
+            var totalSize   = widgetSize + new Vector2(labelSize.X > 0 ? labelSize.X + Style.ItemInnerSpacing.X : 0, 0);
+            boundingBox = Rectangle.FromSize(window.CursorPosition, widgetSize);
+            var totalBoundingBox = Rectangle.FromSize(window.CursorPosition, totalSize);
+            Item.SetSize(totalSize, Style.FramePadding.Y);
+            if (!Item.Add(totalBoundingBox, id, boundingBox))
+                return false;
+
+            var pressed = Behavior.Button(boundingBox, id, out var hovered, out var held);
+            popupId = Id.Calculate("##ComboPopup"u8, id);
+            var popupOpen = Popup.IsOpen(popupId);
+            if (pressed && !popupOpen)
+            {
+                Popup.Open(popupId);
+                popupOpen = true;
+            }
+
+            var frameColor = hovered ? ImGuiColor.FrameBackgroundHovered.Get() : ImGuiColor.FrameBackground.Get();
+            Render.NavigationHighlight(boundingBox, id);
+            var drawList  = Window.DrawList;
+            var arrowEnd  = Math.Max(boundingBox.Minimum.X, boundingBox.Maximum.X - arrowSize);
+            var textColor = ImGuiColor.Text.Get();
+            if (hasPreview)
+                drawList.Shape.RectangleFilled(boundingBox.Minimum, boundingBox.Maximum with { X = arrowEnd }, frameColor, Style.FrameRounding,
+                    widgetWidth <= arrowSize ? ImDrawFlagsRectangle.RoundCornersAll : ImDrawFlagsRectangle.RoundCornersLeft);
+            if (hasArrow)
+            {
+                var button = popupOpen || hovered ? ImGuiColor.ButtonHovered.Get() : ImGuiColor.Button.Get();
+                drawList.Shape.RectangleFilled(boundingBox.Minimum with { X = arrowEnd }, boundingBox.Maximum, button, Style.FrameRounding,
+                    widgetWidth <= arrowSize ? ImDrawFlagsRectangle.RoundCornersAll : ImDrawFlagsRectangle.RoundCornersRight);
+                if (arrowEnd + arrowSize - Style.FramePadding.X <= boundingBox.Maximum.X)
+                    drawList.Render.Arrow(new Vector2(arrowEnd + Style.FramePadding.Y, boundingBox.Minimum.Y + Style.FramePadding.Y), textColor,
+                        Direction.Down, 1f);
+            }
+
+            Render.FrameBorder(boundingBox, default, Style.FrameRounding);
+
+            if (hasPreview && preview.Start(out var end) - end < 0)
+                drawList.TextClipped(boundingBox.Minimum + Style.FramePadding, boundingBox.Maximum with { X = arrowEnd }, ref preview, null);
+
+            if (labelSize.X > 0)
+                drawList.Text(new Vector2(boundingBox.Maximum.X + Style.ItemInnerSpacing.X, boundingBox.Minimum.Y + Style.FramePadding.Y),
+                    textColor, ref label);
+
+            if (!popupOpen)
+                return false;
+
+            context.Pointer->NextWindowData.Flags = windowFlags;
+            return pressed;
+        }
+
+        /// <inheritdoc cref="ComboDisposable(ImGuiId,in Rectangle,ComboFlags)"/>
+        public static ComboDisposable DrawPopup(ImGuiId id, in Rectangle boundingBox, ComboFlags flags = ComboFlags.None)
+            => new(id, boundingBox, flags);
 
         /// <summary> Draw a combo over all valid entries for an Enum type using the enums <seealso cref="Enum.ToString()"/> for names. </summary>
         /// <typeparam name="T"> The Enum type. </typeparam>

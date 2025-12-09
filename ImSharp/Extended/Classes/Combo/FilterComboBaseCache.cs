@@ -25,14 +25,21 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
     {
         // Create a child if we have drawn a filter before and thus the cursor isn't at 0, and we have more items than can be displayed.
         // We do not need a child if we have no filter, or can display all items either way.
-        var beginChild = parent.Filter is not NopFilter<TCacheItem> && AllItems.Count > parent.MaximumItems;
+        var       hasFilter  = parent.Filter.IsVisible;
+        var       beginChild = hasFilter && Count > parent.MaximumItems;
+        using var indent     = new Im.IndentDisposable();
         // Move the cursor upwards to center the selectables better, or remove the forced frame padding before the child.
-        if (!beginChild)
-            Im.Cursor.Y = Im.Style.ItemSpacing.Y / 2;
+        if (beginChild)
+        {
+            Im.Cursor.X =  0;
+        }
         else
-            Im.Cursor.X = 0;
+        {
+            Im.Cursor.Y += Im.Style.ItemSpacing.Y / 2;
+            indent.Indent(Im.Style.FramePadding.X);
+        }
 
-        using var child = beginChild ? Im.Child.Begin("child"u8, Im.Window.Size - new Vector2(0, Im.Style.FrameHeight)) : default;
+        using var child = beginChild ? Im.Child.Begin("child"u8, Im.ContentRegion.Available) : default;
         using var id    = Im.Id.Push("list"u8);
 
         // Try to find the current selection if we don't have one already.
@@ -75,6 +82,8 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
             }
         }
 
+        // I don't know why this works, but it fixes the last selectable's offset to look nicer.
+        Im.Cursor.Y -= Im.Style.GlobalScale;
         parent.PostDrawList();
 
         // Close the popup if requested through keyboard navigation or selection.

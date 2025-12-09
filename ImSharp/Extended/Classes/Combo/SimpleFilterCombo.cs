@@ -55,7 +55,7 @@ public abstract class SimpleFilterCombo<T> : FilterComboBase<SimpleCacheItem<T>>
     /// <param name="previewWidth"> The width of the preview box for the combo. </param>
     /// <param name="result"> If this returns true, this is the newly selected item. </param>
     /// <returns> True if a new item is selected. </returns>
-    public virtual bool Draw(Utf8LabelHandler label, in T current, Utf8HintHandler tooltip, float previewWidth,
+    public virtual bool Draw(Utf8LabelHandler label, in T current, Utf8TextHandler tooltip, float previewWidth,
         [NotNullWhen(true)] out T? result)
     {
         Current = current;
@@ -76,7 +76,7 @@ public abstract class SimpleFilterCombo<T> : FilterComboBase<SimpleCacheItem<T>>
     /// <param name="tooltip"> The tooltip shown when hovering the combo box. Omitted if this is empty. </param>
     /// <param name="previewWidth"> The width of the preview box for the combo. </param>
     /// <returns> True if a new item is selected. </returns>
-    public virtual bool Draw(Utf8LabelHandler label, ref T selection, Utf8HintHandler tooltip, float previewWidth)
+    public virtual bool Draw(Utf8LabelHandler label, ref T selection, Utf8TextHandler tooltip, float previewWidth)
     {
         if (!Draw(label, selection, tooltip, previewWidth, out var ret))
             return false;

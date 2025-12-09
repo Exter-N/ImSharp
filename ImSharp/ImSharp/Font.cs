@@ -41,6 +41,13 @@ public static partial class Im
             get => Pointer->Scale;
         }
 
+        /// <summary> The font size. </summary>
+        public float Size
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Pointer->FontSize;
+        }
+
         /// <inheritdoc cref="FontDisposable.Push(Im.Font)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public FontDisposable Push()
@@ -104,7 +111,7 @@ public static partial class Im
 
         /// <summary> Get the current font size. </summary>
         /// <remarks> The font size is the height in pixels with the current scale applied. </remarks>
-        public static float Size
+        public static float CurrentSize
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]
             get => Native.Methods.Style.GetFontSize();

@@ -19,6 +19,10 @@ public interface IFilter<TCacheItem>
     /// <returns> True if the filter changed (in which case <see cref="FilterChanged"/> is also invoked). </returns>
     public bool DrawFilter(ReadOnlySpan<byte> label, Vector2 availableRegion);
 
+    /// <summary> Whether the filter draws a visible widget or not. </summary>
+    public bool IsVisible
+        => true;
+
     /// <summary> Clear the filter. </summary>
     public void Clear();
 }

@@ -108,6 +108,11 @@ public static partial class Im
         public static ColorDisposable Push(ImGuiColor type, Vector4 color)
             => new ColorDisposable().Push(type, color);
 
+        /// <inheritdoc cref="ColorDisposable.PushDefault(ImGuiColor)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static ColorDisposable PushDefault(ImGuiColor type)
+            => new ColorDisposable().PushDefault(type);
+
         /// <summary> Get the current style color as a RGBA32 uint. </summary>
         /// <param name="color"> The requested color. </param>
         /// <param name="alphaMultiplier"> An optional multiplier for the alpha channel. </param>

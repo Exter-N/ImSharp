@@ -37,6 +37,15 @@ public static partial class Im
         public static bool IsOpen(Utf8LabelHandler id, PopupQueryFlags flags = PopupQueryFlags.None)
             => Native.Methods.Popup.IsPopupOpen(id.Start(), flags);
 
+        /// <summary> Query whether a popup is currently open. </summary>
+        /// <param name="id"> The absolute ID of the popup as text. </param>
+        /// <param name="flags"> The type of query to check for. </param>
+        /// <returns> Whether a popup defined by the flags and ID is currently open. </returns>
+        /// <remarks> The ID is NOT relative to the current ID stack. </remarks>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static bool IsOpen(ImGuiId id, PopupQueryFlags flags = PopupQueryFlags.None)
+            => Native.Methods.Internal.IsPopupOpen(id, flags);
+
         /// <summary> Close the currently open popup inside a <seealso cref="Begin"/> scope. </summary>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static void CloseCurrent()

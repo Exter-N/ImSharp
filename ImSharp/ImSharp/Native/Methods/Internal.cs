@@ -284,9 +284,9 @@ public static partial class Im
                 [MethodImpl(ImSharpConfiguration.Inl)]
                 public static partial void SetNextWindowScroll(ImVec2 scroll);
 
-                [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igBeginComboPreview")]
+                [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igBeginComboPopup")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial ImBool BeginComboPreview();
+                public static partial ImBool BeginComboPopup(ImGuiId id, ImRect rect, ComboFlags flags);
 
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igSetItemUsingMouseWheel")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
@@ -295,6 +295,10 @@ public static partial class Im
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igImRotate")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
                 public static partial void ImRotate(ImVec2* ret, ImVec2 value, float cos, float sin);
+
+                [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igIsPopupOpen_ID")]
+                [MethodImpl(ImSharpConfiguration.Inl)]
+                public static partial ImBool IsPopupOpen(ImGuiId id, PopupQueryFlags flags);
             }
         }
     }

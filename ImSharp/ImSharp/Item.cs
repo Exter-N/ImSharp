@@ -29,7 +29,7 @@ public static partial class Im
         public static void SetNextWidthScaled(float width)
             => Native.Methods.Stacks.SetNextItemWidth(width * Style.GlobalScale);
 
-        /// <summary> Calculate the width of the last item given the pushed settings and current cursor position. </summary>
+        /// <summary> Calculate the default width for the next item given the pushed settings and current cursor position. </summary>
         /// <returns> The width in pixels. </returns>
         /// <remarks> Not necessarily the width of the last item drawn. </remarks>
         [MethodImpl(ImSharpConfiguration.OptInl)]
@@ -182,11 +182,11 @@ public static partial class Im
         /// <param name="flags"> Additional flags for the item. </param>
         /// <remarks> Only use this when creating custom widgets. </remarks>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public static unsafe void Add(in Rectangle boundingBox, ImGuiId id, in Rectangle navigationBoundingBox,
+        public static unsafe bool Add(in Rectangle boundingBox, ImGuiId id, in Rectangle navigationBoundingBox,
             ItemFlags flags = ItemFlags.None)
         {
             ImRect rect = navigationBoundingBox;
-            Native.Methods.Internal.ItemAdd(boundingBox, id, &rect, flags);
+            return Native.Methods.Internal.ItemAdd(boundingBox, id, &rect, flags);
         }
 
         /// <inheritdoc cref="Add(in Rectangle,ImGuiId,in Rectangle,ItemFlags)"/>

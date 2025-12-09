@@ -200,6 +200,11 @@ public static class ImGuiColorExtensions
     public static Im.ColorDisposable Push(this ImGuiColor type, Vector4 color)
         => new Im.ColorDisposable().Push(type, color);
 
+    /// <inheritdoc cref="Im.ColorDisposable.PushDefault(ImGuiColor)"/>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static Im.ColorDisposable PushDefault(this ImGuiColor type)
+        => new Im.ColorDisposable().PushDefault(type);
+
     /// <inheritdoc cref="Im.Color.Get"/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static Rgba32 Get(this ImGuiColor type, float alphaMultiplier = 1.0f)

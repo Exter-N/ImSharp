@@ -46,6 +46,40 @@ public static partial class Im
         public static ImGuiId Get(nint pointer)
             => Native.Methods.IdStack.GetId(pointer);
 
+        /// <summary> Calculate an ID with a given seed value instead of the current ID value. Supports '###' resetting to seed value inside the string. </summary>
+        /// <typeparam name="T"> The buffer type. </typeparam>
+        /// <param name="id"> The appended ID as text. Does not have to be null-terminated. </param>
+        /// <param name="seed"> The initial seed value for the hash. </param>
+        /// <returns> The combined hash of the seed and the new ID. </returns>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static unsafe ImGuiId Calculate<T>(ref Utf8StringHandler<T> id, ImGuiId seed) where T : IStringHandlerBuffer
+        {
+            var start = id.Start(out var end);
+            return Native.Methods.Internal.ImHashStr(start, (ulong)(end - start), seed.Id);
+        }
+
+        /// <summary> Calculate an ID with a given seed value instead of the current ID value. Does not support '###', use <see cref="Calculate{T}"/> instead if required. </summary>
+        /// <typeparam name="T"> The buffer type. </typeparam>
+        /// <param name="id"> The appended ID as text. Does not have to be null-terminated. </param>
+        /// <param name="seed"> The initial seed value for the hash. </param>
+        /// <returns> The combined hash of the seed and the new ID. </returns>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static unsafe ImGuiId CalculateWithoutReset<T>(ref Utf8StringHandler<T> id, ImGuiId seed) where T : IStringHandlerBuffer
+        {
+            var start = id.Start(out var end);
+            return Native.Methods.Internal.ImHashData(start, (ulong)(end - start), seed.Id);
+        }
+
+        /// <inheritdoc cref="Calculate{T}"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static unsafe ImGuiId Calculate(Utf8TextHandler id, ImGuiId seed)
+            => Calculate(ref id, seed);
+
+        /// <inheritdoc cref="CalculateWithoutReset{T}"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static unsafe ImGuiId CalculateWithoutReset(Utf8TextHandler id, ImGuiId seed)
+            => CalculateWithoutReset(ref id, seed);
+
         /// <summary> Get the last ID from the ID stack of the current window. </summary>
         public static unsafe ImGuiId Current
         {
