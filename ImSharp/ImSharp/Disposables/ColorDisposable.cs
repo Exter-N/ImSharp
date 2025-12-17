@@ -59,14 +59,10 @@ public static partial class Im
         /// <remarks> If you need to keep colors pushed longer than the current scope, use without using and use <seealso cref="PopUnsafe"/>. </remarks>
         public ColorDisposable PushDefault(ImGuiColor type)
         {
-            var current = Style[type];
             foreach (var styleMod in Context.ColorStack.Where(m => m.Color == type))
-            {
-                current = styleMod.BackupValue;
-                break;
-            }
+                return Push(type, styleMod.BackupValue);
 
-            return Push(type, current);
+            return this;
         }
 
         /// <summary> Pop a number of colors. </summary>

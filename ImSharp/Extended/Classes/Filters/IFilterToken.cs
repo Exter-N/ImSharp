@@ -3,7 +3,7 @@ namespace ImSharp;
 /// <summary> A single token for a tokenized filter. </summary>
 /// <typeparam name="TTokenType"> The enumeration type that defines the different token types. </typeparam>
 /// <typeparam name="TSelf"> The own type. </typeparam>
-public interface IFilterToken<TTokenType, in TSelf>
+public interface IFilterToken<TTokenType, TSelf>
 {
     /// <summary> The textual part of the token. </summary>
     public string Needle { get; init; }
@@ -30,4 +30,8 @@ public interface IFilterToken<TTokenType, in TSelf>
     /// <param name="type"> The token type. </param>
     /// <returns> True if 'None' is supported for this type. </returns>
     public abstract static bool AllowsNone(TTokenType type);
+
+    /// <summary> Called after post-processing by the tokenizer to process additional data on the tokens. </summary>
+    /// <param name="list"> A list of tokens to post-process. </param>
+    public abstract static void ProcessList(List<TSelf> list);
 }

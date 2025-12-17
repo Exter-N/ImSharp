@@ -34,7 +34,7 @@ public abstract class TokenizedFilter<TTokenType, TCacheItem, TToken> : IFilter<
 
     /// <summary> Draw a non-rounded text input using the available width and the given label as a hint. </summary>
     /// <inheritdoc/>
-    public bool DrawFilter(ReadOnlySpan<byte> label, Vector2 availableRegion)
+    public virtual bool DrawFilter(ReadOnlySpan<byte> label, Vector2 availableRegion)
     {
         using var style = ImStyleSingle.FrameRounding.Push(0);
 
@@ -81,7 +81,7 @@ public abstract class TokenizedFilter<TTokenType, TCacheItem, TToken> : IFilter<
     }
 
     /// <inheritdoc/>
-    public void Clear()
+    public virtual void Clear()
         => Set(string.Empty);
 
 
@@ -121,7 +121,7 @@ public abstract class TokenizedFilter<TTokenType, TCacheItem, TToken> : IFilter<
     { }
 
     /// <inheritdoc/>
-    public bool WouldBeVisible(in TCacheItem cacheItem, int globalIndex)
+    public virtual bool WouldBeVisible(in TCacheItem cacheItem, int globalIndex)
     {
         switch (State)
         {
@@ -204,11 +204,11 @@ public abstract class TokenizedFilter<TTokenType, TCacheItem, TToken> : IFilter<
                     break;
                 case '"' when currentOffset + 1 < input.Length:
                     count = input[(currentOffset + 1)..].IndexOf('"');
-                    if (count == -1)
+                    if (count is -1)
                     {
                         start = currentOffset;
                         count = input[start..].IndexOfAny(' ', '\t', '\n');
-                        if (count == -1)
+                        if (count is -1)
                             count = input.Length - start;
                     }
                     else
@@ -231,7 +231,7 @@ public abstract class TokenizedFilter<TTokenType, TCacheItem, TToken> : IFilter<
                     {
                         start = currentOffset;
                         count = input[start..].IndexOfAny(' ', '\t', '\n');
-                        if (count == -1)
+                        if (count is -1)
                             count = input.Length - start;
                     }
 
@@ -295,12 +295,15 @@ public abstract class TokenizedFilter<TTokenType, TCacheItem, TToken> : IFilter<
         }
 
         // If only a single general tag remains, it is forced.
-        if (General.Count == 1)
+        if (General.Count is 1)
         {
             Forced.Add(General[0]);
             General.Clear();
         }
 
+        TToken.ProcessList(General);
+        TToken.ProcessList(Forced);
+        TToken.ProcessList(Negated);
         // Check if we have any filters.
         State = General.Count is 0 && Forced.Count is 0 && Negated.Count is 0 && None.Count is 0
             ? FilterState.NoFilters

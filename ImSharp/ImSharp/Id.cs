@@ -103,5 +103,10 @@ public static partial class Im
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static bool IsCurrent(ImGuiId id)
             => Current == id;
+
+        /// <summary> Clear the currently active widget. </summary>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static void ClearActive()
+            => Native.Methods.Internal.ClearActiveId();
     }
 }

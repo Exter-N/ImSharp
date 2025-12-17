@@ -92,6 +92,6 @@ public static partial class ImEx
         => ImSharp.TriStateCheckbox.Instance.Draw(label, ref value);
 
     /// <inheritdoc cref="TriStateCheckbox.Draw{T}(Utf8LabelHandler,ref T,T,T)"/>
-    public static bool Draw<T>(Utf8LabelHandler label, ref T value, T onFlag, T offFlag) where T : unmanaged, Enum
+    public static bool TriStateCheckbox<T>(Utf8LabelHandler label, ref T value, T onFlag, T offFlag) where T : unmanaged, Enum
         => ImSharp.TriStateCheckbox.Instance.Draw(label, ref value, onFlag, offFlag);
 }

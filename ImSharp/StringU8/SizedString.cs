@@ -6,6 +6,9 @@ public record SizedString
     /// <summary> The static subscriber to update cached string sizes when the font changes. </summary>
     private static readonly SizedStringSubscriber Subscriber = new();
 
+    /// <summary> A sized string that is always empty and does not subscribe to updating. </summary>
+    public static readonly SizedString Empty = new();
+
     /// <summary> Get the cached size of the text. </summary>
     public Vector2 Size
     {
@@ -48,8 +51,22 @@ public record SizedString
     public SizedString(StringU8 text, Vector2 size)
     {
         Text = text;
-        Size = size;
-        Subscriber.Strings.TryAdd(this, 0);
+        if (text.Length is 0)
+        {
+            Size = Vector2.Zero;
+        }
+        else
+        {
+            Size = size;
+            Subscriber.Strings.TryAdd(this, 0);
+        }
+    }
+
+    /// <summary> Create the empty sized string. </summary>
+    private SizedString()
+    {
+        Text = StringU8.Empty;
+        Size = Vector2.Zero;
     }
 
     public void Deconstruct(out StringU8 text, out Vector2 size)

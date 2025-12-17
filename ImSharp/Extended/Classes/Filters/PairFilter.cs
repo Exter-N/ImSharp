@@ -38,8 +38,8 @@ public class PairFilter<TCacheItem> : IFilter<TCacheItem>
         }
     }
 
-    /// <summary> Not implemented for a pair filter. </summary>
-    public bool DrawFilter(ReadOnlySpan<byte> label, Vector2 availableRegion)
+    /// <summary> Not implemented for a default pair filter. </summary>
+    public virtual bool DrawFilter(ReadOnlySpan<byte> label, Vector2 availableRegion)
     {
         return false;
     }

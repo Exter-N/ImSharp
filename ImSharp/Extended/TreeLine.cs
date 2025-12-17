@@ -116,7 +116,7 @@ public static class TreeLine
         if (hasMissingParents > 0)
         {
             var start = Im.Window.Position;
-            start.X += lineOffset.X + Im.Style.WindowPadding.X;
+            start.X += lineOffset.X;
             var end = start;
             end.Y += Im.Window.Size.Y;
             do

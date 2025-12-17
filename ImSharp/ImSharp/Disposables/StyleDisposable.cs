@@ -47,27 +47,19 @@ public static partial class Im
         /// <remarks> If you need to keep styles pushed longer than the current scope, use without using and use <seealso cref="PopUnsafe"/>. </remarks>
         public StyleDisposable PushDefault(ImStyleDouble type)
         {
-            var current = Style[type];
             foreach (var styleMod in Context.StyleStack.Where(m => m.VarIdx == (ImStyle)type))
-            {
-                current = styleMod.BackupVec;
-                break;
-            }
+                return Push(type, styleMod.BackupVec);
 
-            return Push(type, current);
+            return this;
         }
 
         /// <inheritdoc cref="PushDefault(ImStyleDouble)"/>
         public StyleDisposable PushDefault(ImStyleSingle type)
         {
-            var current = Style[type];
             foreach (var styleMod in Context.StyleStack.Where(m => m.VarIdx == (ImStyle)type))
-            {
-                current = styleMod.BackupFloat1;
-                break;
-            }
+                return Push(type, styleMod.BackupFloat1);
 
-            return Push(type, current);
+            return this;
         }
 
         /// <summary> Push only the first value of a double-value style to the style stack, keeping the second as-is. </summary>

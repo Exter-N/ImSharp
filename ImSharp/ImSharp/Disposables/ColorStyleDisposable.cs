@@ -35,6 +35,33 @@ public static partial class Im
             return this;
         }
 
+        /// <inheritdoc cref="ColorDisposable.PushDefault"/>
+        public ColorStyleDisposable PushDefault(ImGuiColor color)
+        {
+            foreach (var styleMod in Context.ColorStack.Where(m => m.Color == color))
+                return Push(color, styleMod.BackupValue);
+
+            return this;
+        }
+
+        /// <inheritdoc cref="StyleDisposable.PushDefault(ImStyleDouble)"/>
+        public ColorStyleDisposable PushDefault(ImStyleDouble style)
+        {
+            foreach (var styleMod in Context.StyleStack.Where(m => m.VarIdx == (ImStyle)style))
+                return Push(style, styleMod.BackupVec);
+
+            return this;
+        }
+
+        /// <inheritdoc cref="StyleDisposable.PushDefault(ImStyleSingle)"/>
+        public ColorStyleDisposable PushDefault(ImStyleSingle style)
+        {
+            foreach (var styleMod in Context.StyleStack.Where(m => m.VarIdx == (ImStyle)style))
+                return Push(style, styleMod.BackupFloat1);
+
+            return this;
+        }
+
         /// <summary> Push a border color while also pushing the border thickness for the chosen type to be <see cref="ImGuiStyle.GlobalScale"/> if the color is not transparent and 0 otherwise. </summary>
         /// <param name="borderType"> The type of widget for which the border thickness should be pushed. </param>
         /// <param name="color"> The color to push. </param>
