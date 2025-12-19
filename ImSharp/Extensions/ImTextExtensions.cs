@@ -2,7 +2,7 @@ namespace ImSharp;
 
 public static class ImTextExtensions
 {
-    private static byte _null;
+    private static byte _null = 0;
 
     /// <summary> Clone the given byte span with an appended null-terminator. </summary>
     [MethodImpl(ImSharpConfiguration.Opt)]

@@ -46,8 +46,11 @@ public static partial class Im
                 public  ImVector<float> ItemWidthStack;
                 public  ImVector<float> TextWrapPositionStack;
 
-                public ImVector<Pointer<Window>> ChildWindows
-                    => *(ImVector<Pointer<Window>>*)Unsafe.AsPointer(ref _childWindows);
+                public ImVector<Pointer<Window>> ChildWindows 
+                {
+                    get => *(ImVector<Pointer<Window>>*) Unsafe.AsPointer(ref _childWindows);
+                    set => _childWindows = *(ImVector<nint>*) Unsafe.AsPointer(ref value);
+                }
             }
         }
     }
