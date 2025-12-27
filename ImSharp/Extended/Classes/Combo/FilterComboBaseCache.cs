@@ -31,7 +31,7 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
         // Move the cursor upwards to center the selectables better, or remove the forced frame padding before the child.
         if (beginChild)
         {
-            Im.Cursor.X =  0;
+            Im.Cursor.X = 0;
         }
         else
         {
@@ -267,11 +267,12 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
     public override void Update()
     {
         var recomputeWidth =
-            (Dirty & (IManagedCache.DirtyFlags.Font | IManagedCache.DirtyFlags.Style | IManagedCache.DirtyFlags.Custom)) is not IManagedCache
-                .DirtyFlags.Clean;
+            (Dirty & (IManagedCache.DirtyFlags.Font | IManagedCache.DirtyFlags.Style | IManagedCache.DirtyFlags.Custom))
+            is not IManagedCache.DirtyFlags.Clean;
         base.Update();
         if (recomputeWidth)
             ComputeWidth();
+        Dirty = IManagedCache.DirtyFlags.Clean;
     }
 
     /// <summary> Compute the required width for the combo. </summary>

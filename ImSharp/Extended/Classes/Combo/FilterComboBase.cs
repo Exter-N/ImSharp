@@ -2,8 +2,14 @@ namespace ImSharp;
 
 /// <summary> A base class for a combo supporting filtering, cached drawing and clipping. </summary>
 /// <typeparam name="TCacheItem"> The type of the cache items to draw. </typeparam>
-public abstract class FilterComboBase<TCacheItem>
+public abstract class FilterComboBase<TCacheItem>()
 {
+    public FilterComboBase(IFilter<TCacheItem> filter)
+        : this()
+    {
+        Filter = filter;
+    }
+
     /// <summary> The filter used. It is drawn at the top of the expanded combo unless it is a <see cref="NopFilter{TCacheItem}"/>, in which case it is ignored. </summary>
     public IFilter<TCacheItem> Filter { get; init; } = NopFilter<TCacheItem>.Instance;
 
@@ -12,6 +18,9 @@ public abstract class FilterComboBase<TCacheItem>
 
     /// <summary> Additional flags used to draw the combo. </summary>
     public ComboFlags Flags { get; set; } = ComboFlags.None;
+
+    /// <summary> The alignment of the text inside the preview button. </summary>
+    public Vector2 PreviewAlignment { get; set; } = default;
 
     /// <summary> Whether the width of the combo popup depends on the displayed items and should be computed. </summary>
     /// <remarks> If this is false, the preview width is used for the popup window too. </remarks>
@@ -97,7 +106,7 @@ public abstract class FilterComboBase<TCacheItem>
         PreDrawCombo(previewWidth);
         Im.Item.SetNextWidth(previewWidth);
         var flags = Flags | ComboFlags.HeightLarge;
-        Im.Combo.DrawPreview(label, preview, out var id, out var boundingBox, flags);
+        Im.Combo.DrawPreview(label, preview, out var id, out var boundingBox, flags, PreviewAlignment);
         PostDrawCombo(previewWidth);
 
         // Draw the tooltip if not empty.
@@ -149,8 +158,8 @@ public abstract class FilterComboBase<TCacheItem>
     /// <returns> True if a new item is selected by any means, false otherwise. </returns>
     protected virtual bool DrawComboPopup([NotNullWhen(true)] out TCacheItem? ret)
     {
-        var       cache = CacheManager.Instance.GetOrCreateCache(CurrentId, CreateCache);
         using var style = Im.Style.PushDefault(ImStyleDouble.FramePadding);
+        var       cache = CacheManager.Instance.GetOrCreateCache(CurrentId, CreateCache);
         // If the filter is changed, set it dirty for the next frame.
         if (DrawFilter(Im.Window.Width, cache))
             cache.Dirty |= IManagedCache.DirtyFlags.Custom;

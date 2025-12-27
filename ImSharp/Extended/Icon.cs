@@ -142,7 +142,7 @@ public static partial class ImEx
             }
 
             if (tooltip.GetSpan(out var span))
-                Im.Tooltip.OnHover(HoveredFlags.AllowWhenDisabled, span);
+                Im.Tooltip.OnHover(HoveredFlags.AllowWhenDisabled, span, true);
             return ret;
         }
 
@@ -164,7 +164,7 @@ public static partial class ImEx
             }
 
             if (tooltip.GetSpan(out var span))
-                Im.Tooltip.OnHover(HoveredFlags.AllowWhenDisabled, span);
+                Im.Tooltip.OnHover(HoveredFlags.AllowWhenDisabled, span, true);
             return ret;
         }
 
@@ -184,7 +184,7 @@ public static partial class ImEx
             }
 
             if (tooltip.GetSpan(out var span))
-                Im.Tooltip.OnHover(HoveredFlags.AllowWhenDisabled, span);
+                Im.Tooltip.OnHover(HoveredFlags.AllowWhenDisabled, span, true);
             return ret;
         }
 

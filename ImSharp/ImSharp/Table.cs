@@ -53,7 +53,15 @@ public static partial class Im
 
         /// <inheritdoc cref="TableDisposable.SetBackgroundColor"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public static void SetBackgroundColor(TableBackgroundTarget target, uint color, int column = -1)
+        public static void SetBackgroundColor(TableBackgroundTarget target, Rgba32 color, int column = -1)
             => Native.Methods.Table.TableSetBgColor(target, color, column);
+
+        /// <inheritdoc cref="TableDisposable.SetBackgroundColor"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static void SetBackgroundColor(TableBackgroundTarget target, ColorParameter color, int column = -1)
+        {
+            if(!color.IsDefault)
+                Native.Methods.Table.TableSetBgColor(target, color.Color!.Value, column);
+        }
     }
 }

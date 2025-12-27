@@ -74,7 +74,7 @@ public static partial class Im
 
                 [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "igTableSetBgColor")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
-                public static partial void TableSetBgColor(TableBackgroundTarget target, uint color, int column);
+                public static partial void TableSetBgColor(TableBackgroundTarget target, Rgba32 color, int column);
             }
         }
     }

@@ -36,9 +36,16 @@ public enum ListChangeType : byte
     Update,
 }
 
-/// <summary> Add a list that invokes events when changes occur. </summary>
+/// <summary> A list that invokes events when changes occur. </summary>
 /// <typeparam name="T"> The type of item. </typeparam>
-public class ObservableList<T> : List<T>
+public interface IObservableList<T> : IReadOnlyList<T>
+{
+    public event ObservableList<T>.ChangeDelegate OnChange;
+}
+
+/// <summary> A list that invokes events when changes occur. </summary>
+/// <typeparam name="T"> The type of item. </typeparam>
+public class ObservableList<T> : List<T>, IObservableList<T>
 {
     /// <summary> Arguments provided for the event when the list changes. </summary>
     public record struct ChangeArguments()

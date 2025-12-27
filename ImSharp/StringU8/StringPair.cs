@@ -22,6 +22,9 @@ public struct StringPair(string? utf16, StringU8 utf8)
         }
     } = utf8;
 
+    /// <summary> The empty string pair. </summary>
+    public static readonly StringPair Empty = new();
+
     /// <summary> Create an empty string pair. </summary>
     public StringPair()
         : this(string.Empty, StringU8.Empty)

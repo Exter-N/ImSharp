@@ -59,6 +59,7 @@ public static partial class Im
         /// <param name="popupId"> The ID of the associated popup if the combo was drawn. </param>
         /// <param name="boundingBox"> The bounding box of the drawn widget without the label. </param>
         /// <param name="flags"> Additional flags to control the combos behaviour. </param>
+        /// <param name="alignment"> The alignment of the preview text. </param>
         /// <returns> True if the combo was clicked in this frame, regardless of the popup status. </returns>
         /// <remarks>
         ///   Only use this if you need to separate the behavior of the combo preview from the popup itself.<br/>
@@ -67,7 +68,7 @@ public static partial class Im
         ///   This is effectively copied from the original ImGui code for combos, just without opening the popup.
         /// </remarks>
         public static bool DrawPreview(Utf8LabelHandler label, Utf8HintHandler preview, out ImGuiId popupId, out Rectangle boundingBox,
-            ComboFlags flags = ComboFlags.None)
+            ComboFlags flags = ComboFlags.None, Vector2 alignment = default)
         {
             var window = Window.Current;
             popupId     = 0;
@@ -78,10 +79,10 @@ public static partial class Im
             var context     = Context;
             var windowFlags = context.Pointer->NextWindowData.Flags;
             context.Pointer->NextWindowData.Flags = NextWindowDataFlags.None;
-            var id          = Id.Get(ref label);
+            ImEx.SplitLabel(ref label, out var textLabel, out var id);
             var hasPreview  = !flags.HasFlag(ComboFlags.NoPreview);
             var hasArrow    = !flags.HasFlag(ComboFlags.NoArrowButton);
-            var labelSize   = Font.CalculateSize(ref label);
+            var labelSize   = Font.CalculateSize(textLabel);
             var arrowSize   = hasArrow ? Style.FrameHeight : 0;
             var widgetWidth = hasPreview ? Item.CalculateWidth() : arrowSize;
             var widgetSize  = new Vector2(widgetWidth, labelSize.Y + 2 * Style.FramePadding.Y);
@@ -108,7 +109,7 @@ public static partial class Im
             var textColor = ImGuiColor.Text.Get();
             if (hasPreview)
                 drawList.Shape.RectangleFilled(boundingBox.Minimum, boundingBox.Maximum with { X = arrowEnd }, frameColor, Style.FrameRounding,
-                    widgetWidth <= arrowSize ? ImDrawFlagsRectangle.RoundCornersAll : ImDrawFlagsRectangle.RoundCornersLeft);
+                    widgetWidth <= arrowSize || !hasArrow ? ImDrawFlagsRectangle.RoundCornersAll : ImDrawFlagsRectangle.RoundCornersLeft);
             if (hasArrow)
             {
                 var button = popupOpen || hovered ? ImGuiColor.ButtonHovered.Get() : ImGuiColor.Button.Get();
@@ -122,11 +123,11 @@ public static partial class Im
             Render.FrameBorder(boundingBox, default, Style.FrameRounding);
 
             if (hasPreview && preview.Start(out var end) - end < 0)
-                drawList.TextClipped(boundingBox.Minimum + Style.FramePadding, boundingBox.Maximum with { X = arrowEnd }, ref preview, null);
+                drawList.TextClipped(boundingBox.Minimum + Style.FramePadding, boundingBox.Maximum with { X = arrowEnd }, ref preview, null, alignment);
 
             if (labelSize.X > 0)
                 drawList.Text(new Vector2(boundingBox.Maximum.X + Style.ItemInnerSpacing.X, boundingBox.Minimum.Y + Style.FramePadding.Y),
-                    textColor, ref label);
+                    textColor, textLabel);
 
             if (!popupOpen)
                 return false;
