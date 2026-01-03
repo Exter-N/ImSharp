@@ -77,4 +77,8 @@ public abstract class Utf8FilterBase<TCacheItem> : IFilter<TCacheItem>
         if (Set(StringU8.Empty))
             InvokeEvent();
     }
+
+    /// <inheritdoc/>
+    public bool IsEmpty
+        => Text.IsEmpty;
 }

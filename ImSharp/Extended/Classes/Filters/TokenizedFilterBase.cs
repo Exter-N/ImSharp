@@ -309,4 +309,8 @@ public abstract class TokenizedFilter<TTokenType, TCacheItem, TToken> : IFilter<
             ? FilterState.NoFilters
             : FilterState.Normal;
     }
+
+    /// <inheritdoc/>
+    public bool IsEmpty
+        => Text.Length is 0;
 }

@@ -40,27 +40,7 @@ public static partial class ImEx
         var iconSize        = new Vector2(Im.Style.TextHeight);
         var treeNodeEnd     = iconStart - Im.Style.ItemInnerSpacing.X;
         var treeRect        = Rectangle.FromSize(Im.Cursor.ScreenPosition, new Vector2(treeNodeEnd, Im.Style.TextHeightWithSpacing));
-
-        using var group = Im.Group();
-        using (Im.Drawing.PushClipRect(treeRect, true))
-        {
-            node        = Im.Tree.Node(label, flags);
-            toggledOpen = Im.Tree.ToggledOpen();
-        }
-
-        // Handle the background over the icons when hovering the tree node or activating it.
-        var hovered = Im.Item.Hovered();
-        var background = flags.HasFlag(TreeNodeFlags.Selected)
-            ? Im.Style[ImGuiColor.Header]
-            : hovered
-                ? Im.Item.Active
-                    ? Im.Style[ImGuiColor.HeaderActive]
-                    : Im.Style[ImGuiColor.HeaderHovered]
-                : Vector4.Zero;
-        if (background.W is not 0)
-            Im.Window.DrawList.Shape.RectangleFilled(
-                Rectangle.FromSize(new Vector2(treeRect.Maximum.X, treeRect.Minimum.Y),
-                    new Vector2(availableRegion,                   Im.Style.TextHeight)), background);
+        var startPos        = Im.Cursor.Position;
 
         // Start drawing icons. There is at least one visible.
         Im.Line.Same(iconStart, 0);
@@ -112,6 +92,28 @@ public static partial class ImEx
                     Im.Line.NoSpacing();
             }
         }
+
+        // Draw the tree node as the last item because this is what we want to interact with in other functions.
+        Im.Cursor.Position = startPos;
+        using (Im.Drawing.PushClipRect(treeRect, true))
+        {
+            node        = Im.Tree.Node(label, flags);
+            toggledOpen = Im.Tree.ToggledOpen();
+        }
+
+        // Handle the background over the icons when hovering the tree node or activating it.
+        var hovered = Im.Item.Hovered();
+        var background = flags.HasFlag(TreeNodeFlags.Selected)
+            ? Im.Style[ImGuiColor.Header]
+            : hovered
+                ? Im.Item.Active
+                    ? Im.Style[ImGuiColor.HeaderActive]
+                    : Im.Style[ImGuiColor.HeaderHovered]
+                : Vector4.Zero;
+        if (background.W is not 0)
+            Im.Window.DrawList.Shape.RectangleFilled(
+                Rectangle.FromSize(new Vector2(treeRect.Maximum.X, treeRect.Minimum.Y),
+                    new Vector2(availableRegion,                   Im.Style.TextHeight)), background);
 
         return node;
     }

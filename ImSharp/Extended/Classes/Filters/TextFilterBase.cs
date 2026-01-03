@@ -61,7 +61,7 @@ public abstract class TextFilterBase<TCacheItem> : IFilter<TCacheItem>
     /// <summary> Check if the text contains the filter text. </summary>
     /// <param name="text"> The given text. </param>
     /// <returns> True if the filter text is contained. </returns>
-    protected virtual bool WouldBeVisible(string text)
+    public virtual bool WouldBeVisible(string text)
         => Text.Length is 0 || text.Contains(Text, Comparison);
 
     /// <summary> Obtain the string to filter upon from the item to check. </summary>
@@ -80,6 +80,10 @@ public abstract class TextFilterBase<TCacheItem> : IFilter<TCacheItem>
         if (Set(string.Empty))
             InvokeEvent();
     }
+
+    /// <inheritdoc/>
+    public bool IsEmpty
+        => Text.Length is 0;
 }
 
 /// <summary> A basic text filter that compares against items that already are of type string. </summary>

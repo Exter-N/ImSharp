@@ -16,7 +16,7 @@ public abstract class FlagFilterBase<TCacheItem, TEnum> : IFilter<TCacheItem>
     public abstract IReadOnlyList<(TEnum Value, StringU8 Name)> EnumData { get; }
 
     /// <summary> Get the current filter value. </summary>
-    public abstract TEnum FilterValue { get; protected set;  }
+    public abstract TEnum FilterValue { get; protected set; }
 
     /// <summary> Get the set of flags for a row. </summary>
     /// <param name="item"> The row to check. </param>
@@ -136,4 +136,8 @@ public abstract class FlagFilterBase<TCacheItem, TEnum> : IFilter<TCacheItem>
         if (SetValue(AllFlags, true))
             InvokeEvent();
     }
+
+    /// <inheritdoc/>
+    public bool IsEmpty
+        => FilterValue.Equals(AllFlags);
 }

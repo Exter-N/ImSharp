@@ -25,4 +25,7 @@ public interface IFilter<TCacheItem>
 
     /// <summary> Clear the filter. </summary>
     public void Clear();
+
+    /// <summary> Whether the filter is currently empty, in which case nothing would be filtered out and everything is visible. </summary>
+    public bool IsEmpty { get; }
 }

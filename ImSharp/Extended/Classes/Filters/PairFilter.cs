@@ -50,4 +50,8 @@ public class PairFilter<TCacheItem> : IFilter<TCacheItem>
         Filter1.Clear();
         Filter2.Clear();
     }
+
+    /// <inheritdoc/>
+    public bool IsEmpty
+        => Filter1.IsEmpty && Filter2.IsEmpty;
 }

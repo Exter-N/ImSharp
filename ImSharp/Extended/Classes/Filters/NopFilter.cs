@@ -1,3 +1,5 @@
+using static FFXIVClientStructs.FFXIV.Client.LayoutEngine.LayoutManager;
+
 namespace ImSharp;
 
 /// <summary> A filter doing nothing. </summary>
@@ -38,4 +40,8 @@ public sealed class NopFilter<TCacheItem> : IFilter<TCacheItem>
     /// <summary> Use <see cref="Instance"/> instead. </summary>
     private NopFilter()
     { }
+
+    /// <inheritdoc/>
+    public bool IsEmpty
+        => true;
 }

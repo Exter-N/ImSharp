@@ -132,10 +132,10 @@ public static partial class ImEx
                 size.X = Im.Style.FrameHeight;
             if (size.Y is 0)
                 size.Y = Im.Style.FrameHeight;
-            using var _ = Im.Disabled(disabled);
             bool      ret;
             using (T.Font.Push())
             {
+                using var _ = Im.Disabled(disabled);
                 using var color = Im.Color.Push(ImGuiColor.Button, buttonColor)
                     .Push(ImGuiColor.Text, textColor);
                 ret = Im.Button(icon.Span, size, flags);
@@ -156,10 +156,10 @@ public static partial class ImEx
                 size.X = Im.Style.FrameHeight;
             if (size.Y is 0)
                 size.Y = Im.Style.FrameHeight;
-            using var _ = Im.Disabled(disabled);
-            bool      ret;
+            bool ret;
             using (T.Font.Push())
             {
+                using var _ = Im.Disabled(disabled);
                 ret = Im.Button(icon.Span, size, flags);
             }
 

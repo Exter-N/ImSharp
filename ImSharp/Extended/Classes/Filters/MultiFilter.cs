@@ -57,4 +57,8 @@ public class MultiFilter<TCacheItem> : IFilter<TCacheItem>
         foreach (var filter in Filters)
             filter.Clear();
     }
+
+    /// <inheritdoc/>
+    public bool IsEmpty
+        => Filters.All(f => f.IsEmpty);
 }

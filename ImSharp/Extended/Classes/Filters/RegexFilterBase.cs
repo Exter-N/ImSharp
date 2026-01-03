@@ -40,7 +40,7 @@ public abstract class RegexFilterBase<TCacheItem> : TextFilterBase<TCacheItem>
 
     /// <summary> Check if the given text matches the current RegEx, if there is one, or contains the current text otherwise. </summary>
     /// <inheritdoc/>
-    protected override bool WouldBeVisible(string text)
+    public override bool WouldBeVisible(string text)
         => Text.Length is 0 || (Regex?.IsMatch(text) ?? text.Contains(Text, Comparison));
 }
 

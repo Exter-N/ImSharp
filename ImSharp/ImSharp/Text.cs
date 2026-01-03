@@ -101,6 +101,28 @@ public static unsafe partial class Im
     public static void BulletText(Utf8TextHandler text)
         => BulletText(ref text);
 
+    /// <summary> Draw a bullet point for enumerations followed by the given text. </summary>
+    /// <param name="text"> The given text. Does not have to be null-terminated. </param>
+    /// <param name="color"> The color for the text. </param>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    [OverloadResolutionPriority(50)]
+    public static void BulletText(Utf8TextHandler text, Rgba32 color)
+    {
+        var c = ImGuiColor.Text.Push(color);
+        BulletText(ref text);
+        c.Pop();
+    }
+
+    /// <inheritdoc cref="BulletText(Utf8TextHandler,Rgba32)"/>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    [OverloadResolutionPriority(100)]
+    public static void BulletText(Utf8TextHandler text, Vector4 color)
+    {
+        var c = ImGuiColor.Text.Push(color);
+        BulletText(ref text);
+        c.Pop();
+    }
+
     /// <inheritdoc cref="BulletText(Utf8TextHandler)"/>
     /// <remarks> Custom implementation based on ImGui's because ImGui uses printf formatting and varargs. </remarks>
     [MethodImpl(ImSharpConfiguration.OptInl)]

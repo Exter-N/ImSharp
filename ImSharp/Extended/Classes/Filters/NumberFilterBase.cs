@@ -52,6 +52,19 @@ public abstract class NumberFilterBase<TNumber, TCacheItem> : RegexFilterBase<TC
         return true;
     }
 
+    /// <summary> Use the given filter method on a numerical value. </summary>
+    public bool WouldBeVisible(TNumber number)
+        => Text.Length is 0
+         || (Number.HasValue
+                ? Method switch
+                {
+                    NumberFilterMethod.Equal        => number == Number.Value,
+                    NumberFilterMethod.LessEqual    => number <= Number.Value,
+                    NumberFilterMethod.GreaterEqual => number >= Number.Value,
+                    _                               => true,
+                }
+                : WouldBeVisible(number.ToString()!));
+
     /// <summary> Use the given filter method on the numerical value or text. </summary>
     public override bool WouldBeVisible(in TCacheItem item, int globalIndex)
     {

@@ -33,6 +33,8 @@ public static partial class ImEx
             2 => size with { Y = value },
             _ => size,
         };
+        currentSize.X = Math.Clamp(currentSize.X, minSize.X, maxSize.X);
+        currentSize.Y = Math.Clamp(currentSize.Y, minSize.Y, maxSize.Y);
 
         // Fix border width, use regular color and rounding style.
         const float borderWidth     = 1f;

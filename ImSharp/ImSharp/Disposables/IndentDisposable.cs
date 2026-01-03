@@ -29,6 +29,12 @@ public static partial class Im
             return this;
         }
 
+        /// <inheritdoc cref="Indent(float,bool)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public IndentDisposable Indent(bool condition = true)
+            => Indent(Style.IndentSpacing, condition);
+
+
         /// <summary> Subtract from the current indentation. </summary>
         /// <param name="indent"> The value to change the indentation by. </param>
         /// <param name="condition"> If this is false, the current indent is not changed. </param>
@@ -48,6 +54,11 @@ public static partial class Im
 
             return this;
         }
+
+        /// <inheritdoc cref="Unindent(float,bool)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public IndentDisposable Unindent(bool condition = true)
+            => Unindent(Style.IndentSpacing, condition);
 
         /// <summary> Revert all indentation applied by this object. </summary>
         [MethodImpl(ImSharpConfiguration.OptInl)]

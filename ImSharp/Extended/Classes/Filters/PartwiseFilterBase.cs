@@ -26,7 +26,7 @@ public abstract class PartwiseFilterBase<TCacheItem> : TextFilterBase<TCacheItem
 
     /// <summary> Check if the given text matches each token of the filter. </summary>
     /// <inheritdoc/>
-    protected override bool WouldBeVisible(string text)
+    public override bool WouldBeVisible(string text)
         => Parts.Length is 0 || Parts.All(p => text.Contains(p, Comparison));
 }
 
