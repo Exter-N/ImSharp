@@ -17,12 +17,7 @@ public static partial class Im
         // SetWindowFocus
         // SetWindowFontScale
         // PushButtonRepeat
-        // PushTextWrapPos
-        // TextWrapped
         // LabelText
-        // BulletText
-
-        // Columns (?)
 
         // DockSpace
 

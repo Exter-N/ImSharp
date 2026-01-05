@@ -22,9 +22,8 @@ public enum InputTextFlags : uint
     /// <summary> Select the entire text in the input when taking focus with the mouse. </summary>
     AutoSelectAll = 1 << 4,
 
-    // TODO references
     /// <summary> Return true only when Enter is pressed, not on every modification of the value. </summary>
-    /// <remarks> Most use-cases can be handled better with <seealso cref="Im.IsItemDeactivated"/> and <seealso cref="Im.IsItemDeactivatedAfterEdit"/>. </remarks>
+    /// <remarks> Most use-cases can be handled better with <seealso cref="Im.Item.Deactivated"/> and <seealso cref="Im.Item.DeactivatedAfterEdit"/>. </remarks>
     EnterReturnsTrue = 1 << 5,
 
     /// <summary> The callback is invoked on pressing TAB (e.g. for completion handling). </summary>
@@ -70,7 +69,7 @@ public enum InputTextFlags : uint
     /// <remarks> Inputs return true on any edit, too. So only use callbacks if you need to manipulate the underlying owned buffer during focus. </remarks>
     CallbackEdit = 1 << 19,
 
-    /// <summary> Used internally to denote <seealso cref="Im.Input.Multiline(Utf8LabelHandler,ref string,Vector2,InputTextFlags)"/>. </summary>
+    /// <summary> Used internally to denote <seealso cref="Im.Input.MultiLine(Utf8LabelHandler,ref string,Vector2,InputTextFlags)"/>. </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
     Multiline = 1 << 26,
 

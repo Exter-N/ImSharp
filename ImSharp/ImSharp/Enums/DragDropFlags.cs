@@ -16,7 +16,6 @@ public enum DragDropFlags : uint
     /// <summary> Normally, when dragging items, tree nodes and collapsing headers can be opened by holding the dragged item on top of them. Setting this flag prevents that. </summary>
     SourceNoHoldToOpenOthers = 1 << 2,
 
-    // TODO fix reference
     /// <summary> Allow items without IDs (<seealso cref="Im.Text(Utf8TextHandler)"/>, <seealso cref="Im.Image"/>) to be used as drag sources by using temporary identifiers. </summary>
     SourceAllowNullId = 1 << 3,
 
@@ -28,7 +27,7 @@ public enum DragDropFlags : uint
     SourceAutoExpirePayload = 1 << 5,
 
     /// <summary> <seealso cref="Im.DragDrop.AcceptPayload"/> returns true even before the mouse button is released. </summary>
-    /// <remarks> Use <seealso cref="Payload.Delivery"/> to test if the payload needs to be delivered. </remarks>
+    /// <remarks> Use <seealso cref="Im.Payload.Delivery"/> to test if the payload needs to be delivered. </remarks>
     AcceptBeforeDelivery = 1 << 10,
 
     /// <summary> Do not draw the default highlight rectangle when hovering over this target. </summary>
