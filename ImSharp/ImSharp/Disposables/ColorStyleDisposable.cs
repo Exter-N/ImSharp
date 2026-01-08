@@ -16,20 +16,21 @@ public static partial class Im
         /// <returns> A disposable object that can be used to push further colors and styles and pops those colors after leaving scope. Use with using. </returns>
         public ColorStyleDisposable PushDefault()
         {
-            var priorCount = Context.StyleStackSize;
-            for (var idx = priorCount - 1; idx >= 0; --idx)
+            StyleCount = Context.StyleStackSize;
+            for (var idx = StyleCount - 1; idx >= 0; --idx)
             {
                 var styleMod = Context.StyleStack[idx];
-                Native.Methods.Stacks.PushStyleVar(styleMod.VarIdx, styleMod.BackupVec);
-                ++StyleCount;
+                if (styleMod.VarIdx.Single())
+                    Native.Methods.Stacks.PushStyleVar(styleMod.VarIdx, styleMod.BackupFloat1);
+                else
+                    Native.Methods.Stacks.PushStyleVar(styleMod.VarIdx, styleMod.BackupVec);
             }
-
-            priorCount = Context.ColorStackSize;
-            for (var idx = priorCount - 1; idx >= 0; --idx)
+            
+            ColorCount = Context.ColorStackSize;
+            for (var idx = ColorCount - 1; idx >= 0; --idx)
             {
                 var colorMod = Context.ColorStack[idx];
                 Native.Methods.Stacks.PushStyleColor(colorMod.Color, colorMod.BackupValue);
-                ++ColorCount;
             }
 
             return this;
@@ -231,8 +232,12 @@ public static partial class Im
         public ColorStyleDisposable PopColor(int num = 1)
         {
             num = Math.Min(num, ColorCount);
-            Native.Methods.Stacks.PopStyleColor(num);
-            ColorCount -= num;
+            if (num > 0)
+            {
+                Native.Methods.Stacks.PopStyleColor(num);
+                ColorCount -= num;
+            }
+
             return this;
         }
 
@@ -326,8 +331,12 @@ public static partial class Im
         public ColorStyleDisposable PopStyle(int num = 1)
         {
             num = Math.Min(num, StyleCount);
-            Native.Methods.Stacks.PopStyleVar(num);
-            ColorCount -= num;
+            if (num > 0)
+            {
+                Native.Methods.Stacks.PopStyleVar(num);
+                StyleCount -= num;
+            }
+
             return this;
         }
 

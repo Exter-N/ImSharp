@@ -205,6 +205,13 @@ public enum ImStyleBorder : uint
 
 public static class ImGuiStyleExtensions
 {
+    private static readonly bool[] ImStyleSingle =
+        Enum.GetValues<ImStyle>().Select(v => Enum.IsDefined((ImStyleSingle)v)).ToArray();
+
+    /// <summary> Get whether this style variable uses a single float (true) or a ImVec2 (false). </summary>
+    public static bool Single(this ImStyle style)
+        => ImStyleSingle[(int)style];
+
     /// <inheritdoc cref="Im.StyleDisposable.Push(ImStyleSingle,float,bool)"/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static Im.StyleDisposable Push(this ImStyleSingle type, float value, bool condition)

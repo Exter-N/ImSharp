@@ -400,7 +400,7 @@ public static partial class Im
         public StyleDisposable Push(ImStyleDouble type, Vector2 value)
             => new StyleDisposable().Push(type, value);
 
-        /// <inheritdoc cref="ColorStyleDisposable.PushDefault"/>
+        /// <inheritdoc cref="ColorStyleDisposable.PushDefault()"/>
         public ColorStyleDisposable PushDefault()
             => new ColorStyleDisposable().PushDefault();
 

@@ -98,8 +98,12 @@ public static partial class Im
         public StyleDisposable Pop(int num = 1)
         {
             num   =  Math.Min(num, Count);
-            Count -= num;
-            Native.Methods.Stacks.PopStyleVar(num);
+            if (num > 0)
+            {
+                Count -= num;
+                Native.Methods.Stacks.PopStyleVar(num);
+            }
+
             return this;
         }
 

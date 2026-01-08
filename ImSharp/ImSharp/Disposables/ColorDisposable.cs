@@ -71,8 +71,12 @@ public static partial class Im
         public ColorDisposable Pop(int num = 1)
         {
             num   =  Math.Min(num, Count);
-            Count -= num;
-            Native.Methods.Stacks.PopStyleColor(num);
+            if (num > 0)
+            {
+                Count -= num;
+                Native.Methods.Stacks.PopStyleColor(num);
+            }
+
             return this;
         }
 
