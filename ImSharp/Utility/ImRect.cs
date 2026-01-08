@@ -28,4 +28,10 @@ public readonly record struct ImRect(ImVec2 Minimum, ImVec2 Maximum)
 
     public override string ToString()
         => $"[{Minimum.X},  {Minimum.Y}] x [{Maximum.X},  {Maximum.Y}]";
+
+    /// <summary> Add a border of certain pixel width to all sides of the rectangle. </summary>
+    /// <param name="pixel"> The size to be added to the maximum and subtracted from the minimum. </param>
+    /// <returns> The increased rectangle. </returns>
+    public ImRect Increase(float pixel)
+        => new(new ImVec2(Minimum.X - pixel, Minimum.Y - pixel), new ImVec2(Maximum.X + pixel, Maximum.Y + pixel));
 }

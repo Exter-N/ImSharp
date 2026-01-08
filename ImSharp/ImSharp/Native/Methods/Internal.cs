@@ -191,6 +191,10 @@ public static partial class Im
                 [MethodImpl(ImSharpConfiguration.Inl)]
                 public static partial ImBool IsDragDropBeingAccepted();
 
+                [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igBeginDragDropTargetCustom")]
+                [MethodImpl(ImSharpConfiguration.Inl)]
+                public static partial ImBool DragDropTargetCustom(in ImRect boundingBox, ImGuiId id);
+
                 [LibraryImport(Version.CImGuiLibrary, EntryPoint = "igRenderArrow")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
                 public static partial void RenderArrow(ImDrawList* drawList, ImVec2 pos, Rgba32 color, Direction direction,

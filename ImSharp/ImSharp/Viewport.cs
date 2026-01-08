@@ -48,15 +48,21 @@ public static partial class Im
         public void SetNextWindowPositionRelative(Vector2 position, Condition condition = Condition.None, Vector2 pivot = default)
             => Window.SetNextPosition(position + Position, condition, pivot);
 
-        /// <summary> Get the background draw list for the given viewport. </summary>
+        /// <summary> Get the background draw list for this viewport. </summary>
         /// <remarks> The background draw list is the first that renders, so anything else is rendered on top of it. </remarks>
-        public static DrawList GetBackgroundDrawList(Viewport viewport)
-            => Native.Methods.DrawList.GetBackgroundDrawList(viewport.Pointer);
+        public DrawList Background
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Native.Methods.DrawList.GetBackgroundDrawList(Pointer);
+        }
 
-        /// <summary> Get the foreground draw list for the given viewport. </summary>
+        /// <summary> Get the foreground draw list for this viewport. </summary>
         /// <remarks> The foreground draw list is the last that renders, so it renders on top of everything else. </remarks>
-        public static DrawList GetForegroundDrawList(Viewport viewport)
-            => Native.Methods.DrawList.GetForegroundDrawList(viewport.Pointer);
+        public DrawList Foreground
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Native.Methods.DrawList.GetForegroundDrawList(Pointer);
+        }
 
         /// <summary> Helper function for backends to get a specific viewport by ID. </summary>
         /// <param name="id"> The Viewport ID. </param>

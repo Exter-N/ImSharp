@@ -119,6 +119,13 @@ public static partial class Im
             get => Pointer->ColorStack;
         }
 
+        /// <summary> Whether a drag and drop action is currently active. </summary>
+        public bool DragDropActive
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Pointer->DragDropActive;
+        }
+
         /// <summary> Create a new context with an existing font atlas. </summary>
         /// <param name="fontAtlas"> The font atlas to re-use. </param>
         /// <returns> The created context. </returns>

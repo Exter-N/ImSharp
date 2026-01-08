@@ -15,6 +15,14 @@ public static partial class Im
         public static DragDropTargetDisposable Target()
             => new(true);
 
+        /// <inheritdoc cref="DragDropTargetDisposable(bool,bool)"/>
+        public static DragDropTargetDisposable TargetViewport()
+            => new(true, true);
+
+        /// <inheritdoc cref="DragDropTargetDisposable(bool,bool,bool)"/>
+        public static DragDropTargetDisposable TargetWindow()
+            => new(true, true, true);
+
         /// <inheritdoc cref="DragDropSourceDisposable.SetPayload(Utf8LabelHandler,Condition)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static unsafe bool SetPayload(Utf8LabelHandler id, Condition condition = Condition.None)
