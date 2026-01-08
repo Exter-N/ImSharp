@@ -1,5 +1,3 @@
-using static FFXIVClientStructs.FFXIV.Client.LayoutEngine.LayoutManager;
-
 namespace ImSharp;
 
 /// <summary> A filter doing nothing. </summary>
