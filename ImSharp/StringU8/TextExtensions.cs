@@ -23,7 +23,7 @@ public static partial class TextExtensions
 
             fixed (byte* ptr = needle, hay = haystack)
             {
-                return ContainsDefaultCase(hay, ptr, hay + length - subLength, subLength);
+                return ContainsDefaultCase(hay, ptr, hay + length, subLength);
             }
         }
 
@@ -153,10 +153,13 @@ public static partial class TextExtensions
         var start = AsciiLowerCaseBytes[other[0]];
         ++other;
         --subLength;
+        end -= subLength;
         for (; hayStack < end; ++hayStack)
         {
-            if (AsciiLowerCaseBytes[*hayStack] == start
-             && memicmp(hayStack + 1, other, (ulong)subLength) is 0)
+            if (AsciiLowerCaseBytes[*hayStack] != start)
+                continue;
+
+            if (memicmp(hayStack + 1, other, (ulong)subLength) is 0)
                 return true;
         }
 
