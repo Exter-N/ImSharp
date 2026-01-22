@@ -87,6 +87,14 @@ public static partial class Im
     public static unsafe bool Checkbox(Utf8LabelHandler label, ref bool value)
         => Native.Methods.Widgets.Checkbox(label.Start(), (ImBool*)Unsafe.AsPointer(ref value));
 
+    /// <summary> Draw a checkbox. </summary>
+    /// <param name="label"> The label as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
+    /// <param name="value"> The input value of the checkbox. </param>
+    /// <returns> True if the checkbox has been clicked in this frame, in which case <paramref name="value"/> will be flipped. </returns>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public static unsafe bool Checkbox(Utf8LabelHandler label, bool value)
+        => Native.Methods.Widgets.Checkbox(label.Start(), (ImBool*)Unsafe.AsPointer(ref value));
+
     /// <summary> Draw a tri-state checkbox. </summary>
     /// <param name="label"> The label as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
     /// <param name="value"> The bit-flag based input and output value. </param>
