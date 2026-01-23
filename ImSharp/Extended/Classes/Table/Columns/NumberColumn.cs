@@ -6,8 +6,8 @@ namespace ImSharp.Table;
 public abstract class NumberColumn<TNumber, TCacheItem> : BasicColumn<TCacheItem>
     where TNumber : unmanaged, INumber<TNumber>
 {
-    protected NumberColumn()
-        => Filter = new NumberFilter(this);
+    protected NumberColumn(NumberFilterMethod filterMethod = NumberFilterMethod.LessEqual)
+        => Filter = new NumberFilter(this) { Method = filterMethod };
 
     /// <summary> The filter used. </summary>
     protected NumberFilterBase<TNumber, TCacheItem> Filter { get; init; }

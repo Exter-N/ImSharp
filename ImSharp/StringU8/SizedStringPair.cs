@@ -7,6 +7,9 @@ public record SizedStringPair : SizedString
     public string Utf16
         => field ??= Utf8.ToString();
 
+    /// <inheritdoc cref="SizedString.Empty"/>
+    public new static readonly SizedStringPair Empty = new();
+
     /// <summary> The sized UTF8-encoded string. </summary>
     public SizedString Utf8
         => this;
@@ -27,7 +30,13 @@ public record SizedStringPair : SizedString
     /// <inheritdoc cref="StringPair(DefaultInterpolatedStringHandler)"/>
     [OverloadResolutionPriority(100)]
     public SizedStringPair(DefaultInterpolatedStringHandler handler)
-        : this(ToStringAndClear(ref handler, out var utf16), utf16)
+        : this(ToStringAndClear(ref handler, out var utf8), utf8)
+    { }
+
+    /// <inheritdoc cref="StringPair(DefaultInterpolatedStringHandler)"/>
+    [OverloadResolutionPriority(20)]
+    public SizedStringPair(string text)
+        : this(text, new StringU8(text))
     { }
 
     /// <inheritdoc cref="StringPair(Utf8InterpolatedStringHandler)"/>
@@ -61,6 +70,10 @@ public record SizedStringPair : SizedString
         utf16 = new StringU8(ret);
         return ret;
     }
+
+    /// <summary> Create the empty sized string. </summary>
+    private SizedStringPair()
+        => Utf16 = string.Empty;
 
     private SizedStringPair(string? utf16, StringU8 utf8)
         : base(utf8)

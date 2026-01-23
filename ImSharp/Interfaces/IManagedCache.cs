@@ -1,5 +1,3 @@
-using static ImSharp.IManagedCache;
-
 namespace ImSharp;
 
 /// <summary> An interface to represent managed caches used by <seealso cref="CacheManager"/>. </summary>
@@ -33,8 +31,7 @@ public interface IManagedCache
 
     /// <summary> The duration of not being seen a cache should be kept alive. </summary>
     /// <remarks> Set this to <seealso cref="TimeSpan.MaxValue"/> for persistent caches. Set it to non-positive values for caches that should get removed immediately. </remarks>
-    public TimeSpan KeepAliveDuration
-        => TimeSpan.FromSeconds(5);
+    public TimeSpan KeepAliveDuration { get; set; }
 
     /// <summary> Update the caches state. This should handle the individual <seealso cref="DirtyFlags"/> sensibly and should set <seealso cref="Dirty"/> to <seealso cref="DirtyFlags.Clean"/> when finished. </summary>
     public void Update();
@@ -50,7 +47,10 @@ public interface IManagedCache
 public abstract class BasicCache : IManagedCache, IDisposable
 {
     /// <inheritdoc/>
-    public DirtyFlags Dirty { get; set; } = DirtyFlags.Dirty;
+    public IManagedCache.DirtyFlags Dirty { get; set; } = IManagedCache.DirtyFlags.Dirty;
+
+    /// <inheritdoc/>
+    public TimeSpan KeepAliveDuration { get; set; } = TimeSpan.FromSeconds(5);
 
     /// <inheritdoc/>
     public abstract void Update();
@@ -82,34 +82,34 @@ public abstract class BasicCache : IManagedCache, IDisposable
     protected bool FontDirty
     {
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        get => Dirty.HasFlag(DirtyFlags.Font);
+        get => Dirty.HasFlag(IManagedCache.DirtyFlags.Font);
     }
 
     /// <summary> Query whether the global ImGui style settings have changed since the last time this cache was updated. </summary>
     protected bool StyleDirty
     {
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        get => Dirty.HasFlag(DirtyFlags.Style);
+        get => Dirty.HasFlag(IManagedCache.DirtyFlags.Style);
     }
 
     /// <summary> Query whether any color settings have changed since the last time this cache was updated. </summary>
     protected bool ColorsDirty
     {
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        get => Dirty.HasFlag(DirtyFlags.Colors);
+        get => Dirty.HasFlag(IManagedCache.DirtyFlags.Colors);
     }
 
     /// <summary> Query whether the cache's own dirty state changed since the last time this cache was updated. </summary>
     protected bool CustomDirty
     {
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        get => Dirty.HasFlag(DirtyFlags.Custom);
+        get => Dirty.HasFlag(IManagedCache.DirtyFlags.Custom);
     }
 
     /// <summary> Query whether anything has changed since the last time this cache was updated. </summary>
     protected bool AnyDirty
     {
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        get => Dirty is not DirtyFlags.Clean;
+        get => Dirty is not IManagedCache.DirtyFlags.Clean;
     }
 }

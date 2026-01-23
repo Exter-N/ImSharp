@@ -97,6 +97,21 @@ public static partial class Im
         public readonly bool DrawFrameColumn(Utf8TextHandler text)
             => DrawFrameColumn(ref text);
 
+        /// <summary> Go to the next column and draw frame-aligned text in it. If the text is not fully visible, add a tooltip on hovering showing the full text. </summary>
+        /// <param name="text"> The text. Does not have to be null-terminated. </param>
+        /// <returns> True if the column is visible. </returns>
+        [MethodImpl(ImSharpConfiguration.Inl)]
+        public readonly bool DrawFrameColumnWithTooltip(Utf8TextHandler text)
+        {
+            if (!NextColumn())
+                return false;
+
+            ImEx.TextFrameAligned(ref text);
+            if (Cursor.PositionPreviousLine.X >= ContentRegion.Maximum.X)
+                Tooltip.OnHover(ref text);
+            return true;
+        }
+
         /// <summary> Draw a data line consisting of a label and an arbitrary text. </summary>
         /// <param name="label"> The label as text. Does not have to be null-terminated. Used in the first column. </param>
         /// <param name="text"> The text. Does not have to be null-terminated. Used in the second column. </param>

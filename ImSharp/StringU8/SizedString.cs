@@ -1,7 +1,7 @@
 namespace ImSharp;
 
 /// <summary> A string with its size with the given font, mainly for use in caches. </summary>
-public record SizedString
+public record SizedString : IDisposable
 {
     /// <summary> The static subscriber to update cached string sizes when the font changes. </summary>
     private static readonly SizedStringSubscriber Subscriber = new();
@@ -24,6 +24,11 @@ public record SizedString
 
     ~SizedString()
         => Subscriber.Strings.TryRemove(this, out _);
+
+    public void Dispose()
+    {
+        Subscriber.Strings.TryRemove(this, out _);
+    }
 
     public SizedString(StringU8 text)
         : this(text, Vector2.NaN)
@@ -63,7 +68,7 @@ public record SizedString
     }
 
     /// <summary> Create the empty sized string. </summary>
-    private SizedString()
+    private protected SizedString()
     {
         Text = StringU8.Empty;
         Size = Vector2.Zero;

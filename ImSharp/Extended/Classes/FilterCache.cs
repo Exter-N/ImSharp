@@ -9,11 +9,14 @@ public abstract class FilterCache<TCacheItem> : BasicCache, IReadOnlyList<TCache
     /// <summary> Whether the next update should re-filter the global data. </summary>
     protected bool FilterDirty { get; set; } = true;
 
-    /// <summary> Whether the cache owns the <see cref="UnfilteredItems"/> list and should dispose it on disposal. </summary>
+    /// <summary> Whether the cache owns the <see cref="UnfilteredItems"/> list and should dispose it and its content on disposal. </summary>
     protected bool DisposeItems { get; set; } = true;
 
     /// <summary> The pre-processed list of all available items to display. </summary>
     protected IReadOnlyList<TCacheItem> UnfilteredItems = [];
+
+    /// <summary> Whether <see cref="UnfilteredItems"/> is owned by this cache or not. </summary>
+    protected bool UnfilteredItemsOwned = false;
 
     /// <summary> The global indices of items that are currently visible according to the filters. </summary>
     /// <remarks> Indices refer to <see cref="UnfilteredItems"/>. </remarks>
@@ -23,6 +26,30 @@ public abstract class FilterCache<TCacheItem> : BasicCache, IReadOnlyList<TCache
     public IReadOnlyList<TCacheItem> AllItems
         => UnfilteredItems;
 
+    /// <summary> Try to delete a single item from the list of cached items. </summary>
+    /// <param name="index"> The unfiltered, global index of the item to delete. </param>
+    /// <returns> True if the item was deleted. </returns>
+    public bool DeleteSingleItem(int index)
+    {
+        if (!UnfilteredItemsOwned || index < 0 || index >= UnfilteredItems.Count)
+            return false;
+
+        var list = (List<TCacheItem>)UnfilteredItems;
+        if (DisposeItems)
+            (list[index] as IDisposable)?.Dispose();
+        list.RemoveAt(index);
+        for (var i = 0; i < FilteredItems.Count; ++i)
+        {
+            var filteredIndex = FilteredItems[i];
+            if (filteredIndex == index)
+                FilteredItems.RemoveAt(i--);
+            else if (filteredIndex > index)
+                FilteredItems[i] = filteredIndex - 1;
+        }
+
+        return true;
+    }
+
     /// <summary> Update the actual item data if <see cref="BasicCache.CustomDirty"/>. </summary>
     protected virtual void UpdateData()
     {
@@ -31,8 +58,19 @@ public abstract class FilterCache<TCacheItem> : BasicCache, IReadOnlyList<TCache
 
         // Update all items and notify that we need to re-filter and re-sort.
         var items = GetItems();
-        UnfilteredItems = items as IReadOnlyList<TCacheItem> ?? items.ToList();
-        FilterDirty     = true;
+        DisposeUnfilteredItems();
+        if (items is IReadOnlyList<TCacheItem> list)
+        {
+            UnfilteredItems      = list;
+            UnfilteredItemsOwned = false;
+        }
+        else
+        {
+            UnfilteredItems      = items.ToList();
+            UnfilteredItemsOwned = true;
+        }
+
+        FilterDirty = true;
         OnDataUpdate();
         Dirty &= ~IManagedCache.DirtyFlags.Custom;
     }
@@ -88,6 +126,10 @@ public abstract class FilterCache<TCacheItem> : BasicCache, IReadOnlyList<TCache
     public IEnumerator<TCacheItem> GetEnumerator()
         => FilteredItems.Select(i => AllItems[i]).GetEnumerator();
 
+    /// <summary> Get the visible items together with their global indices. </summary>
+    public IEnumerable<(TCacheItem Item, int GlobalIndex)> GetItemsWithIndices()
+        => FilteredItems.Select(i => (AllItems[i], i));
+
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
         => GetEnumerator();
@@ -116,6 +158,18 @@ public abstract class FilterCache<TCacheItem> : BasicCache, IReadOnlyList<TCache
         OnDataUpdate();
         adapter.Dirty = false;
     }
+
+    /// <summary> Dispose of all current items in the cache if they are Disposable, as well as their current container. </summary>
+    protected void DisposeUnfilteredItems()
+    {
+        if (!DisposeItems)
+            return;
+
+        if (typeof(TCacheItem).IsAssignableTo(typeof(IDisposable)))
+            foreach (var item in UnfilteredItems)
+                ((IDisposable)item!).Dispose();
+        (UnfilteredItems as IDisposable)?.Dispose();
+    }
 }
 
 /// <summary> A basic filter cache associated with a filter. </summary>
@@ -142,8 +196,7 @@ public abstract class BasicFilterCache<TCacheItem> : FilterCache<TCacheItem>
     {
         base.Dispose(true);
         Filter.FilterChanged -= OnFilterChanged;
-        if (DisposeItems)
-            (UnfilteredItems as IDisposable)?.Dispose();
+        DisposeUnfilteredItems();
     }
 
     /// <summary> Set the filter dirty. </summary>

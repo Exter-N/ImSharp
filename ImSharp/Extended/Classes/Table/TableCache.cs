@@ -14,6 +14,9 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
     /// <summary> The sort direction in the column that is currently used for sorting, if any. </summary>
     protected SortDirection SortDirection { get; set; } = SortDirection.Ascending;
 
+    /// <summary> Whether the data is still loading in some way. </summary>
+    public bool Loading { get; protected set; } = false;
+
     /// <summary>
     ///   The default widths columns are drawn with if not resized by the user.
     ///   Gets updated when font or style change, or for headers with <see cref="ITableColumn{TCacheItem}.WidthDependsOnItems"/> when the custom data changes.
@@ -23,6 +26,20 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
     /// <summary> Draw the actual table. </summary>
     public void Draw()
     {
+        if (Loading)
+        {
+            using var child = Im.Child.Begin("Table"u8, parent.GetSize(), true);
+            if (!child)
+                return;
+
+            var content   = Im.ContentRegion.Available;
+            var minRadius = Math.Min(content.X, content.Y) / 3;
+            Im.Cursor.X += content.X / 2 - minRadius;
+            Im.Cursor.Y += content.Y / 2 - minRadius;
+            ImEx.Spinner("Loading"u8, minRadius, 10, Im.Color.Get(ImGuiColor.Text));
+            return;
+        }
+
         // Use the table data to set up the table. We do not need to provide an ID since this is already pushed to get the cache.
         using var table = Im.Table.Begin("Table"u8, parent.Columns.Count, parent.Flags, parent.GetSize());
         if (!table)
@@ -56,19 +73,20 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
 
             // Draw a header with no text to color the cell,
             // then draw the actual filter.
-            table.Header(""u8);
+            table.Header(StringU8.Empty);
             Im.Line.NoSpacing();
             if (header.DrawFilter())
                 FilterDirty = true;
         }
 
+        // Update the sort state. Needs to be done during the table's draw because it requires it's sort specifications.
+        CheckSort(table);
+        UpdateSort();
+
         // Draw the visible rows using a clipper.
         using var clipper = new Im.ListClipper(FilteredItems.Count, 0);
         foreach (var globalIndex in clipper.Iterate(FilteredItems))
             DrawItem(table, UnfilteredItems[globalIndex], globalIndex);
-
-        // Update the sort state. Needs to be done during the table's draw because it requires it's sort specifications.
-        CheckSort(table);
     }
 
     /// <summary> Update the cache. Called whenever it is fetched. </summary>
@@ -83,7 +101,6 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
         }
 
         UpdateFilter();
-        UpdateSort();
     }
 
     /// <summary> Update the column widths if the font or style changed, or the available items have changed and the column definition cares for that. </summary>
@@ -212,7 +229,7 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
     protected virtual void CheckSort(in Im.TableDisposable table)
     {
         var fullSpecs = table.SortSpecifications;
-        if (!fullSpecs.Dirty)
+        if (!fullSpecs.Dirty && !SortDirty)
             return;
 
         fullSpecs.Dirty = false;
@@ -248,4 +265,21 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
         SortDirty           = true;
         parent.VisibleItems = FilteredItems.Count;
     }
+
+    /// <summary> Load the sort order of the table. </summary>
+    public override void ApplyStoredData(object? existingData)
+    {
+        if (existingData is not StoredData data)
+            return;
+
+        SortDirty     = true;
+        SortIndex     = data.SortIndex;
+        SortDirection = data.SortDirection;
+    }
+
+    /// <summary> Save the sort order of the table. </summary>
+    public override object SaveStoredData()
+        => new StoredData(SortIndex, SortDirection);
+
+    private sealed record StoredData(int SortIndex, SortDirection SortDirection);
 }

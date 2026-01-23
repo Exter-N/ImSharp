@@ -50,6 +50,14 @@ public static partial class Im
             set => Native.Methods.Layout.SetCursorPos(value);
         }
 
+        /// <summary> Get the cursor position of the last line in window coordinates. </summary>
+        /// <remarks> Skips having to call <see cref="Im.Line.NoSpacing"/> before getting a horizontal cursor position. </remarks>
+        public static unsafe Vector2 PositionPreviousLine
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Window.Current.Pointer->TempData.CursorPositionPreviousLine;
+        }
+
         /// <summary> Get or set the horizontal cursor position in window coordinates. </summary>
         /// <remarks> Be careful with the vertical cursor position generally changing line after any widget when <seealso cref="Line.Same()"/> is not called. </remarks>
         public static float X

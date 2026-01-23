@@ -24,7 +24,7 @@ public abstract class TextFilterBase<TCacheItem> : IFilter<TCacheItem>
 
     /// <inheritdoc/>
     public virtual bool WouldBeVisible(in TCacheItem item, int globalIndex)
-        => WouldBeVisible(ToFilterString(item, globalIndex));
+        => IsEmpty || WouldBeVisible(ToFilterString(item, globalIndex));
 
     /// <inheritdoc/>
     public event Action? FilterChanged;
