@@ -12,12 +12,14 @@ public static unsafe class ImSharpConfiguration
     internal static ImSharpContext*  Context = ImSharpContext.EmptyPointer;
     internal static ILogger          Logger  = NullLogger.Instance;
     internal static Action<ILogger>? LoggerChanged;
+    private static  bool             ContextOwned = true;
 
     /// <summary> Set or remove the global ImSharp context. </summary>
     /// <param name="context"> The address of the context to set. If this is null, the empty context will be set. </param>
+    /// <param name="owned"> Whether the new context is owned by this assembly or not. </param>
     /// <exception cref="Exception"/>
     /// <remarks> Do not call this within a draw frame of the contained <see cref="Im.Native.Internal.Context"/>, only outside of drawing. </remarks>
-    public static void SetContext(ImSharpContext* context)
+    public static void SetContext(ImSharpContext* context, bool owned)
     {
         if (context is not null)
         {
@@ -27,10 +29,11 @@ public static unsafe class ImSharpConfiguration
                 throw new Exception("Can not set a new context while in a frame.");
         }
 
-        if (Context is not null)
+        if (ContextOwned && Context is not null)
             Context->Dispose();
 
-        Context = context is null ? ImSharpContext.EmptyPointer : context;
+        ContextOwned = owned;
+        Context      = context is null ? ImSharpContext.EmptyPointer : context;
         Logger.LogDebug("Set ImSharp context to {Context:l}.", context is null ? "Empty Context" : $"0x{(nint)context:X}");
     }
 
