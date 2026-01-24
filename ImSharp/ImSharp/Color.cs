@@ -141,6 +141,26 @@ public static partial class Im
             return hsv;
         }
 
+        /// <summary> Convert a color from RGB to HSV. </summary>
+        /// <param name="rgba"> The input color in RGB encoding. </param>
+        /// <returns> The color converted to HSV encoding. </returns>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static unsafe Vector3 ToHsv(Vector3 rgba)
+        {
+            Native.Methods.Color.ColorConvertRgbToHsv(rgba.X, rgba.Y, rgba.Z, &rgba.X, &rgba.Y, &rgba.Z);
+            return rgba;
+        }
+
+        /// <summary> Convert a color from HSV to RGB. </summary>
+        /// <param name="hsv"> The input color in HSV encoding. </param>
+        /// <returns> The color converted to RGB encoding. </returns>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static unsafe Vector3 ToRgb(Vector3 hsv)
+        {
+            Native.Methods.Color.ColorConvertRgbToHsv(hsv.X, hsv.Y, hsv.Z, &hsv.X, &hsv.Y, &hsv.Z);
+            return hsv;
+        }
+
         /// <summary> Obtain the name of a pre-defined ImGui color. </summary>
         /// <param name="color"> The queried color. </param>
         /// <returns> A reference to the UTF8-encoded name owned by ImGui. </returns>

@@ -318,7 +318,7 @@ public static partial class Im
         /// See  <seealso cref="TableBackgroundTarget"/> for target descriptions.
         /// </remarks>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public readonly void SetBackgroundColor(TableBackgroundTarget target, uint color, int column = -1)
+        public readonly void SetBackgroundColor(TableBackgroundTarget target, Rgba32 color, int column = -1)
         {
             ImGuiStateException.CheckState(Success, Alive, "SetBackgroundColor", "Table");
             Native.Methods.Table.TableSetBgColor(target, color, column);

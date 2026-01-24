@@ -31,6 +31,23 @@ public static partial class Im
         public static void Draw(ImTextureId image, Vector2 size)
             => Native.Methods.Widgets.Image(image, size, new ImVec2(0, 0), new ImVec2(1, 1), new ImVec4(1, 1, 1, 1), new ImVec4(0, 0, 0, 0));
 
+        /// <summary> Draw a scaled image by its ID. If the image is larger than <paramref name="iconSize"/>, show the full-sized image on hover. </summary>
+        /// <param name="image"> The ID of the image. </param>
+        /// <param name="iconSize"> The size to scale the image to in pixels. </param>
+        /// <param name="imageSize"> The actual, unscaled size of the image in pixels. </param>
+        public static void DrawScaled(ImTextureId image, Vector2 iconSize, Vector2 imageSize)
+        {
+            Draw(image, iconSize);
+
+            if (iconSize.X > imageSize.X || iconSize.Y > imageSize.Y || !Item.Hovered(HoveredFlags.AllowWhenDisabled))
+                return;
+
+            using var enable = Enabled();
+            var       tt     = Tooltip.Begin();
+            Draw(image, imageSize);
+            tt.Dispose();
+        }
+
         /// <summary> Draw an interactable button using an image by its ID. </summary>
         /// <param name="image"> The ID of the image. </param>
         /// <param name="size"> The size for the button in pixels. </param>
