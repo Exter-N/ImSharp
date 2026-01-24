@@ -12,7 +12,7 @@ public static unsafe class ImSharpConfiguration
     internal static ImSharpContext*  Context = ImSharpContext.EmptyPointer;
     internal static ILogger          Logger  = NullLogger.Instance;
     internal static Action<ILogger>? LoggerChanged;
-    private static  bool             ContextOwned = true;
+    private static  bool             _contextOwned = true;
 
     /// <summary> Set or remove the global ImSharp context. </summary>
     /// <param name="context"> The address of the context to set. If this is null, the empty context will be set. </param>
@@ -29,11 +29,11 @@ public static unsafe class ImSharpConfiguration
                 throw new Exception("Can not set a new context while in a frame.");
         }
 
-        if (ContextOwned && Context is not null)
+        if (_contextOwned && Context is not null)
             Context->Dispose();
 
-        ContextOwned = owned;
-        Context      = context is null ? ImSharpContext.EmptyPointer : context;
+        _contextOwned = owned;
+        Context       = context is null ? ImSharpContext.EmptyPointer : context;
         Logger.LogDebug("Set ImSharp context to {Context:l}.", context is null ? "Empty Context" : $"0x{(nint)context:X}");
     }
 
@@ -117,7 +117,8 @@ public static unsafe class ImSharpConfiguration
         }
     }
 
-    [UsedImplicitly] private static readonly CleanupType Cleanup = new();
+    [UsedImplicitly]
+    private static readonly CleanupType Cleanup = new();
 
     private class CleanupType
     {
