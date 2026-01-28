@@ -49,6 +49,75 @@ public static partial class Im
             Native.Methods.Text.TextUnformatted(text.Start(out var end), end);
         }
 
+        /// <inheritdoc cref="ImageOnHover(ImTextureId,Vector2,HoveredFlags,ref HoverUtf8StringHandler)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static void ImageOnHover(ImTextureId image, Vector2 size, HoveredFlags flags = HoveredFlags.None)
+        {
+            if (!Native.Methods.Items.IsItemHovered(flags))
+                return;
+
+            using var enabled = Enabled();
+            using var tt      = Begin();
+            Image.Draw(image, size);
+        }
+
+        /// <inheritdoc cref="ImageOnHover(ImTextureId,Vector2,HoveredFlags,ref HoverUtf8StringHandler)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static void ImageOnHover(ImTextureId image, Vector2 size, ReadOnlySpan<byte> text, HoveredFlags flags = HoveredFlags.None)
+        {
+            if (!Native.Methods.Items.IsItemHovered(flags))
+                return;
+
+            using var enabled = Enabled();
+            using var tt      = Begin();
+            Image.Draw(image, size);
+            if (text.Length > 0)
+                Text(text);
+        }
+
+        /// <summary> Draw an image of a given size when hovering the last item. </summary>
+        /// <param name="image"> The ID of the image. </param>
+        /// <param name="size"> The size to scale the image to in pixels. </param>
+        /// <param name="text"> The tooltip text as interpolated string. This will only get evaluated if the item is hovered. </param>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static unsafe void ImageOnHover(ImTextureId image, Vector2 size, ref HoverUtf8StringHandler text)
+        {
+            if (!text.IsHovered)
+                return;
+
+            using var enabled = Enabled();
+            using var tt      = Begin();
+            Image.Draw(image, size);
+            if (!text.GetEnd(out var end) || *text.Begin is 0)
+                return;
+
+            Native.Methods.Text.TextUnformatted(text.Begin, end);
+        }
+
+        /// <summary> Draw an image of a given size when hovering the last item. </summary>
+        /// <param name="image"> The ID of the image. </param>
+        /// <param name="size"> The size to scale the image to in pixels. </param>
+        /// <param name="flags"> The flags to check on hovering. </param>
+        /// <param name="text"> The tooltip text as interpolated string. This will only get evaluated if the item is hovered. </param>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        // ReSharper disable once EntityNameCapturedOnly.Global
+        public static unsafe void ImageOnHover(ImTextureId image, Vector2 size, HoveredFlags flags,
+            [InterpolatedStringHandlerArgument(nameof(flags))]
+            ref HoverUtf8StringHandler text)
+        {
+            if (!text.IsHovered)
+                return;
+
+            using var enabled = Enabled();
+            using var tt      = Begin();
+            Image.Draw(image, size);
+            if (!text.GetEnd(out var end) || *text.Begin is 0)
+                return;
+
+            Native.Methods.Text.TextUnformatted(text.Begin, end);
+        }
+
+
         /// <inheritdoc cref="OnHover(HoveredFlags,ReadOnlySpan{byte},bool,Font)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         [OverloadResolutionPriority(100)]
@@ -106,7 +175,8 @@ public static partial class Im
 
         /// <inheritdoc cref="OnHover(HoveredFlags,ref HoverUtf8StringHandler,bool,Font)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        public static unsafe void OnHover<T>(ref Utf8StringHandler<T> text, HoveredFlags flags = HoveredFlags.None, bool pushDefault = false, Font font = default)
+        public static unsafe void OnHover<T>(ref Utf8StringHandler<T> text, HoveredFlags flags = HoveredFlags.None, bool pushDefault = false,
+            Font font = default)
             where T : IStringHandlerBuffer
         {
             if (!Native.Methods.Items.IsItemHovered(flags))

@@ -39,13 +39,8 @@ public static partial class Im
         {
             Draw(image, iconSize);
 
-            if (iconSize.X > imageSize.X || iconSize.Y > imageSize.Y || !Item.Hovered(HoveredFlags.AllowWhenDisabled))
-                return;
-
-            using var enable = Enabled();
-            var       tt     = Tooltip.Begin();
-            Draw(image, imageSize);
-            tt.Dispose();
+            if (iconSize.X <= imageSize.X && iconSize.Y <= imageSize.Y && Item.Hovered(HoveredFlags.AllowWhenDisabled))
+                Tooltip.ImageOnHover(image, imageSize);
         }
 
         /// <summary> Draw an interactable button using an image by its ID. </summary>
