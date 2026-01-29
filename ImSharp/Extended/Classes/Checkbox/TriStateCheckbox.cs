@@ -1,3 +1,4 @@
+#pragma warning disable CS1573 // Parameter has no matching param tag in the XML comment (but other parameters do)
 namespace ImSharp;
 
 /// <summary> A two-state Checkbox that displays either a checkmark for True values or an X for False values, with no empty state. </summary>
@@ -6,14 +7,26 @@ internal sealed class TriStateCheckbox : MultiStateCheckbox<bool?>
     /// <summary> A static instance to draw more easily. </summary>
     public static readonly TriStateCheckbox Instance = new();
 
+    /// <summary> A static instance used by the colored variant to draw more easily. </summary>
+    public static readonly TriStateCheckbox ColoredInstance = new();
+
+    /// <summary> The color for the neutral state dot. If left default, <see cref="ImGuiColor.CheckMark"/> is used. </summary>
+    public ColorParameter Neutral = ColorParameter.Default;
+
+    /// <summary> The color for the on state checkmark. If left default, <see cref="ImGuiColor.CheckMark"/> is used. </summary>
+    public ColorParameter On = ColorParameter.Default;
+
+    /// <summary> The color for the off state cross. If left default, <see cref="ImGuiColor.CheckMark"/> is used. </summary>
+    public ColorParameter Off = ColorParameter.Default;
+
     /// <inheritdoc/>
     protected override void RenderSymbol(bool? value, Vector2 position, float size)
     {
         switch (value)
         {
-            case null:  Im.Render.Dot(Im.Window.DrawList, position, Im.Color.Get(ImGuiColor.CheckMark), size); break;
-            case true:  Im.Render.Checkmark(Im.Window.DrawList, position, Im.Color.Get(ImGuiColor.CheckMark), size); break;
-            case false: Im.Render.Cross(Im.Window.DrawList, position, Im.Color.Get(ImGuiColor.CheckMark), size); break;
+            case null:  Im.Render.Dot(Im.Window.DrawList, position, Neutral.CheckDefault(ImGuiColor.CheckMark), size); break;
+            case true:  Im.Render.Checkmark(Im.Window.DrawList, position, On.CheckDefault(ImGuiColor.CheckMark), size); break;
+            case false: Im.Render.Cross(Im.Window.DrawList, position, Off.CheckDefault(ImGuiColor.CheckMark), size); break;
         }
     }
 
@@ -94,4 +107,17 @@ public static partial class ImEx
     /// <inheritdoc cref="TriStateCheckbox.Draw{T}(Utf8LabelHandler,ref T,T,T)"/>
     public static bool TriStateCheckbox<T>(Utf8LabelHandler label, ref T value, T onFlag, T offFlag) where T : unmanaged, Enum
         => ImSharp.TriStateCheckbox.Instance.Draw(label, ref value, onFlag, offFlag);
+
+    /// <inheritdoc cref="TriStateCheckbox.Draw{T}(Utf8LabelHandler,ref T,T,T)"/>
+    /// <param name="neutral"> The color for the neutral state dot. If left default, <see cref="ImGuiColor.CheckMark"/> is used. </param>
+    /// <param name="on"> The color for the on state checkmark. If left default, <see cref="ImGuiColor.CheckMark"/> is used. </param>
+    /// <param name="off"> The color for the off state cross. If left default, <see cref="ImGuiColor.CheckMark"/> is used. </param>
+    public static bool TriStateCheckbox<T>(Utf8LabelHandler label, ref T value, T onFlag, T offFlag, ColorParameter neutral, ColorParameter on,
+        ColorParameter off) where T : unmanaged, Enum
+    {
+        ImSharp.TriStateCheckbox.Instance.Neutral = neutral;
+        ImSharp.TriStateCheckbox.Instance.On      = on;
+        ImSharp.TriStateCheckbox.Instance.Off     = off;
+        return ImSharp.TriStateCheckbox.ColoredInstance.Draw(label, ref value, onFlag, offFlag);
+    }
 }
