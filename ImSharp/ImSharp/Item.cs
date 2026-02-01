@@ -23,6 +23,11 @@ public static partial class Im
         public static void SetNextWidth(float width)
             => Native.Methods.Stacks.SetNextItemWidth(width);
 
+        /// <summary> Set the width of the next common item+label widget to the maximum available content region. </summary>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static void SetNextWidthFull()
+            => Native.Methods.Stacks.SetNextItemWidth(ContentRegion.Available.X);
+
         /// <summary> Set the width of the next common item+label widget but scale the supplied width by <see cref="Im.ImGuiStyle.GlobalScale"/>. </summary>
         /// <param name="width"> If positive, the desired width in pixels. If negative, align to the right side by that many pixels. </param>
         [MethodImpl(ImSharpConfiguration.OptInl)]

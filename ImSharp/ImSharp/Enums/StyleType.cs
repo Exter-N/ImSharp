@@ -205,8 +205,9 @@ public enum ImStyleBorder : uint
 
 public static class ImGuiStyleExtensions
 {
+    /// <summary> A set of bools whether a style flag is for a single float or not. </summary>
     private static readonly bool[] ImStyleSingle =
-        Enum.GetValues<ImStyle>().Select(v => Enum.IsDefined((ImStyleSingle)v)).ToArray();
+        ImStyle.Values.Select(v => Enum.IsDefined((ImStyleSingle)v)).ToArray();
 
     /// <summary> Get whether this style variable uses a single float (true) or a ImVec2 (false). </summary>
     public static bool Single(this ImStyle style)

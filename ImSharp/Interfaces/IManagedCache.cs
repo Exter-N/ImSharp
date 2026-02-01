@@ -44,8 +44,18 @@ public interface IManagedCache
 }
 
 /// <summary> A basic disposable cache implementation. </summary>
-public abstract class BasicCache : IManagedCache, IDisposable
+public abstract class BasicCache() : IManagedCache, IDisposable
 {
+    /// <summary> Create a disposable cache with specific initial data. </summary>
+    /// <param name="keepAliveDuration"> The duration of not being seen a cache should be kept alive. </param>
+    /// <param name="dirtyStart"> The dirty state of the cache on creation. </param>
+    public BasicCache(TimeSpan keepAliveDuration, IManagedCache.DirtyFlags dirtyStart = IManagedCache.DirtyFlags.Dirty)
+        : this()
+    {
+        KeepAliveDuration = keepAliveDuration;
+        Dirty             = dirtyStart;
+    }
+
     /// <inheritdoc/>
     public IManagedCache.DirtyFlags Dirty { get; set; } = IManagedCache.DirtyFlags.Dirty;
 

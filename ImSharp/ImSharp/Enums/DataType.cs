@@ -106,10 +106,10 @@ public static class DataTypeExtensions
         if (typeof(T) == typeof(uint))
             return DataType.U32;
 
-        if (typeof(T) == typeof(long))
+        if (typeof(T) == typeof(long) || typeof(T) == typeof(nint))
             return DataType.S64;
 
-        if (typeof(T) == typeof(ulong))
+        if (typeof(T) == typeof(ulong) || typeof(T) == typeof(nuint))
             return DataType.U64;
 
         if (typeof(T) == typeof(float))

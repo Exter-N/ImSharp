@@ -82,7 +82,7 @@ public static unsafe class ImSharpDebug
                 if (colorTree)
                     using (Im.Indent())
                     {
-                        foreach (var color in Enum.GetValues<ImGuiColor>().SkipLast(1))
+                        foreach (var color in ImGuiColor.Values.SkipLast(1))
                         {
                             using var id = Im.Id.Push((int)color);
                             table.DrawColumn($"{color}");

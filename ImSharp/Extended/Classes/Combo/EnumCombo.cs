@@ -38,7 +38,7 @@ public class EnumCombo<T> : SimpleFilterCombo<T>
     /// <param name="filterFunction"> The function to obtain a filter string for a value. </param>
     /// <param name="tooltip"> The optional function to obtain a tooltip for a value. </param>
     public EnumCombo(Func<T, StringU8>? displayFunction = null, Func<T, string>? filterFunction = null, Func<T, StringU8>? tooltip = null)
-        : this(displayFunction, filterFunction, tooltip, Enum.GetValues<T>())
+        : this(displayFunction, filterFunction, tooltip, EnumExtensions.get_Values<T>())
     {}
 
     /// <summary> Create a combo using only the supplied values. </summary>
@@ -62,7 +62,7 @@ public class EnumCombo<T> : SimpleFilterCombo<T>
     /// <param name="exclusions"> The excluded values. </param>
     /// <returns> The combo. </returns>
     public static EnumCombo<T> Excluding(Func<T, StringU8>? displayFunction = null, Func<T, string>? filterFunction = null, Func<T, StringU8>? tooltip = null, params HashSet<T> exclusions)
-        => new(displayFunction, filterFunction, tooltip, Enum.GetValues<T>().Where(v => !exclusions.Contains(v)).ToArray());
+        => new(displayFunction, filterFunction, tooltip, EnumExtensions.get_Values<T>().Where(v => !exclusions.Contains(v)).ToArray());
 
     /// <summary> Default tooltip function returning an empty string. </summary>
     private static StringU8 NoTooltip(T value)

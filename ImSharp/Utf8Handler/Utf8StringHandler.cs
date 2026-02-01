@@ -2,7 +2,8 @@
 
 namespace ImSharp;
 
-[SkipLocalsInit, InterpolatedStringHandler]
+[SkipLocalsInit]
+[InterpolatedStringHandler]
 public unsafe ref struct Utf8StringHandler<T> where T : IStringHandlerBuffer
 {
     private Data _data;
@@ -82,55 +83,68 @@ public unsafe ref struct Utf8StringHandler<T> where T : IStringHandlerBuffer
         => _data.Handler = new Utf8.TryWriteInterpolatedStringHandler(literalLength, formattedCount, new Span<byte>(T.Buffer, T.Size),
             provider, out shouldAppend);
 
-    [MethodImpl(ImSharpConfiguration.Inl), UsedImplicitly]
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    [UsedImplicitly]
     public bool AppendLiteral(string value)
         => _data.Handler.AppendLiteral(value);
 
-    [MethodImpl(ImSharpConfiguration.Inl), UsedImplicitly]
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    [UsedImplicitly]
     public bool AppendLiteral(ReadOnlySpan<char> value)
         => _data.Handler.AppendFormatted(value);
 
-    [MethodImpl(ImSharpConfiguration.Inl), UsedImplicitly]
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    [UsedImplicitly]
     public bool AppendFormatted<TValue>(TValue value)
         => _data.Handler.AppendFormatted(value);
 
-    [MethodImpl(ImSharpConfiguration.Inl), UsedImplicitly]
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    [UsedImplicitly]
     public bool AppendFormatted<TValue>(TValue value, string? format)
         => _data.Handler.AppendFormatted(value, format);
 
-    [MethodImpl(ImSharpConfiguration.Inl), UsedImplicitly]
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    [UsedImplicitly]
     public bool AppendFormatted<TValue>(TValue value, int alignment)
         => _data.Handler.AppendFormatted(value, alignment);
 
-    [MethodImpl(ImSharpConfiguration.Inl), UsedImplicitly]
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    [UsedImplicitly]
     public bool AppendFormatted<TValue>(TValue value, int alignment, string? format)
         => _data.Handler.AppendFormatted(value, alignment, format);
 
-    [MethodImpl(ImSharpConfiguration.Inl), UsedImplicitly]
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    [UsedImplicitly]
     public bool AppendFormatted(scoped ReadOnlySpan<char> value)
         => _data.Handler.AppendFormatted(value);
 
-    [MethodImpl(ImSharpConfiguration.Inl), UsedImplicitly]
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    [UsedImplicitly]
     public bool AppendFormatted(scoped ReadOnlySpan<char> value, int alignment = 0, string? format = null)
         => _data.Handler.AppendFormatted(value, alignment, format);
 
-    [MethodImpl(ImSharpConfiguration.Inl), UsedImplicitly]
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    [UsedImplicitly]
     public bool AppendFormatted(scoped ReadOnlySpan<byte> utf8Value)
         => _data.Handler.AppendFormatted(utf8Value);
 
-    [MethodImpl(ImSharpConfiguration.Inl), UsedImplicitly]
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    [UsedImplicitly]
     public bool AppendFormatted(scoped ReadOnlySpan<byte> utf8Value, int alignment = 0, string? format = null)
         => _data.Handler.AppendFormatted(utf8Value, alignment, format);
 
-    [MethodImpl(ImSharpConfiguration.Inl), UsedImplicitly]
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    [UsedImplicitly]
     public bool AppendFormatted(string? value)
         => _data.Handler.AppendFormatted(value);
 
-    [MethodImpl(ImSharpConfiguration.Inl), UsedImplicitly]
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    [UsedImplicitly]
     public bool AppendFormatted(string? value, int alignment = 0, string? format = null)
         => _data.Handler.AppendFormatted(value, alignment, format);
 
-    [MethodImpl(ImSharpConfiguration.Inl), UsedImplicitly]
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    [UsedImplicitly]
     public bool AppendFormatted(object? value, int alignment = 0, string? format = null)
         => _data.Handler.AppendFormatted(value, alignment, format);
 
@@ -149,6 +163,9 @@ public unsafe ref struct Utf8StringHandler<T> where T : IStringHandlerBuffer
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static implicit operator Utf8StringHandler<T>(ReadOnlySpan<char> str)
     {
+        if (str.IsEmpty)
+            return new Utf8StringHandler<T>(new ReadOnlySpan<byte>());
+
         var handler = new Utf8StringHandler<T>(str.Length, 0, out var shouldAppend);
         if (shouldAppend)
             handler.AppendLiteral(str);
@@ -180,16 +197,22 @@ public unsafe ref struct Utf8StringHandler<T> where T : IStringHandlerBuffer
         => GetSpan(out var span) ? Encoding.UTF8.GetString(span) : "<ERROR";
 }
 
-[SkipLocalsInit, StructLayout(LayoutKind.Explicit)]
+[SkipLocalsInit]
+[StructLayout(LayoutKind.Explicit)]
 internal unsafe ref struct Data(byte* start, int size)
 {
     /// <remarks> We assume that the interpolated string handler is 32 bytes but does not use the last 2, as is currently the case. </remarks>
     [FieldOffset(0)]
     public Utf8.TryWriteInterpolatedStringHandler Handler;
 
-    [FieldOffset(8)]  public readonly byte* CustomBegin = start;
-    [FieldOffset(24)] public readonly int   CustomSize  = size;
-    [FieldOffset(31)] public readonly bool  IsCustom    = true;
+    [FieldOffset(8)]
+    public readonly byte* CustomBegin = start;
+
+    [FieldOffset(24)]
+    public readonly int CustomSize = size;
+
+    [FieldOffset(31)]
+    public readonly bool IsCustom = true;
 
     public byte* CustomEnd
         => CustomBegin + CustomSize;

@@ -93,7 +93,7 @@ public static partial class Im
             if (!Item.Add(totalBoundingBox, id, boundingBox))
                 return false;
 
-            var pressed = Behavior.Button(boundingBox, id, out var hovered, out var held);
+            var pressed = Behavior.Button(boundingBox, id, out var hovered, out _);
             popupId = Id.Calculate("##ComboPopup"u8, id);
             var popupOpen = Popup.IsOpen(popupId);
             if (pressed && !popupOpen)
@@ -147,7 +147,7 @@ public static partial class Im
         /// <param name="flags"> Flags controlling the behavior of the combo. </param>
         /// <returns> True if a new item was selected in this frame, in which case <paramref name="currentValue"/> will have changed. </returns>
         [MethodImpl(ImSharpConfiguration.Opt)]
-        public static bool DrawEnum<T>(Utf8LabelHandler label, ref T currentValue, ComboFlags flags = ComboFlags.None) where T : struct, Enum
+        public static bool DrawEnum<T>(Utf8LabelHandler label, ref T currentValue, ComboFlags flags = ComboFlags.None) where T : unmanaged, Enum
         {
             using var combo = new ComboDisposable(ref label, $"{currentValue}", flags);
             if (!combo)
@@ -155,9 +155,9 @@ public static partial class Im
 
             var ret = false;
 
-            foreach (var value in Enum.GetValues<T>())
+            foreach (var value in EnumExtensions.get_Values<T>())
             {
-                var equal = value.Equals(currentValue);
+                var equal = EqualityComparer<T>.Default.Equals(value, currentValue);
                 if (Selectable($"{value}", equal) && !equal)
                 {
                     currentValue = value;
@@ -177,7 +177,7 @@ public static partial class Im
         /// <returns> True if a new item was selected in this frame, in which case <paramref name="currentValue"/> will have changed. </returns>
         [MethodImpl(ImSharpConfiguration.Opt)]
         public static bool DrawEnum<T>(Utf8LabelHandler label, ref T currentValue, Func<T, ReadOnlySpan<byte>> toName,
-            ComboFlags flags = ComboFlags.None) where T : struct, Enum
+            ComboFlags flags = ComboFlags.None) where T : unmanaged, Enum
         {
             var       handler = (Utf8TextHandler)toName(currentValue);
             using var combo   = new ComboDisposable(ref label, ref handler, flags);
@@ -186,9 +186,9 @@ public static partial class Im
 
             var ret = false;
 
-            foreach (var value in Enum.GetValues<T>())
+            foreach (var value in EnumExtensions.get_Values<T>())
             {
-                var equal = value.Equals(currentValue);
+                var equal = EqualityComparer<T>.Default.Equals(value, currentValue);
                 if (Selectable(toName(value), equal) && !equal)
                 {
                     currentValue = value;
@@ -208,7 +208,7 @@ public static partial class Im
         /// <returns> True if a new item was selected in this frame, in which case <paramref name="currentValue"/> will have changed. </returns>
         [MethodImpl(ImSharpConfiguration.Opt)]
         public static bool DrawEnum<T>(Utf8LabelHandler label, ref T currentValue, Func<T, StringU8> toName,
-            ComboFlags flags = ComboFlags.None) where T : struct, Enum
+            ComboFlags flags = ComboFlags.None) where T : unmanaged, Enum
         {
             var       handler = (Utf8TextHandler)toName(currentValue);
             using var combo   = new ComboDisposable(ref label, ref handler, flags);
@@ -217,9 +217,9 @@ public static partial class Im
 
             var ret = false;
 
-            foreach (var value in Enum.GetValues<T>())
+            foreach (var value in EnumExtensions.get_Values<T>())
             {
-                var equal = value.Equals(currentValue);
+                var equal = EqualityComparer<T>.Default.Equals(value, currentValue);
                 if (Selectable(toName(value), equal) && !equal)
                 {
                     currentValue = value;
@@ -239,7 +239,7 @@ public static partial class Im
         /// <returns> True if a new item was selected in this frame, in which case <paramref name="currentValue"/> will have changed. </returns>
         [MethodImpl(ImSharpConfiguration.Opt)]
         public static bool DrawEnum<T>(Utf8LabelHandler label, ref T currentValue, Func<T, ReadOnlySpan<char>> toName,
-            ComboFlags flags = ComboFlags.None) where T : struct, Enum
+            ComboFlags flags = ComboFlags.None) where T : unmanaged, Enum
         {
             var       handler = (Utf8TextHandler)toName(currentValue);
             using var combo   = new ComboDisposable(ref label, ref handler, flags);
@@ -248,9 +248,9 @@ public static partial class Im
 
             var ret = false;
 
-            foreach (var value in Enum.GetValues<T>())
+            foreach (var value in EnumExtensions.get_Values<T>())
             {
-                var equal = value.Equals(currentValue);
+                var equal = EqualityComparer<T>.Default.Equals(value, currentValue);
                 if (Selectable(toName(value), equal) && !equal)
                 {
                     currentValue = value;
@@ -264,7 +264,7 @@ public static partial class Im
         /// <inheritdoc cref="DrawEnum{T}(Utf8LabelHandler,ref T,Func{T,ReadOnlySpan{char}},ComboFlags)"/>
         [MethodImpl(ImSharpConfiguration.Opt)]
         public static bool DrawEnum<T>(Utf8LabelHandler label, ref T currentValue, Func<T, string> toName,
-            ComboFlags flags = ComboFlags.None) where T : struct, Enum
+            ComboFlags flags = ComboFlags.None) where T : unmanaged, Enum
         {
             var       handler = (Utf8TextHandler)toName(currentValue);
             using var combo   = new ComboDisposable(ref label, ref handler, flags);
@@ -273,9 +273,9 @@ public static partial class Im
 
             var ret = false;
 
-            foreach (var value in Enum.GetValues<T>())
+            foreach (var value in EnumExtensions.get_Values<T>())
             {
-                var equal = value.Equals(currentValue);
+                var equal = EqualityComparer<T>.Default.Equals(value, currentValue);
                 if (Selectable(toName(value), equal) && !equal)
                 {
                     currentValue = value;

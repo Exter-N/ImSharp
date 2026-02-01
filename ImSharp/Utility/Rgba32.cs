@@ -94,7 +94,21 @@ public readonly record struct Rgba32(uint Color) : ISpanFormattable, IUtf8SpanFo
     public bool IsTransparent
     {
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        get => Color < 0x00FFFFFF;
+        get => Color <= 0x00FFFFFF;
+    }
+
+    /// <summary> Whether the color is fully opaque, i.e. the alpha-channel is 0xFF. </summary>
+    public bool IsOpaque
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get => Color >= 0xFF000000;
+    }
+
+    /// <summary> Whether the color is not fully transparent, i.e. the alpha-channel is not 0. </summary>
+    public bool IsVisible
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get => Color > 0x00FFFFFF;
     }
 
     /// <summary> Convert the RGBA32 color into a 4-float color. </summary>
