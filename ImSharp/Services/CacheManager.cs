@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace ImSharp;
@@ -9,7 +8,7 @@ public class CacheManager : IDisposable
 {
     /// <summary> The default cache manager that internal objects can use. </summary>
     /// <remarks> It is possible to set the logger and service provider of this instance. </remarks>
-    public static readonly CacheManager Instance = new(null, null);
+    public static readonly CacheManager Instance = new(null);
 
     /// <summary> A custom logger to set when the manager should not use the global logger. </summary>
     public ILogger? CustomLogger
@@ -25,9 +24,6 @@ public class CacheManager : IDisposable
     /// <summary> The logger the internal functions write to. </summary>
     public ILogger Logger { get; private set; }
 
-    /// <summary> A service provider to generate transient cache objects without providing a factory method. </summary>
-    public IServiceProvider? ServiceProvider { get; set; }
-
     private readonly Dictionary<ImGuiId, (IManagedCache Cache, DateTime Time)> _caches     = [];
     private readonly Dictionary<ImGuiId, object>                               _storedData = [];
 
@@ -42,10 +38,8 @@ public class CacheManager : IDisposable
 
     /// <summary> Create a manager to handle managed caches for UI display in a single space. </summary>
     /// <param name="logger"> A logger. </param>
-    /// <param name="serviceProvider"> A service provider to generate transient cache objects without providing a factory method. </param>
-    protected CacheManager(ILogger? logger, IServiceProvider? serviceProvider)
+    protected CacheManager(ILogger? logger)
     {
-        ServiceProvider                    =  serviceProvider;
         CustomLogger                       =  logger;
         Logger                             =  CustomLogger ?? ImSharpConfiguration.Logger;
         ImSharpPerFrame.Update             += CheckCaches;
@@ -100,46 +94,6 @@ public class CacheManager : IDisposable
             _storedData[id] = obj;
         (pair.Cache as IDisposable)?.Dispose();
         var newCache = factory();
-        newCache.Update();
-        if (_storedData.TryGetValue(id, out var newData))
-            newCache.ApplyStoredData(newData);
-        _caches[id] = (newCache, NextDeletion(newCache.KeepAliveDuration));
-        Logger.LogInformation("[CacheManager] Replaced existing cache of type {OldType:l} with new type {NewType:l} for ID {ID}.",
-            new TypeWrapper(pair.Cache),
-            typeof(TResult).Name, id.Id);
-        return newCache;
-    }
-
-    /// <summary> Get or fetch a new, transient cache from the service provider for a given ID, and update the last access for it. </summary>
-    /// <typeparam name="TResult"> The type of the cache. </typeparam>
-    /// <param name="id"> The ID to store the cache under. </param>
-    /// <param name="key"> An optional key for the service provider. </param>
-    /// <returns> The existing or newly created cache. </returns>
-    /// <remarks>
-    ///   If there is a cache for <paramref name="id"/> stored but its type is not compatible with <typeparamref name="TResult"/>
-    ///   it will be disposed and replaced by a newly created cache.
-    /// </remarks>
-    public TResult GetOrCreateCache<TResult>(ImGuiId id, object? key = null)
-        where TResult : class, IManagedCache
-    {
-        if (!_caches.TryGetValue(id, out var pair))
-        {
-            var cache = GetService<TResult>(key);
-            if (_storedData.TryGetValue(id, out var data))
-                cache.ApplyStoredData(data);
-            cache.Update();
-            _caches.Add(id, (cache, NextDeletion(cache.KeepAliveDuration)));
-            Logger.LogDebug("[CacheManager] Created new cache of type {Type:l} for ID {ID}.", typeof(TResult).Name, id.Id);
-            return cache;
-        }
-
-        if (CheckAndUpdateCache<TResult>(id, pair.Cache) is { } existingCache)
-            return existingCache;
-
-        if (pair.Cache.SaveStoredData() is { } obj)
-            _storedData[id] = obj;
-        (pair.Cache as IDisposable)?.Dispose();
-        var newCache = GetService<TResult>(key);
         newCache.Update();
         if (_storedData.TryGetValue(id, out var newData))
             newCache.ApplyStoredData(newData);
@@ -253,17 +207,6 @@ public class CacheManager : IDisposable
             return DateTime.MinValue;
 
         return DateTime.UtcNow + keepAliveDuration;
-    }
-
-    /// <summary> Try to get a scoped transient cache object from the service provider. </summary>
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    private T GetService<T>(object? key = null) where T : class, IManagedCache
-    {
-        if (ServiceProvider is null)
-            throw new Exception("No service provider initialized for this cache manager.");
-
-        var cache = key is not null ? ServiceProvider.GetRequiredKeyedService<T>(key) : ServiceProvider.GetRequiredService<T>();
-        return cache;
     }
 
     /// <summary> Check a pre-existing cache to be the correct type and update it if it is. </summary>

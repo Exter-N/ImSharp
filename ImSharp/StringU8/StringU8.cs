@@ -6,7 +6,8 @@ namespace ImSharp;
 /// <remarks> Using this with memory mapped files will lead to undefined behavior, since mapped pointers are used to identify literals. </remarks>
 #if HAS_NEWTONSOFT
 // ReSharper disable once RedundantNameQualifier
-[Newtonsoft.Json.JsonConverter(typeof(StringU8ConverterNewtonSoft)), System.Text.Json.Serialization.JsonConverter(typeof(StringU8Converter))]
+[Newtonsoft.Json.JsonConverter(typeof(StringU8ConverterNewtonSoft))]
+[System.Text.Json.Serialization.JsonConverter(typeof(StringU8Converter))]
 #else
 [System.Text.Json.Serialization.JsonConverter(typeof(StringU8Converter))]
 #endif
@@ -46,6 +47,13 @@ public readonly partial struct StringU8 : IReadOnlyList<byte>, IEquatable<String
         get => _value.Span;
     }
 
+    /// <summary> The string as a byte memory. </summary>
+    public ReadOnlyMemory<byte> Memory
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get => _value;
+    }
+
     /// <summary> Implicit conversion from the string to a byte span. </summary>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public static implicit operator ReadOnlySpan<byte>(StringU8 s)
@@ -59,7 +67,8 @@ public readonly partial struct StringU8 : IReadOnlyList<byte>, IEquatable<String
     /// <summary> Create a string from a managed byte array. </summary>
     /// <param name="data"> The byte array. </param>
     /// <remarks> Not checked for valid UTF8. Checks if the last byte in the array is 0, and avoids a copy if it is if the string is not empty. Editing the array afterward in that case is undefined behavior.</remarks>
-    [OverloadResolutionPriority(100), MethodImpl(ImSharpConfiguration.Opt)]
+    [OverloadResolutionPriority(100)]
+    [MethodImpl(ImSharpConfiguration.Opt)]
     public StringU8(byte[] data)
     {
         if (data.Length is 0)
@@ -85,7 +94,8 @@ public readonly partial struct StringU8 : IReadOnlyList<byte>, IEquatable<String
     /// Otherwise, checks the byte after the array for 0 and throws if it is not actually a 0.
     /// UTF8-literals should be recognized through VirtualQuery and allocations avoided.
     /// </remarks>
-    [OverloadResolutionPriority(50), MethodImpl(ImSharpConfiguration.Opt)]
+    [OverloadResolutionPriority(50)]
+    [MethodImpl(ImSharpConfiguration.Opt)]
     public unsafe StringU8(ReadOnlySpan<byte> data, bool nullTerminated = true)
     {
         if (data.Length is 0)
@@ -124,10 +134,11 @@ public readonly partial struct StringU8 : IReadOnlyList<byte>, IEquatable<String
     /// <param name="nullTerminated"> Whether we assume null-termination of the chunk. </param>
     /// <exception cref="ArgumentException" />
     /// <remarks>
-    /// If <paramref name="nullTerminated"/> is false and the string non-empty, always creates a copy of the given string.
-    /// Otherwise, checks the byte after the chunk for 0 and throws if it is not actually a 0, but avoids a copy.
+    ///   If <paramref name="nullTerminated"/> is false and the string non-empty, always creates a copy of the given string.
+    ///   Otherwise, checks the byte after the chunk for 0 and throws if it is not actually a 0, but avoids a copy.
     /// </remarks>
-    [OverloadResolutionPriority(75), MethodImpl(ImSharpConfiguration.Opt)]
+    [OverloadResolutionPriority(75)]
+    [MethodImpl(ImSharpConfiguration.Opt)]
     public unsafe StringU8(ReadOnlyMemory<byte> data, bool nullTerminated = true)
     {
         if (data.Length is 0)
@@ -154,7 +165,8 @@ public readonly partial struct StringU8 : IReadOnlyList<byte>, IEquatable<String
     /// <summary> Efficiently create a string from an interpolated string. </summary>
     /// <param name="text"> The interpolated string input. </param>
     /// <remarks> Minimizes allocations and UTF16 string creations. </remarks>
-    [OverloadResolutionPriority(100), MethodImpl(ImSharpConfiguration.OptInl)]
+    [OverloadResolutionPriority(100)]
+    [MethodImpl(ImSharpConfiguration.OptInl)]
     public StringU8(Utf8InterpolatedStringHandler text)
     {
         _value = text.WriteAndClear();
@@ -170,7 +182,8 @@ public readonly partial struct StringU8 : IReadOnlyList<byte>, IEquatable<String
     }
 
     /// <inheritdoc cref="StringU8(Utf8InterpolatedStringHandler)"/>
-    [OverloadResolutionPriority(101), MethodImpl(ImSharpConfiguration.OptInl)]
+    [OverloadResolutionPriority(101)]
+    [MethodImpl(ImSharpConfiguration.OptInl)]
     // ReSharper disable once EntityNameCapturedOnly.Local
     public StringU8(IFormatProvider? provider, [InterpolatedStringHandlerArgument(nameof(provider))] Utf8InterpolatedStringHandler text)
         : this(text)
@@ -179,7 +192,8 @@ public readonly partial struct StringU8 : IReadOnlyList<byte>, IEquatable<String
     /// <summary> Create a string from a UTF16 string. </summary>
     /// <param name="utf16"> The input UTF16 string. </param>
     /// <remarks> Minimizes allocations. </remarks>
-    [OverloadResolutionPriority(50), MethodImpl(ImSharpConfiguration.Opt)]
+    [OverloadResolutionPriority(50)]
+    [MethodImpl(ImSharpConfiguration.Opt)]
     public StringU8(ReadOnlySpan<char> utf16)
     {
         if (utf16.Length is 0)
@@ -206,15 +220,37 @@ public readonly partial struct StringU8 : IReadOnlyList<byte>, IEquatable<String
         : this(MemoryMarshal.CreateReadOnlySpanFromNullTerminated(ptr))
     { }
 
-    /// <summary> Check whether two strings are byte-wise equal. </summary>
-    [OverloadResolutionPriority(100), MethodImpl(ImSharpConfiguration.OptInl)]
-    public bool Equals(StringU8 other)
-        => Span.SequenceEqual(other);
+    /// <summary> Create a string from an unmanaged byte array without checking validity. </summary>
+    /// <param name="text"> The memory chunk of unmanaged data. </param>
+    /// <remarks>
+    ///   Use this function if you firmly know that the passed memory is valid, for example when it comes from a StringU8 itself.  
+    /// </remarks>
+    [OverloadResolutionPriority(75)]
+    [MethodImpl(ImSharpConfiguration.Opt)]
+    public static StringU8 CreateUnchecked(ReadOnlyMemory<byte> text)
+        => new(text, 0);
+
+    [MethodImpl(ImSharpConfiguration.Opt)]
+    private StringU8(ReadOnlyMemory<byte> data, int _)
+        => _value = data;
 
     /// <summary> Check whether two strings are byte-wise equal. </summary>
-    [OverloadResolutionPriority(50), MethodImpl(ImSharpConfiguration.OptInl)]
+    [OverloadResolutionPriority(100)]
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public bool Equals(StringU8 other)
+        => Span.EqualsCaseSensitive(other);
+
+    /// <summary> Check whether two strings are byte-wise equal. </summary>
+    [OverloadResolutionPriority(50)]
+    [MethodImpl(ImSharpConfiguration.OptInl)]
     public bool Equals(ReadOnlySpan<byte> other)
-        => Span.SequenceEqual(other);
+        => Span.EqualsCaseSensitive(other);
+
+    /// <summary> Check whether two strings are byte-wise equal after disregarding case. </summary>
+    [OverloadResolutionPriority(50)]
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public bool EqualsCaseInsensitive(ReadOnlySpan<byte> other)
+        => Span.EqualsCaseInsensitive(other);
 
     /// <summary> Check whether two strings are byte-wise equal. </summary>
     [MethodImpl(ImSharpConfiguration.OptInl)]
@@ -222,24 +258,52 @@ public readonly partial struct StringU8 : IReadOnlyList<byte>, IEquatable<String
         => obj is StringU8 other && Equals(other);
 
     /// <summary> Lexicographically compare two strings byte-wise. </summary>
-    [OverloadResolutionPriority(100), MethodImpl(ImSharpConfiguration.OptInl)]
+    [OverloadResolutionPriority(100)]
+    [MethodImpl(ImSharpConfiguration.OptInl)]
     public int CompareTo(StringU8 other)
-        => Span.SequenceCompareTo(other);
+        => Span.CompareCaseSensitive(other);
 
     /// <summary> Lexicographically compare two strings byte-wise. </summary>
-    [OverloadResolutionPriority(50), MethodImpl(ImSharpConfiguration.OptInl)]
+    [OverloadResolutionPriority(50)]
+    [MethodImpl(ImSharpConfiguration.OptInl)]
     public int CompareTo(ReadOnlySpan<byte> other)
-        => Span.SequenceCompareTo(other);
+        => Span.CompareCaseSensitive(other);
 
-    /// <summary> Check if this string starts with the same bytes as <param name="other" />. </summary>
+    /// <summary> Lexicographically compare two strings byte-wise after disregarding case. </summary>
+    [OverloadResolutionPriority(50)]
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public int CompareToCaseInsensitive(ReadOnlySpan<byte> other)
+        => Span.CompareCaseInsensitive(other);
+
+    /// <summary> Check if this string starts with the same bytes as <param name="other"/>. </summary>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public bool StartsWith(ReadOnlySpan<byte> other)
-        => Span.StartsWith(other);
+        => Span.StartsWithCaseSensitive(other);
 
-    /// <summary> Check if this string ends with the same bytes as <param name="other" />. </summary>
+    /// <summary> Check if this string starts with the same bytes as <param name="other"/> when disregarding case. </summary>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public bool StartsWithCaseInsensitive(ReadOnlySpan<byte> other)
+        => Span.StartsWithCaseInsensitive(other);
+
+    /// <summary> Check if this string ends with the same bytes as <param name="other"/>. </summary>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public bool EndsWith(ReadOnlySpan<byte> other)
-        => Span.EndsWith(other);
+        => Span.EndsWithCaseSensitive(other);
+
+    /// <summary> Check if this string ends with the same bytes as <param name="other"/> when disregarding case. </summary>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public bool EndsWithCaseInsensitive(ReadOnlySpan<byte> other)
+        => Span.EndsWithCaseInsensitive(other);
+
+    /// <summary> Check if this string contains the bytes of <param name="other"/> at least once. </summary>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public bool Contains(ReadOnlySpan<byte> other)
+        => Span.ContainsCaseSensitive(other);
+
+    /// <summary> Check if this string contains the bytes of <param name="other"/> at least once when disregarding case. </summary>
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    public bool ContainsCaseInsensitive(ReadOnlySpan<byte> other)
+        => Span.ContainsCaseInsensitive(other);
 
     /// <inheritdoc/>
     [MethodImpl(ImSharpConfiguration.OptInl)]
