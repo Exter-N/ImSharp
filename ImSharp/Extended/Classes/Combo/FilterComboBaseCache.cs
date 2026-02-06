@@ -6,6 +6,9 @@ namespace ImSharp;
 public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent)
     : FilterCache<TCacheItem>
 {
+    /// <summary> The parent filter combo using this cache. </summary>
+    protected readonly FilterComboBase<TCacheItem> Parent = parent;
+
     /// <summary> The global index of the currently selected item if any. </summary>
     public int CurrentGlobalSelectionIndex { get; protected set; } = -1;
 
@@ -25,8 +28,8 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
     {
         // Create a child if we have drawn a filter before and thus the cursor isn't at 0, and we have more items than can be displayed.
         // We do not need a child if we have no filter, or can display all items either way.
-        var       hasFilter  = parent.Filter.IsVisible;
-        var       beginChild = hasFilter && Count > parent.MaximumItems;
+        var       hasFilter  = Parent.Filter.IsVisible;
+        var       beginChild = hasFilter && Count > Parent.MaximumItems;
         using var indent     = new Im.IndentDisposable();
         // Move the cursor upwards to center the selectables better, or remove the forced frame padding before the child.
         if (beginChild)
@@ -53,16 +56,16 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
         {
             SetScroll = false;
             if (CurrentFilteredSelectionIndex >= 0)
-                Im.Scroll.SetFromPositionY(CurrentFilteredSelectionIndex * parent.ItemHeight - Im.Scroll.Y);
+                Im.Scroll.SetFromPositionY(CurrentFilteredSelectionIndex * Parent.ItemHeight - Im.Scroll.Y);
         }
 
         // Draw the clipped list of filtered items.
-        parent.PreDrawList();
+        Parent.PreDrawList();
 
         // Center the selectables better inside the child.
         if (beginChild)
             Im.Cursor.Y = Im.Style.ItemSpacing.Y / 2;
-        using (var clipper = new Im.ListClipper(FilteredItems.Count, parent.ItemHeight))
+        using (var clipper = new Im.ListClipper(FilteredItems.Count, Parent.ItemHeight))
         {
             foreach (var globalIndex in clipper.Iterate(FilteredItems))
             {
@@ -71,7 +74,7 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
                 if (beginChild)
                     Im.Cursor.X += Im.Style.FramePadding.X;
 
-                if (parent.DrawItem(UnfilteredItems[globalIndex], globalIndex, CurrentGlobalSelectionIndex == globalIndex))
+                if (Parent.DrawItem(UnfilteredItems[globalIndex], globalIndex, CurrentGlobalSelectionIndex == globalIndex))
                 {
                     ret                 = true;
                     selectedGlobalIndex = globalIndex;
@@ -84,12 +87,13 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
 
         // I don't know why this works, but it fixes the last selectable's offset to look nicer.
         Im.Cursor.Y -= Im.Style.GlobalScale;
-        parent.PostDrawList();
+        Parent.PostDrawList();
 
         // Close the popup if requested through keyboard navigation or selection.
         if (ClosePopup)
         {
             Im.Popup.CloseCurrent();
+            Parent.OnPopupClosed();
             ClosePopup = false;
         }
 
@@ -109,7 +113,7 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
         // Search through the filtered items and set both indices if we find a selected match.
         foreach (var (filteredIndex, globalIndex) in FilteredItems.Index())
         {
-            if (parent.IsSelected(UnfilteredItems[globalIndex], globalIndex))
+            if (Parent.IsSelected(UnfilteredItems[globalIndex], globalIndex))
             {
                 CurrentFilteredSelectionIndex = filteredIndex;
                 CurrentGlobalSelectionIndex   = globalIndex;
@@ -122,7 +126,7 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
         CurrentFilteredSelectionIndex = -1;
         foreach (var (globalIndex, item) in UnfilteredItems.Index())
         {
-            if (parent.IsSelected(item, globalIndex))
+            if (Parent.IsSelected(item, globalIndex))
             {
                 CurrentGlobalSelectionIndex = globalIndex;
                 return;
@@ -134,11 +138,11 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
 
     /// <summary> Use the parents function to filter. </summary>
     protected override bool WouldBeVisible(in TCacheItem item, int globalIndex)
-        => parent.Filter.WouldBeVisible(item, globalIndex);
+        => Parent.Filter.WouldBeVisible(item, globalIndex);
 
     /// <summary> Use the parents function to get the items. </summary>
     protected override IEnumerable<TCacheItem> GetItems()
-        => parent.GetItems();
+        => Parent.GetItems();
 
     /// <summary> Apply a mousewheel delta to the current selection. </summary>
     /// <param name="delta"> The mousewheel delta for this frame. </param>
@@ -209,6 +213,7 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
         if (Im.Keyboard.IsPressed(Key.Enter))
         {
             ClosePopup = true;
+            Parent.EnterPressed();
             if (CurrentFilteredSelectionIndex >= 0)
             {
                 selectedGlobalIndex = FilteredItems[CurrentFilteredSelectionIndex];
@@ -230,9 +235,9 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
     /// <remarks> Clears the filter according to the setting. </remarks>
     protected override void Dispose(bool disposing)
     {
-        if (parent.ClearFilterOnCacheDisposal)
+        if (Parent.ClearFilterOnCacheDisposal)
         {
-            parent.Filter.Clear();
+            Parent.Filter.Clear();
             FilterDirty = true;
         }
 

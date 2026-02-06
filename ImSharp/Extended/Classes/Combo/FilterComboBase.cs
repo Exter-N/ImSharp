@@ -135,9 +135,9 @@ public abstract class FilterComboBase<TCacheItem>()
     {
         var width = previewWidth;
         // A filter adds a frame height to the window.
-        var additionalHeight = Filter.IsVisible ? Im.Style.FrameHeight: 0;
+        var additionalHeight = Filter.IsVisible ? Im.Style.FrameHeight : 0;
         var height           = MaximumItems * ItemHeight + additionalHeight;
-        
+
         // If we have an active cache, we have information about the actual width and height needed.
         if (CacheManager.Instance.TryGetCache(CurrentId, out FilterComboBaseCache<TCacheItem>? cache))
         {
@@ -261,5 +261,13 @@ public abstract class FilterComboBase<TCacheItem>()
 
     /// <summary> Function invoked after drawing the filter inside the expanded combo list. </summary>
     protected virtual void PostDrawFilter()
+    { }
+
+    /// <summary> Function invoked when the user presses Enter while the combo popup is open and focused. </summary>
+    protected internal virtual void EnterPressed()
+    { }
+
+    /// <summary> Function invoked when the combo popup is closed either through selection or through pressing Enter. </summary>
+    protected internal virtual void OnPopupClosed()
     { }
 }
