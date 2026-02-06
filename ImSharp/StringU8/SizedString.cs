@@ -12,7 +12,15 @@ public record SizedString : IDisposable
     /// <summary> Get the cached size of the text. </summary>
     public Vector2 Size
     {
-        get => float.IsNaN(field.X) ? field = Im.Font.CalculateSize(Text) : field;
+        get
+        {
+            if (!float.IsNaN(field.X))
+                return field;
+
+            field = Im.Font.CalculateSize(Text);
+            Subscriber.Strings.TryAdd(this, 0);
+            return field;
+        }
         private set;
     }
 
@@ -28,6 +36,7 @@ public record SizedString : IDisposable
     public void Dispose()
     {
         Subscriber.Strings.TryRemove(this, out _);
+        GC.SuppressFinalize(this);
     }
 
     public SizedString(StringU8 text)
@@ -63,7 +72,8 @@ public record SizedString : IDisposable
         else
         {
             Size = size;
-            Subscriber.Strings.TryAdd(this, 0);
+            if (!float.IsNaN(Size.X))
+                Subscriber.Strings.TryAdd(this, 0);
         }
     }
 
@@ -79,7 +89,6 @@ public record SizedString : IDisposable
         text = Text;
         size = Size;
     }
-
 
     /// <summary> Update sized strings automatically when the font or global scale change. </summary>
     private class SizedStringSubscriber
