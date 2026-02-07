@@ -229,5 +229,160 @@ public partial class Im
             foreach (var globalIndex in clipper)
                 draw(items[globalIndex], globalIndex);
         }
+
+        /// <summary> Draw a set of items clipped. </summary>
+        /// <typeparam name="T"> The type of item. </typeparam>
+        /// <param name="items"> The items. </param>
+        /// <param name="draw"> The draw function taking the item. </param>
+        /// <param name="count"> The number of items. </param>
+        /// <param name="itemHeight"> The height of each item. </param>
+        public static void Draw<T>(IEnumerable<T> items, Action<T> draw, int count, float itemHeight)
+        {
+            using var clipper = new ListClipper(count, itemHeight);
+            foreach (var item in clipper.Iterate(items))
+                draw(item);
+        }
+
+        /// <summary> Draw a list of items in groups of specified size and clipped per row. </summary>
+        /// <typeparam name="T"> The type of item. </typeparam>
+        /// <param name="items"> The random-access list of items. </param>
+        /// <param name="draw"> The function to invoke for each item in a row. </param>
+        /// <param name="groupSize"> The number of items per row. </param>
+        /// <param name="rowHeight"> The height of a row. </param>
+        /// <param name="itemSpacing"> The vertical spacing between the drawn items. </param>
+        public static void DrawGrouped<T>(IReadOnlyList<T> items, Action<T> draw, int groupSize, float rowHeight, float itemSpacing)
+        {
+            if (groupSize <= 1)
+            {
+                Draw(items, draw, rowHeight);
+                return;
+            }
+
+            var numRows = (items.Count + groupSize - 1) / groupSize;
+            using var clip = new ListClipper(numRows, rowHeight);
+            foreach (var index in clip)
+            {
+                var scaledIndex = index * groupSize;
+                var end = Math.Min(scaledIndex + groupSize - 1, items.Count - 1);
+                for (var i = scaledIndex; i < end; ++i)
+                {
+                    draw(items[i]);
+                    Line.Same(0, itemSpacing);
+                }
+
+                draw(items[end]);
+            }
+        }
+
+        /// <summary> Draw a set of items in groups of specified size and clipped per row. </summary>
+        /// <typeparam name="T"> The type of item. </typeparam>
+        /// <param name="items"> The items. </param>
+        /// <param name="draw"> The function to invoke for each item in a row. </param>
+        /// <param name="count"> The total number of items. </param>
+        /// <param name="groupSize"> The number of items per row. </param>
+        /// <param name="rowHeight"> The height of a row. </param>
+        /// <param name="itemSpacing"> The vertical spacing between the drawn items. </param>
+        public static void DrawGrouped<T>(IEnumerable<T> items, Action<T> draw, int count, int groupSize, float rowHeight, float itemSpacing)
+        {
+            if (items is IReadOnlyList<T> list)
+            {
+                DrawGrouped(list, draw, groupSize, rowHeight, itemSpacing);
+                return;
+            }
+
+            var numRows = (count + groupSize - 1) / groupSize;
+            using var clip = new ListClipper(numRows, rowHeight);
+            using var enumerator = items.GetEnumerator();
+            var counter = 0;
+            foreach (var index in clip)
+            {
+                var scaledIndex = index * groupSize;
+                while (enumerator.MoveNext())
+                {
+                    if (counter++ < scaledIndex)
+                        continue;
+
+                    if (counter == scaledIndex + groupSize - 1)
+                    {
+                        draw(enumerator.Current);
+                        break;
+                    }
+
+                    draw(enumerator.Current);
+                    Line.Same(0, itemSpacing);
+                }
+            }
+        }
+
+        /// <summary> Draw a list of items in groups of specified size and clipped per row. </summary>
+        /// <typeparam name="T"> The type of item. </typeparam>
+        /// <param name="items"> The random-access list of items. </param>
+        /// <param name="draw"> The function to invoke for each item in a row and its global index. </param>
+        /// <param name="groupSize"> The number of items per row. </param>
+        /// <param name="rowHeight"> The height of a row. </param>
+        /// <param name="itemSpacing"> The vertical spacing between the drawn items. </param>
+        public static void DrawGrouped<T>(IReadOnlyList<T> items, Action<T, int> draw, int groupSize, float rowHeight, float itemSpacing)
+        {
+            if (groupSize <= 1)
+            {
+                Draw(items, draw, rowHeight);
+                return;
+            }
+
+            var numRows = (items.Count + groupSize - 1) / groupSize;
+            using var clip = new ListClipper(numRows, rowHeight);
+            foreach (var index in clip)
+            {
+                var scaledIndex = index * groupSize;
+                var end = Math.Min(scaledIndex + groupSize - 1, items.Count - 1);
+                for (var i = scaledIndex; i < end; ++i)
+                {
+                    draw(items[i], i);
+                    Line.Same(0, itemSpacing);
+                }
+
+                draw(items[end], end);
+            }
+        }
+
+        /// <summary> Draw a set of items in groups of specified size and clipped per row. </summary>
+        /// <typeparam name="T"> The type of item. </typeparam>
+        /// <param name="items"> The items. </param>
+        /// <param name="draw"> The function to invoke for each item in a row and its global index. </param>
+        /// <param name="count"> The total number of items. </param>
+        /// <param name="groupSize"> The number of items per row. </param>
+        /// <param name="rowHeight"> The height of a row. </param>
+        /// <param name="itemSpacing"> The vertical spacing between the drawn items. </param>
+        public static void DrawGrouped<T>(IEnumerable<T> items, Action<T, int> draw, int count, int groupSize, float rowHeight, float itemSpacing)
+        {
+            if (items is IReadOnlyList<T> list)
+            {
+                DrawGrouped(list, draw, groupSize, rowHeight, itemSpacing);
+                return;
+            }
+
+            var numRows = (count + groupSize - 1) / groupSize;
+            using var clip = new ListClipper(numRows, rowHeight);
+            using var enumerator = items.GetEnumerator();
+            var counter = 0;
+            foreach (var index in clip)
+            {
+                var scaledIndex = index * groupSize;
+                while (enumerator.MoveNext())
+                {
+                    if (counter++ < scaledIndex)
+                        continue;
+
+                    if (counter == scaledIndex + groupSize - 1)
+                    {
+                        draw(enumerator.Current, counter);
+                        break;
+                    }
+
+                    draw(enumerator.Current, counter);
+                    Line.Same(0, itemSpacing);
+                }
+            }
+        }
     }
 }
