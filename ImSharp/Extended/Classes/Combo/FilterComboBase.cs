@@ -113,7 +113,7 @@ public abstract class FilterComboBase<TCacheItem>()
         if (tooltip.GetSpan(out var tooltipSpan) && !tooltipSpan.IsEmpty)
         {
             using var enabled = Im.Enabled();
-            Im.Tooltip.OnHover(tooltipSpan);
+            Im.Tooltip.OnHover(tooltipSpan, true);
         }
 
         // If the combo is expanded, draw the filter and list.
