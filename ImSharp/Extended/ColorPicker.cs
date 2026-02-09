@@ -90,8 +90,10 @@ public static partial class ImEx
 
         if (!char.IsWhiteSpace(letter) && Im.Item.Visible)
         {
-            Span<byte> text = stackalloc byte[8];
-            text[Encoding.UTF8.GetBytes([letter], text)] = 0;
+            Span<byte> text   = stackalloc byte[8];
+            var        length = Encoding.UTF8.GetBytes([letter], text);
+            text[length] = 0;
+            text         = text[..length];
             var textSize  = Im.Font.CalculateSize(text);
             var center    = Im.Item.UpperLeftCorner + (Im.Item.Size - textSize) / 2;
             var textColor = Rgba32.ContrastColor(new Vector4(output, 0.7f));

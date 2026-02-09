@@ -1,3 +1,5 @@
+using static FFXIVClientStructs.FFXIV.Client.LayoutEngine.LayoutManager;
+
 namespace ImSharp.Table;
 
 /// <summary> The base implementation of a table cache, used to store a table's pre-processed data and it's filters as long as it is active. </summary>
@@ -17,6 +19,9 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
     /// <summary> Whether the data is still loading in some way. </summary>
     public bool Loading { get; protected set; } = false;
 
+    /// <summary> The table's base data and column definitions that were used to create this cache. </summary>
+    public TableData<TCacheItem> Parent { get; } = parent;
+
     /// <summary>
     ///   The default widths columns are drawn with if not resized by the user.
     ///   Gets updated when font or style change, or for headers with <see cref="ITableColumn{TCacheItem}.WidthDependsOnItems"/> when the custom data changes.
@@ -28,7 +33,7 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
     {
         if (Loading)
         {
-            using var child = Im.Child.Begin("Table"u8, parent.GetSize(), true);
+            using var child = Im.Child.Begin("Table"u8, Parent.GetSize(), true);
             if (!child)
                 return;
 
@@ -41,30 +46,30 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
         }
 
         // Use the table data to set up the table. We do not need to provide an ID since this is already pushed to get the cache.
-        using var table = Im.Table.Begin("Table"u8, parent.Columns.Count, parent.Flags, parent.GetSize());
+        using var table = Im.Table.Begin("Table"u8, Parent.Columns.Count, Parent.Flags, Parent.GetSize());
         if (!table)
             return;
 
         // Nothing to draw without columns.
-        if (parent.Columns.Count is 0)
+        if (Parent.Columns.Count is 0)
             return;
 
         // Set up the scroll freeze according to table data.
-        var (columns, rows) = parent.GetFrozenScroll();
+        var (columns, rows) = Parent.GetFrozenScroll();
         table.SetupScrollFreeze(columns, rows);
 
         // Widths have been updated when fetching the cache, set up columns.
-        foreach (var (header, width) in parent.Columns.Zip(HeaderDefaultWidths))
+        foreach (var (header, width) in Parent.Columns.Zip(HeaderDefaultWidths))
             table.SetupColumn(header.Label, header.Flags, width);
 
         // Draw the headers and filters, count visible columns.
         table.NextRow(TableRowFlags.Headers);
-        parent.VisibleColumns = 0;
-        foreach (var (index, header) in parent.Columns.Index())
+        Parent.VisibleColumns = 0;
+        foreach (var (index, header) in Parent.Columns.Index())
         {
             using var id = Im.Id.Push(index);
             if (table.GetColumnFlags(index).HasFlag(TableColumnFlags.IsEnabled))
-                ++parent.VisibleColumns;
+                ++Parent.VisibleColumns;
             else
                 continue;
 
@@ -117,7 +122,7 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
         for (var i = 0; i < HeaderDefaultWidths.Length; ++i)
         {
             // Update each column width if font or style changed.
-            var header = parent.Columns[i];
+            var header = Parent.Columns[i];
             var flags  = IManagedCache.DirtyFlags.Font | IManagedCache.DirtyFlags.Style;
             // But only update on item change if the column cares about that.
             if (header.WidthDependsOnItems)
@@ -135,7 +140,7 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
     protected override bool WouldBeVisible(in TCacheItem value, int globalIndex)
     {
         // No LINQ due to 'in' modifier.
-        foreach (var header in parent.Columns)
+        foreach (var header in Parent.Columns)
         {
             if (!header.WouldBeVisible(value, globalIndex))
                 return false;
@@ -151,7 +156,7 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
             return;
 
         // If the sort index is not usable, set it to -1.
-        if (parent.Columns.Count <= SortIndex)
+        if (Parent.Columns.Count <= SortIndex)
             SortIndex = -1;
 
         // Return if there is no sorting specified.
@@ -162,7 +167,7 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
         }
 
         // Sort according to the chosen header and direction.
-        var header = parent.Columns[SortIndex];
+        var header = Parent.Columns[SortIndex];
         switch (SortDirection)
         {
             case SortDirection.Ascending:
@@ -213,7 +218,7 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
     {
         // Every row has its own global ID.
         using var id = Im.Id.Push(globalIndex);
-        foreach (var (column, header) in parent.Columns.Index())
+        foreach (var (column, header) in Parent.Columns.Index())
         {
             if (!table.NextColumn())
                 continue;
@@ -250,20 +255,27 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
 
     /// <inheritdoc/>
     protected override IEnumerable<TCacheItem> GetItems()
-        => parent.GetItems();
+        => Parent.GetItems();
 
     /// <inheritdoc/>
     protected override void OnDataUpdate()
     {
         SortDirty         = true;
-        parent.TotalItems = UnfilteredItems.Count;
+        Parent.TotalItems = UnfilteredItems.Count;
     }
 
     /// <inheritdoc/>
     protected override void OnFilterUpdate()
     {
         SortDirty           = true;
-        parent.VisibleItems = FilteredItems.Count;
+        Parent.VisibleItems = FilteredItems.Count;
+    }
+
+    /// <inheritdoc/>
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(true);
+        DisposeUnfilteredItems();
     }
 
     /// <summary> Load the sort order of the table. </summary>

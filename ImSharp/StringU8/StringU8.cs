@@ -385,6 +385,21 @@ public readonly partial struct StringU8 : IReadOnlyList<byte>, IEquatable<String
         get => _value.Length is 0;
     }
 
+    /// <summary> Calculate the size this string will take up in pixels when drawn with the current font. </summary>
+    /// <param name="hideTextAfterDashes"> Whether everything after the first ## is to be included or not. </param>
+    /// <param name="wrapWidth"> The text wrap width to use for wrapping. 0 uses the current wrapping position, if any. </param>
+    /// <returns> The required size to display the text. </returns>
+    public Vector2 CalculateSize(bool hideTextAfterDashes = true, float wrapWidth = 0)
+        => IsEmpty ? Vector2.Zero : Im.Font.CalculateSize(this, hideTextAfterDashes, wrapWidth);
+
+    /// <summary> Calculate the size this string will take up in pixels when drawn with the given font. </summary>
+    /// <param name="font"> The font in which this text will be drawn. </param>
+    /// <param name="hideTextAfterDashes"> Whether everything after the first ## is to be included or not. </param>
+    /// <param name="wrapWidth"> The text wrap width to use for wrapping. 0 uses the current wrapping position, if any. </param>
+    /// <returns> The required size to display the text. </returns>
+    public Vector2 CalculateSize(Im.Font font, bool hideTextAfterDashes = true, float wrapWidth = 0)
+        => IsEmpty ? Vector2.Zero : font.CalculateTextSize(this, hideTextAfterDashes, wrapWidth);
+
     /// <summary> Access the byte at the given index. </summary>
     public byte this[int index]
     {

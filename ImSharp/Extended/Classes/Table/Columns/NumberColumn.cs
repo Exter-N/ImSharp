@@ -22,7 +22,7 @@ public abstract class NumberColumn<TNumber, TCacheItem> : BasicColumn<TCacheItem
     /// <param name="item"> The row to fetch. </param>
     /// <param name="globalIndex"> The global index of the row. </param>
     /// <returns> The textual representation of the numerical value prepared for display. </returns>
-    protected abstract SizedString DisplayNumber(in TCacheItem item, int globalIndex);
+    protected abstract StringU8 DisplayNumber(in TCacheItem item, int globalIndex);
 
     /// <summary> Get the text on which this number is compared against textual filters. </summary>
     /// <param name="item"> The row to fetch. </param>

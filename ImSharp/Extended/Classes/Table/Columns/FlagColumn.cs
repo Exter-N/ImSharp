@@ -13,6 +13,11 @@ public abstract class FlagColumn<TEnum, TCacheItem> : BasicColumn<TCacheItem>
     public FlagColumn()
         => Filter = new FlagFilter(this);
 
+    /// <summary> Create a new Flag Column without setting up a filter. </summary>
+    /// <remarks> Use this is you set up the enum data through a constructor parameter and set the filter manually. </remarks>
+    protected FlagColumn(bool _)
+        => Filter = null!;
+
     /// <summary> Get the text to display for a row. </summary>
     /// <param name="item"> The row to check. </param>
     /// <param name="globalIndex"> The global index of the row to check </param>
@@ -53,22 +58,22 @@ public abstract class FlagColumn<TEnum, TCacheItem> : BasicColumn<TCacheItem>
 
     protected class FlagFilter : FlagFilterBase<TCacheItem, TEnum>
     {
-        private readonly FlagColumn<TEnum, TCacheItem> _parent;
+        protected readonly FlagColumn<TEnum, TCacheItem> Parent;
 
         public FlagFilter(FlagColumn<TEnum, TCacheItem> parent)
         {
-            _parent     = parent;
-            AllFlags    = _parent.EnumData.Aggregate(default(TEnum), (a, b) => a.Or(b.Value));
+            Parent      = parent;
+            AllFlags    = Parent.EnumData.Aggregate(default(TEnum), (a, b) => a.Or(b.Value));
             FilterValue = AllFlags;
         }
 
         /// <inheritdoc/>
         public override IReadOnlyList<(TEnum Value, StringU8 Name)> EnumData
-            => _parent.EnumData;
+            => Parent.EnumData;
 
         /// <inheritdoc/>
         public override TEnum GetValue(in TCacheItem item, int globalIndex)
-            => _parent.GetValue(item, globalIndex);
+            => Parent.GetValue(item, globalIndex);
 
         /// <inheritdoc/>
         public sealed override TEnum FilterValue { get; protected set; }

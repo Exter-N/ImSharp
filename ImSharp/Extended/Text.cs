@@ -102,12 +102,6 @@ public static partial class ImEx
         Im.Text(ref text);
     }
 
-    /// <summary> Draw text of a known width aligned to the right of the current content region. </summary>
-    /// <inheritdoc cref="TextRightAligned(Utf8TextHandler,float,float)"/>
-    [MethodImpl(ImSharpConfiguration.Inl)]
-    public static void TextRightAligned(in SizedString text, float offset = 0)
-        => TextRightAligned(text.Text, offset, text.Size.X);
-
     /// <summary> Draw the given text horizontally centered in the current content region. </summary>
     /// <param name="text"> The given text. Does not have to be null-terminated. </param>
     /// <param name="knownWidth"> If the width of the text is already known, you can pass it here. If this is non-positive, the width will be calculated. </param>
@@ -127,12 +121,6 @@ public static partial class ImEx
         Im.Cursor.X += (available - size) / 2;
         Im.Text(ref text);
     }
-
-    /// <summary> Draw text of a known width horizontally centered in the current content region. </summary>
-    /// <inheritdoc cref="TextCentered(Utf8TextHandler,float)"/>
-    [MethodImpl(ImSharpConfiguration.Inl)]
-    public static void TextCentered(in SizedString text)
-        => TextCentered(text.Text, text.Size.X);
 
     /// <summary> Draw the same text multiple times at the cursor position to simulate a shadowed text. </summary>
     /// <param name="text"> The given text. Does not need to be null-terminated. </param>

@@ -50,6 +50,23 @@ public abstract class FilterCache<TCacheItem> : BasicCache, IReadOnlyList<TCache
         return true;
     }
 
+    /// <summary> Try to update a single item from the list of cached items to a changed one. </summary>
+    /// <param name="index"> The unfiltered, global index of the item to swap. </param>
+    /// <param name="newValue"> The new data for the item. </param>
+    /// <param name="disposeOld"> Whether to dispose the old item or not. </param>
+    /// <returns> True if the item was updated. </returns>
+    public bool UpdateSingleItem(int index, in TCacheItem newValue, bool disposeOld)
+    {
+        if (!UnfilteredItemsOwned || index < 0 || index >= UnfilteredItems.Count)
+            return false;
+
+        var list = (List<TCacheItem>)UnfilteredItems;
+        if (DisposeItems && disposeOld)
+            (list[index] as IDisposable)?.Dispose();
+        list[index] = newValue;
+        return true;
+    }
+
     /// <summary> Update the actual item data if <see cref="BasicCache.CustomDirty"/>. </summary>
     protected virtual void UpdateData()
     {

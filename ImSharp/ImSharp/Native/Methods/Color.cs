@@ -16,11 +16,11 @@ public static partial class Im
                 [MethodImpl(ImSharpConfiguration.Inl)]
                 public static partial Rgba32 ColorConvertFloat4ToU32(ImVec4 color);
 
-                [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "igColorConvertRGBToHSV")]
+                [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "igColorConvertRGBtoHSV")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
                 public static partial void ColorConvertRgbToHsv(float r, float g, float b, float* h, float* s, float* v);
 
-                [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "igColorConvertHSVToRGB")]
+                [LibraryImport(Im.Version.CImGuiLibrary, EntryPoint = "igColorConvertHSVtoRGB")]
                 [MethodImpl(ImSharpConfiguration.Inl)]
                 public static partial void ColorConvertHsvToRgb(float h, float s, float v, float* r, float* g, float* b);
 

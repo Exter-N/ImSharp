@@ -29,7 +29,7 @@ public abstract class YesNoColumn<TCacheItem> : TriStateFlagColumn<YesNoColumn.Y
 
     /// <summary> Create a new YesNoColumn. </summary>
     protected YesNoColumn()
-        => Filter = new TriStateFlagFilter(this)
+        => Filter = new YesNoFilter(this)
         {
             AllFlags = YesNoColumn.YesNoFlag.Yes | YesNoColumn.YesNoFlag.No,
         };
@@ -46,11 +46,14 @@ public abstract class YesNoColumn<TCacheItem> : TriStateFlagColumn<YesNoColumn.Y
     public override void DrawColumn(in TCacheItem item, int globalIndex)
     {
         var iconSize = Im.Style.TextHeight;
-        Im.Cursor.X += Im.ContentRegion.Available.X - iconSize;
+        var center   = (Im.ContentRegion.Available.X - iconSize) / 2;
+        if (center > 0)
+            Im.Cursor.X += center;
+        Im.Cursor.Y += Im.Style.FramePadding.Y;
         if (GetValue(item, globalIndex, 0))
-            Im.Render.Checkmark(Im.Window.DrawList, Im.Cursor.Position, YesColor, iconSize);
+            Im.Render.Checkmark(Im.Window.DrawList, Im.Cursor.ScreenPosition, YesColor, iconSize);
         else
-            Im.Render.Cross(Im.Window.DrawList, Im.Cursor.Position, NoColor, iconSize);
+            Im.Render.Cross(Im.Window.DrawList, Im.Cursor.ScreenPosition, NoColor, iconSize);
         Im.Dummy(iconSize, iconSize);
         if (Im.Item.Hovered(HoveredFlags.AllowWhenDisabled))
             DrawTooltip(item, globalIndex);
@@ -59,6 +62,9 @@ public abstract class YesNoColumn<TCacheItem> : TriStateFlagColumn<YesNoColumn.Y
     /// <inheritdoc/>
     protected override IReadOnlyList<(YesNoColumn.YesNoFlag On, YesNoColumn.YesNoFlag Off, StringU8 Name)> TriEnumData
         => [(YesNoColumn.YesNoFlag.Yes, YesNoColumn.YesNoFlag.No, FilterLabel)];
+
+    protected override StringU8 DisplayString(in TCacheItem item, int globalIndex)
+        => StringU8.Empty;
 
     protected class YesNoFilter(TriStateFlagColumn<YesNoColumn.YesNoFlag, TCacheItem> parent) : TriStateFlagFilter(parent)
     {

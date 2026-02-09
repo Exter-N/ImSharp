@@ -51,9 +51,7 @@ public abstract class FlagFilterBase<TCacheItem, TEnum> : IFilter<TCacheItem>
         if (!combo)
             return changes;
 
-        for (var i = 0; i < EnumData.Count; ++i)
-            changes |= DrawCheckbox(i);
-
+        changes |= DrawPopup();
         if (changes)
             InvokeEvent();
 
@@ -79,6 +77,16 @@ public abstract class FlagFilterBase<TCacheItem, TEnum> : IFilter<TCacheItem>
             Im.Tooltip.OnHover("Right-click to clear filters."u8);
 
         return combo;
+    }
+
+    /// <summary> Draw the popup when the combo is opened. </summary>
+    /// <returns> True when any change happened. </returns>
+    protected virtual bool DrawPopup()
+    {
+        var changes = false;
+        for (var i = 0; i < EnumData.Count; ++i)
+            changes |= DrawCheckbox(i);
+        return changes;
     }
 
     /// <summary> Draw checkboxes for possible filters that also allow to toggle all other values on right-clicks. </summary>

@@ -157,7 +157,7 @@ public static partial class Im
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static unsafe Vector3 ToRgb(Vector3 hsv)
         {
-            Native.Methods.Color.ColorConvertRgbToHsv(hsv.X, hsv.Y, hsv.Z, &hsv.X, &hsv.Y, &hsv.Z);
+            Native.Methods.Color.ColorConvertHsvToRgb(hsv.X, hsv.Y, hsv.Z, &hsv.X, &hsv.Y, &hsv.Z);
             return hsv;
         }
 
