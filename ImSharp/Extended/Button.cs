@@ -341,8 +341,8 @@ public static partial class ImEx
         Im.Render.NavigationHighlight(boundingBox, id);
         var drawList = Im.Window.DrawList;
         drawList.Shape.RectangleFilled(boundingBox, color, Im.Style.FrameRounding, (ImDrawFlagsRectangle)corners);
-        drawList.TextClipped(boundingBox.Minimum + Im.Style.FramePadding, boundingBox.Maximum - Im.Style.FramePadding, visibleText,
-            Im.Style.ButtonTextAlignment, textSize);
+        drawList.TextClipped(boundingBox.Minimum + Im.Style.FramePadding, boundingBox.Maximum - Im.Style.FramePadding, visibleText, textSize,
+            Im.Style.ButtonTextAlignment);
         return clicked;
     }
 }
