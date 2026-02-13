@@ -158,7 +158,7 @@ public static partial class Im
         {
             ImVec2 ret;
             Native.Methods.Text.CalcTextSize(&ret, text.Start(out var end), end, true, wrapWidth);
-            ret += Style.FramePadding;
+            ret += 2 * Style.FramePadding;
             return ret;
         }
 
