@@ -1,17 +1,33 @@
 namespace ImSharp;
 
-/// <summary> A base class for a combo supporting filtering, cached drawing and clipping. </summary>
-/// <typeparam name="TCacheItem"> The type of the cache items to draw. </typeparam>
-public abstract class FilterComboBase<TCacheItem>()
+/// <summary> Typeless filter combo base class. </summary>
+public abstract class FilterComboBase()
 {
-    public FilterComboBase(IFilter<TCacheItem> filter)
+    /// <summary> Create a filter combo with a specific config. </summary>
+    protected FilterComboBase(in ConfigData config)
         : this()
     {
-        Filter = filter;
+        AllowMouseWheel            = config.MouseWheelType;
+        ComputeWidth               = config.ComputeWidth;
+        MaximumItems               = config.MaximumItems;
+        ClearFilterOnSelection     = config.ClearFilterOnSelection;
+        ClearFilterOnCacheDisposal = config.ClearFilterOnCacheDisposal;
+        PreviewAlignment           = config.PreviewAlignment;
+        Flags                      = config.Flags;
     }
 
-    /// <summary> The filter used. It is drawn at the top of the expanded combo unless it is a <see cref="NopFilter{TCacheItem}"/>, in which case it is ignored. </summary>
-    public IFilter<TCacheItem> Filter { get; init; } = NopFilter<TCacheItem>.Instance;
+    /// <summary> Configuration for the filter combo. </summary>
+    protected readonly record struct ConfigData(
+        MouseWheelType MouseWheelType = MouseWheelType.Control,
+        bool ComputeWidth = false,
+        int MaximumItems = 12,
+        bool ClearFilterOnSelection = false,
+        bool ClearFilterOnCacheDisposal = true,
+        Vector2 PreviewAlignment = default,
+        ComboFlags Flags = ComboFlags.None)
+    {
+        public static readonly ConfigData Default = new(MouseWheelType.Control);
+    }
 
     /// <summary> Whether to allow mouse-wheel scrolling while hovering the unexpanded combo, potentially only with specific key modifiers held. </summary>
     public MouseWheelType AllowMouseWheel { get; init; } = MouseWheelType.Control;
@@ -20,11 +36,11 @@ public abstract class FilterComboBase<TCacheItem>()
     public ComboFlags Flags { get; set; } = ComboFlags.None;
 
     /// <summary> The alignment of the text inside the preview button. </summary>
-    public Vector2 PreviewAlignment { get; set; } = default;
+    public Vector2 PreviewAlignment { get; set; }
 
     /// <summary> Whether the width of the combo popup depends on the displayed items and should be computed. </summary>
     /// <remarks> If this is false, the preview width is used for the popup window too. </remarks>
-    public bool ComputeWidth { get; init; } = false;
+    public bool ComputeWidth { get; init; }
 
     /// <summary> The maximum number of items to display in the expanded combo list. </summary>
     public int MaximumItems { get; init; } = 12;
@@ -38,11 +54,66 @@ public abstract class FilterComboBase<TCacheItem>()
     /// <summary> The ID used for the cache. </summary>
     protected ImGuiId CurrentId;
 
+    /// <summary> Obtain the item height used to draw a single cache item. Should include spacing. </summary>
+    protected internal abstract float ItemHeight { get; }
+
+    /// <summary> Function invoked before drawing the expanded combo list. </summary>
+    protected internal virtual void PreDrawList()
+    { }
+
+    /// <summary> Function invoked after drawing the expanded combo list. </summary>
+    protected internal virtual void PostDrawList()
+    { }
+
+    /// <summary> Function invoked before drawing the combo preview. </summary>
+    protected virtual void PreDrawCombo(float width)
+    { }
+
+    /// <summary> Function invoked after drawing the combo preview, before beginning the popup window (if it is open at all). </summary>
+    protected virtual void PostDrawCombo(float width)
+    { }
+
+    /// <summary> Function invoked before drawing the filter inside the expanded combo list. </summary>
+    protected virtual void PreDrawFilter()
+    { }
+
+    /// <summary> Function invoked after drawing the filter inside the expanded combo list. </summary>
+    protected virtual void PostDrawFilter()
+    { }
+
+    /// <summary> Function invoked when the user presses Enter while the combo popup is open and focused. </summary>
+    protected internal virtual void EnterPressed()
+    { }
+
+    /// <summary> Function invoked when the combo popup is closed either through selection or through pressing Enter. </summary>
+    protected internal virtual void OnPopupClosed()
+    { }
+}
+
+/// <summary> A base class for a combo supporting filtering, cached drawing and clipping. </summary>
+/// <typeparam name="TCacheItem"> The type of the cache items to draw. </typeparam>
+public abstract class FilterComboBase<TCacheItem> : FilterComboBase
+{
+    public FilterComboBase()
+    { }
+
+    public FilterComboBase(IFilter<TCacheItem> filter)
+    {
+        Filter = filter;
+    }
+
+    protected FilterComboBase(IFilter<TCacheItem> filter, in ConfigData config)
+        : base(config)
+    {
+        Filter = filter;
+    }
+
+    /// <summary> The filter used. It is drawn at the top of the expanded combo unless it is a <see cref="NopFilter{TCacheItem}"/>, in which case it is ignored. </summary>
+    public IFilter<TCacheItem> Filter { get; init; } = NopFilter<TCacheItem>.Instance;
+
     /// <summary> Obtain the list of all available cache items without filtering. </summary>
     protected internal abstract IEnumerable<TCacheItem> GetItems();
 
-    /// <summary> Obtain the item height used to draw a single cache item. Should include spacing. </summary>
-    protected internal abstract float ItemHeight { get; }
 
     /// <summary> Draw a single cache item, generally as a selectable. </summary>
     /// <param name="item"> The item to draw. </param>
@@ -238,36 +309,4 @@ public abstract class FilterComboBase<TCacheItem>()
         ret = default;
         return false;
     }
-
-    /// <summary> Function invoked before drawing the expanded combo list. </summary>
-    protected internal virtual void PreDrawList()
-    { }
-
-    /// <summary> Function invoked after drawing the expanded combo list. </summary>
-    protected internal virtual void PostDrawList()
-    { }
-
-    /// <summary> Function invoked before drawing the combo preview. </summary>
-    protected virtual void PreDrawCombo(float width)
-    { }
-
-    /// <summary> Function invoked after drawing the combo preview, before beginning the popup window (if it is open at all). </summary>
-    protected virtual void PostDrawCombo(float width)
-    { }
-
-    /// <summary> Function invoked before drawing the filter inside the expanded combo list. </summary>
-    protected virtual void PreDrawFilter()
-    { }
-
-    /// <summary> Function invoked after drawing the filter inside the expanded combo list. </summary>
-    protected virtual void PostDrawFilter()
-    { }
-
-    /// <summary> Function invoked when the user presses Enter while the combo popup is open and focused. </summary>
-    protected internal virtual void EnterPressed()
-    { }
-
-    /// <summary> Function invoked when the combo popup is closed either through selection or through pressing Enter. </summary>
-    protected internal virtual void OnPopupClosed()
-    { }
 }
