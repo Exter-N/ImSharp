@@ -215,7 +215,7 @@ public abstract class FilterComboBase<TCacheItem> : FilterComboBase
             if (ComputeWidth)
                 width = Math.Max(cache.ComboWidth, width);
 
-            if (cache.Count < MaximumItems)
+            if (cache.Count <= MaximumItems)
                 height = Math.Max(1, cache.Count) * ItemHeight + additionalHeight + Im.Style.ItemSpacing.Y / 2;
         }
 

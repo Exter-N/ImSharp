@@ -17,8 +17,9 @@ public static partial class ImEx
         var rect     = Im.Cursor.ScreenRectangle(size);
         Im.Render.Frame(rect, frameColor.CheckDefault(ImGuiColor.FrameBackground), Im.Style.FrameRounding,
             borderColor.CheckDefault(ImGuiColor.Border));
-        using var color = Im.Color.Push(ImGuiColor.Text, textColor);
-        Im.DrawList.Window.TextClipped(rect, ref text, textSize, Im.Style.ButtonTextAlignment);
+        using var color    = Im.Color.Push(ImGuiColor.Text, textColor);
+        var       textRect = new Rectangle(rect.Minimum + Im.Style.FramePadding, rect.Maximum - Im.Style.FramePadding);
+        Im.DrawList.Window.TextClipped(textRect, ref text, textSize, Im.Style.ButtonTextAlignment);
         Im.Item.SetSize(rect.Size, Im.Style.FramePadding.Y);
         Im.Item.Add(rect, 0, ItemFlags.ReadOnly | ItemFlags.NoNavigation);
     }
@@ -34,8 +35,9 @@ public static partial class ImEx
         var textSize = CalcAndUpdateSize(ref text, ref size);
         var rect     = Im.Cursor.ScreenRectangle(size);
         Im.Render.FrameBorder(rect, borderColor.CheckDefault(ImGuiColor.Border), Im.Style.FrameRounding);
-        using var color = Im.Color.Push(ImGuiColor.Text, textColor);
-        Im.DrawList.Window.TextClipped(rect, ref text, textSize, Im.Style.ButtonTextAlignment);
+        using var color    = Im.Color.Push(ImGuiColor.Text, textColor);
+        var       textRect = new Rectangle(rect.Minimum + Im.Style.FramePadding, rect.Maximum - Im.Style.FramePadding);
+        Im.DrawList.Window.TextClipped(textRect, ref text, textSize, Im.Style.ButtonTextAlignment);
         Im.Item.SetSize(rect.Size, Im.Style.FramePadding.Y);
         Im.Item.Add(rect, 0, ItemFlags.ReadOnly | ItemFlags.NoNavigation);
     }
