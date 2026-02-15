@@ -99,6 +99,11 @@ public static partial class Im
         public static bool IsActive(ImGuiId id)
             => Context.ActiveId == id;
 
+        /// <summary> Check whether an ID represents the widget that was active in the previous frame. </summary>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static bool WasActive(ImGuiId id)
+            => Context.ActiveIdPreviousFrame == id;
+
         /// <summary> Check whether an ID represents the last drawn widget. </summary>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public static bool IsCurrent(ImGuiId id)

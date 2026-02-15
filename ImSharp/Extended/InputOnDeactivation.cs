@@ -32,7 +32,7 @@ public static partial class ImEx
         {
             if (Text(ref label, ref input, out var length, ref hint, flags, maxLength))
             {
-                output = length is 0 ? StringU8.Empty : new StringU8(InputStringHandlerBuffer.Span[..length]);
+                output = length is 0 ? StringU8.Empty : new StringU8(InputStringHandlerBuffer.Span[..length], false);
                 return true;
             }
 
@@ -320,7 +320,7 @@ public static partial class ImEx
             var id     = Im.Id.Get(ref label);
             var buffer = InputStringHandlerBuffer.Buffer;
             var size   = (uint)InputStringHandlerBuffer.Size;
-            if (!id.Active)
+            if (!id.ActivePreviousFrame)
             {
                 buffer = TextStringHandlerBuffer.Buffer;
                 size   = (uint)TextStringHandlerBuffer.Size;
@@ -332,20 +332,20 @@ public static partial class ImEx
                     buffer[span.Length] = 0;
                 }
             }
-
+            
             var length = 0ul;
             flags &= ~InputTextFlags.EnterReturnsTrue;
             if (maxLength < size)
                 size = maxLength;
-            if (Im.Input.Text(label.Start(), buffer, size, hint.Start(), flags, &length) || Im.Item.Activated)
-                if (buffer != InputStringHandlerBuffer.Buffer)
-                {
-                    TextStringHandlerBuffer.Span[..(int)length].CopyTo(InputStringHandlerBuffer.Span);
-                    InputStringHandlerBuffer.Buffer[length] = 0;
-                }
+            var copyBuffer = Im.Input.Text(label.Start(), buffer, size, hint.Start(), flags, &length) || Im.Item.Activated;
+            if (copyBuffer && buffer != InputStringHandlerBuffer.Buffer)
+            {
+                TextStringHandlerBuffer.Span[..(int)length].CopyTo(InputStringHandlerBuffer.Span);
+                InputStringHandlerBuffer.Buffer[length] = 0;
+            }
 
             newLength = (int)length;
-            return Im.Item.DeactivatedAfterEdit;
+            return Im.Item.Deactivated && Im.Item.Edited;
         }
 
         [MethodImpl(ImSharpConfiguration.Inl)]

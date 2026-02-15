@@ -50,4 +50,11 @@ public readonly record struct ImGuiId(uint Id) : ISpanFormattable, IUtf8SpanForm
         [MethodImpl(ImSharpConfiguration.OptInl)]
         get => Im.Id.IsActive(this);
     }
+
+    /// <summary> Whether a widget with this ID is currently active. </summary>
+    public bool ActivePreviousFrame
+    {
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        get => Im.Id.WasActive(this);
+    }
 }

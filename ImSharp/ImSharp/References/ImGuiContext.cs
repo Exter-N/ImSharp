@@ -70,11 +70,25 @@ public static partial class Im
             get => Pointer->FrameCount;
         }
 
+        /// <summary> Get the ID of the currently active input text widget. </summary>
+        public ImGuiId InputTextId
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Pointer->InputTextState.Id;
+        }
+
         /// <summary> Get the ID of the currently active widget. </summary>
         public ImGuiId ActiveId
         {
             [MethodImpl(ImSharpConfiguration.OptInl)]
             get => Pointer->ActiveId;
+        }
+
+        /// <summary> Get the ID of the currently active widget. </summary>
+        public ImGuiId ActiveIdPreviousFrame
+        {
+            [MethodImpl(ImSharpConfiguration.OptInl)]
+            get => Pointer->ActiveIdPreviousFrame;
         }
 
         /// <summary> Get the ID of the currently hovered widget. </summary>
