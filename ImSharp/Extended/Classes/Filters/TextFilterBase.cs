@@ -75,7 +75,7 @@ public abstract class TextFilterBase<TCacheItem> : IFilter<TCacheItem>
         => FilterChanged?.Invoke();
 
     /// <inheritdoc/>
-    public void Clear()
+    public virtual void Clear()
     {
         if (Set(string.Empty))
             InvokeEvent();

@@ -115,9 +115,9 @@ public static partial class ImEx
     public static bool TriStateCheckbox<T>(Utf8LabelHandler label, ref T value, T onFlag, T offFlag, ColorParameter neutral, ColorParameter on,
         ColorParameter off) where T : unmanaged, Enum
     {
-        ImSharp.TriStateCheckbox.Instance.Neutral = neutral;
-        ImSharp.TriStateCheckbox.Instance.On      = on;
-        ImSharp.TriStateCheckbox.Instance.Off     = off;
+        ImSharp.TriStateCheckbox.ColoredInstance.Neutral = neutral;
+        ImSharp.TriStateCheckbox.ColoredInstance.On      = on;
+        ImSharp.TriStateCheckbox.ColoredInstance.Off     = off;
         return ImSharp.TriStateCheckbox.ColoredInstance.Draw(label, ref value, onFlag, offFlag);
     }
 
@@ -127,9 +127,9 @@ public static partial class ImEx
     /// <param name="off"> The color for the off state cross. If left default, <see cref="ImGuiColor.CheckMark"/> is used. </param>
     public static bool TriStateCheckbox(Utf8LabelHandler label, ref bool? value, ColorParameter neutral, ColorParameter on, ColorParameter off)
     {
-        ImSharp.TriStateCheckbox.Instance.Neutral = neutral;
-        ImSharp.TriStateCheckbox.Instance.On      = on;
-        ImSharp.TriStateCheckbox.Instance.Off     = off;
+        ImSharp.TriStateCheckbox.ColoredInstance.Neutral = neutral;
+        ImSharp.TriStateCheckbox.ColoredInstance.On      = on;
+        ImSharp.TriStateCheckbox.ColoredInstance.Off     = off;
         return ImSharp.TriStateCheckbox.ColoredInstance.Draw(label, ref value);
     }
 }
