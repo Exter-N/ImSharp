@@ -133,7 +133,7 @@ public static unsafe partial class Im
             return;
 
         var size      = Font.CalculateSize(ref text);
-        var totalSize = size with { X = Context.FontSize + size.X > 0 ? size.X + 2 * Style.FramePadding.X : 0f };
+        var totalSize = size with { X = Context.FontSize + (size.X > 0 ? size.X + Style.FramePadding.X : 0f) };
         var pos       = Window.Current.CursorPosition;
         pos.Y += Window.Current.CurrentLineTextBaseOffset;
         Item.SetSize(totalSize, 0);
@@ -141,10 +141,9 @@ public static unsafe partial class Im
         if (!Item.Add(boundingBox, 0))
             return;
 
-        var color        = ImGuiColor.Text.Get();
-        var bulletCenter = Style.FramePadding.X + Context.FontSize / 2;
+        var color = ImGuiColor.Text.Get();
         // Ceil the Y-offset because it generally looks better and is more likely to be actually centered for the text.
-        Window.DrawList.Render.Bullet(pos + new Vector2(bulletCenter, (Context.FontSize + 1) / 2), color);
-        Window.DrawList.Text(pos + new Vector2(2 * bulletCenter,      0), color, ref text);
+        Window.DrawList.Render.Bullet(pos + new Vector2(Context.FontSize / 2,           (Context.FontSize + 1) / 2), color);
+        Window.DrawList.Text(pos + new Vector2(Context.FontSize + Style.FramePadding.X, 0), color, ref text);
     }
 }

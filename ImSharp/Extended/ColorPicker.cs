@@ -51,7 +51,6 @@ public static partial class ImEx
 
         var buttonHovered = Im.Item.Hovered();
 
-        newColor = currentColor;
         // Draw the actual label as well as a potential tooltip.
         Im.Line.SameInner();
         Im.Text(ref label);
