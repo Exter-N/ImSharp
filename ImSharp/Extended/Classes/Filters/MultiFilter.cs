@@ -52,11 +52,8 @@ public class MultiFilter<TCacheItem> : IFilter<TCacheItem>
     }
 
     /// <inheritdoc/>
-    public void Clear()
-    {
-        foreach (var filter in Filters)
-            filter.Clear();
-    }
+    public bool Clear()
+        => Filters.Aggregate(false, (current, filter) => current | filter.Clear());
 
     /// <inheritdoc/>
     public bool IsEmpty

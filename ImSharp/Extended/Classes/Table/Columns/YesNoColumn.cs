@@ -10,6 +10,9 @@ public static class YesNoColumn
         Yes = 0x01,
         No  = 0x02,
     };
+
+    /// <summary> Both yes and no flags together. </summary>
+    public const YesNoFlag YesOrNo = YesNoFlag.Yes | YesNoFlag.No;
 }
 
 /// <summary> A column that can display a checkmark or a cross and filter for both options. </summary>

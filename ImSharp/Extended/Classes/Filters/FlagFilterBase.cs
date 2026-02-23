@@ -72,9 +72,7 @@ public abstract class FlagFilterBase<TCacheItem, TEnum> : IFilter<TCacheItem>
         var color = ImGuiColor.FrameBackground.Push(ImEx.Table.ActiveFilterColor, !all);
         var combo = Im.Combo.Begin(""u8, label, ComboFlags);
         color.Dispose();
-        changes = Im.Item.RightClicked() && SetValue(AllFlags, true);
-        if (!all)
-            Im.Tooltip.OnHover("Right-click to clear filters."u8);
+        changes = OnMiddleClick();
 
         return combo;
     }
@@ -87,6 +85,18 @@ public abstract class FlagFilterBase<TCacheItem, TEnum> : IFilter<TCacheItem>
         for (var i = 0; i < EnumData.Count; ++i)
             changes |= DrawCheckbox(i);
         return changes;
+    }
+
+    /// <summary> Usually clearing on middle-click, including the tooltip. </summary>
+    /// <returns> True if the filter changed. </returns>
+    protected virtual bool OnMiddleClick()
+    {
+        if (FilterValue.HasFlag(AllFlags))
+            Im.Tooltip.OnHover("Middle-click to clear filters.\n"u8);
+        if (!Im.Item.MiddleClicked())
+            return false;
+
+        return Clear();
     }
 
     /// <summary> Draw checkboxes for possible filters that also allow to toggle all other values on right-clicks. </summary>
@@ -139,10 +149,13 @@ public abstract class FlagFilterBase<TCacheItem, TEnum> : IFilter<TCacheItem>
     }
 
     /// <inheritdoc/>
-    public void Clear()
+    public bool Clear()
     {
-        if (SetValue(AllFlags, true))
-            InvokeEvent();
+        if (!SetValue(AllFlags, true))
+            return false;
+
+        InvokeEvent();
+        return true;
     }
 
     /// <inheritdoc/>

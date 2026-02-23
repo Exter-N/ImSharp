@@ -120,11 +120,20 @@ public abstract class TriStateFlagFilterBase<TCacheItem, TEnum> : IFilter<TCache
         var color = ImGuiColor.FrameBackground.Push(ImEx.Table.ActiveFilterColor, !all);
         var combo = Im.Combo.Begin(""u8, label, ComboFlags);
         color.Dispose();
-        changes = Im.Item.RightClicked() && SetValue(AllFlags, true);
-        if (!all)
-            Im.Tooltip.OnHover("Right-click to clear filters."u8);
-
+        changes = OnMiddleClick();
         return combo;
+    }
+
+    /// <summary> Usually clearing on middle-click, including the tooltip. </summary>
+    /// <returns> True if the filter changed. </returns>
+    protected virtual bool OnMiddleClick()
+    {
+        if (FilterValue.HasFlag(AllFlags))
+            Im.Tooltip.OnHover("Middle-click to clear filters.\n"u8);
+        if (!Im.Item.MiddleClicked())
+            return false;
+
+        return Clear();
     }
 
     /// <summary> Set the flags in <paramref name="flags"/> to <paramref name="value"/>. </summary>
@@ -145,8 +154,14 @@ public abstract class TriStateFlagFilterBase<TCacheItem, TEnum> : IFilter<TCache
     }
 
     /// <inheritdoc/>
-    public void Clear()
-        => SetValue(AllFlags, true);
+    public bool Clear()
+    {
+        if (!SetValue(AllFlags, true))
+            return false;
+
+        InvokeEvent();
+        return true;
+    }
 
     /// <inheritdoc/>
     public bool IsEmpty

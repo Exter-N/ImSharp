@@ -58,25 +58,24 @@ public enum TableColumnFlags
     /// <summary> Do not show this column at all, even in the user context menu. </summary>
     Disabled = 1 << 16,
 
-    // TODO References
-    /// <summary> <seealso cref="ImGuiTable.HeaderRow"/> will submit an empty label for this column. </summary>
+    /// <summary> <seealso cref="Im.TableDisposable.HeaderRow"/> will submit an empty label for this column. </summary>
     /// <remarks> The column will still be named in the context menu or angled headers. Useful for some small columns. </remarks>
     NoHeaderLabel = 1 << 17,
 
     /// <summary> The column is not hidden by the user or API. </summary>
-    /// <remarks> Read-only output flag returned from <seealso cref="ImGuiTable.GetColumnFlags"/>. </remarks>
+    /// <remarks> Read-only output flag returned from <seealso cref="Im.TableDisposable.GetColumnFlags"/>. </remarks>
     IsEnabled = 1 << 20,
 
     /// <summary> The column is not hidden by the user or API AND not clipped by scrolling. </summary>
-    /// <remarks> Read-only output flag returned from <seealso cref="ImGuiTable.GetColumnFlags"/>. </remarks>
+    /// <remarks> Read-only output flag returned from <seealso cref="Im.TableDisposable.GetColumnFlags"/>. </remarks>
     IsVisible = 1 << 21,
 
     /// <summary> The column is currently part of the sort specs. </summary>
-    /// <remarks> Read-only output flag returned from <seealso cref="ImGuiTable.GetColumnFlags"/>. </remarks>
+    /// <remarks> Read-only output flag returned from <seealso cref="Im.TableDisposable.GetColumnFlags"/>. </remarks>
     IsSorted = 1 << 22,
 
     /// <summary> The column is currently hovered by the mouse cursor. </summary>
-    /// <remarks> Read-only output flag returned from <seealso cref="ImGuiTable.GetColumnFlags"/>. </remarks>
+    /// <remarks> Read-only output flag returned from <seealso cref="Im.TableDisposable.GetColumnFlags"/>. </remarks>
     IsHovered = 1 << 23,
 
     /// <summary> Mask for width options. </summary>

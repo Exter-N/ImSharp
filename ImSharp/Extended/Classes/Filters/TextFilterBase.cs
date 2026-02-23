@@ -37,11 +37,9 @@ public abstract class TextFilterBase<TCacheItem> : IFilter<TCacheItem>
         using var style = ImStyleSingle.FrameRounding.Push(0);
         Im.Item.SetNextWidth(availableRegion.X);
         var tmp = Text;
-        if (!Im.Input.Text("##Filter"u8, ref tmp, label) || !SetInternal(tmp))
-            return false;
-
-        InvokeEvent();
-        return true;
+        var ret = Im.Input.Text("##Filter"u8, ref tmp, label) && Set(tmp);
+        ret |= OnMiddleClick();
+        return ret;
     }
 
 
@@ -75,10 +73,20 @@ public abstract class TextFilterBase<TCacheItem> : IFilter<TCacheItem>
         => FilterChanged?.Invoke();
 
     /// <inheritdoc/>
-    public virtual void Clear()
+    public virtual bool Clear()
+        => Set(string.Empty);
+
+    /// <summary> Usually clearing on middle-click, including the tooltip. </summary>
+    /// <returns> True if the filter changed. </returns>
+    protected virtual bool OnMiddleClick()
     {
-        if (Set(string.Empty))
-            InvokeEvent();
+        if (Text.Length > 0)
+            Im.Tooltip.OnHover("Middle-click to clear filters.\n"u8);
+        if (!Im.Item.MiddleClicked())
+            return false;
+
+        Im.Id.ClearActive();
+        return Clear();
     }
 
     /// <inheritdoc/>

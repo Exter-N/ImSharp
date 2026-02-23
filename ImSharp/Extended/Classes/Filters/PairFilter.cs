@@ -7,6 +7,7 @@ public class PairFilter<TCacheItem> : IFilter<TCacheItem>
 {
     /// <summary> The first combined filter. </summary>
     public readonly IFilter<TCacheItem> Filter1;
+
     /// <summary> The second combined filter. </summary>
     public readonly IFilter<TCacheItem> Filter2;
 
@@ -45,11 +46,8 @@ public class PairFilter<TCacheItem> : IFilter<TCacheItem>
     }
 
     /// <inheritdoc/>
-    public void Clear()
-    {
-        Filter1.Clear();
-        Filter2.Clear();
-    }
+    public bool Clear()
+        => Filter1.Clear() | Filter2.Clear();
 
     /// <inheritdoc/>
     public bool IsEmpty

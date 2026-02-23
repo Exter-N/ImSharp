@@ -40,13 +40,10 @@ public abstract class TokenizedFilter<TTokenType, TCacheItem, TToken> : IFilter<
 
         Im.Item.SetNextWidth(availableRegion.X);
         var tmp = Text;
-        var ret = Im.Input.Text("##Filter"u8, ref tmp, label);
+        var ret = Im.Input.Text("##Filter"u8, ref tmp, label) && Set(tmp);
         DrawTooltip();
-        if (!ret || !SetInternal(tmp))
-            return false;
-
-        InvokeEvent();
-        return true;
+        ret |= OnMiddleClick();
+        return ret;
     }
 
     /// <summary> Invoke the <see cref="FilterChanged"/> event. </summary>
@@ -81,7 +78,7 @@ public abstract class TokenizedFilter<TTokenType, TCacheItem, TToken> : IFilter<
     }
 
     /// <inheritdoc/>
-    public virtual void Clear()
+    public virtual bool Clear()
         => Set(string.Empty);
 
 
@@ -162,6 +159,19 @@ public abstract class TokenizedFilter<TTokenType, TCacheItem, TToken> : IFilter<
         }
 
         return false;
+    }
+
+    /// <summary> Usually clearing on middle-click, including the tooltip. </summary>
+    /// <returns> True if the filter changed. </returns>
+    protected virtual bool OnMiddleClick()
+    {
+        if (Text.Length > 0)
+            Im.Tooltip.OnHover("\nMiddle-click to clear filters."u8);
+        if (!Im.Item.MiddleClicked())
+            return false;
+
+        Im.Id.ClearActive();
+        return Clear();
     }
 
     /// <summary> Parse the given input string into specialized tokens. </summary>

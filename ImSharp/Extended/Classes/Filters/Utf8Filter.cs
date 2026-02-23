@@ -34,13 +34,10 @@ public abstract class Utf8FilterBase<TCacheItem> : IFilter<TCacheItem>
         using var style = ImStyleSingle.FrameRounding.Push(0);
         Im.Item.SetNextWidth(availableRegion.X);
         var tmp = Text;
-        if (!Im.Input.Text("##Filter"u8, ref tmp, label) || !SetInternal(tmp))
-            return false;
-
-        InvokeEvent();
-        return true;
+        var ret = Im.Input.Text("##Filter"u8, ref tmp, label) && Set(tmp);
+        ret |= OnMiddleClick();
+        return ret;
     }
-
 
     /// <summary> Set the filter value when the text changes. </summary>
     /// <param name="text"> The new filter value. </param>
@@ -53,6 +50,19 @@ public abstract class Utf8FilterBase<TCacheItem> : IFilter<TCacheItem>
 
         Text = new StringU8(text, false);
         return true;
+    }
+
+    /// <summary> Usually clearing on middle-click, including the tooltip. </summary>
+    /// <returns> True if the filter changed. </returns>
+    protected virtual bool OnMiddleClick()
+    {
+        if (Text.Length > 0)
+            Im.Tooltip.OnHover("Middle-click to clear filters.\n"u8);
+        if (!Im.Item.MiddleClicked())
+            return false;
+
+        Im.Id.ClearActive();
+        return Clear();
     }
 
     /// <summary> Check if the text contains the filter text. </summary>
@@ -72,11 +82,8 @@ public abstract class Utf8FilterBase<TCacheItem> : IFilter<TCacheItem>
         => FilterChanged?.Invoke();
 
     /// <inheritdoc/>
-    public void Clear()
-    {
-        if (Set(StringU8.Empty))
-            InvokeEvent();
-    }
+    public bool Clear()
+        => Set(StringU8.Empty);
 
     /// <inheritdoc/>
     public bool IsEmpty
