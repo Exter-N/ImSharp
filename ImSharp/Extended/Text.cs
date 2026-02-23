@@ -105,7 +105,7 @@ public static partial class ImEx
         return offset;
     }
 
-    /// <summary> Draw the given text horizontally centered in the current content region. </summary>
+    /// <summary> Draw the given text horizontally centered in the currently remaining available content region. </summary>
     /// <param name="text"> The given text. Does not have to be null-terminated. </param>
     /// <param name="knownWidth"> If the width of the text is already known, you can pass it here. If this is non-positive, the width will be calculated. </param>
     [MethodImpl(ImSharpConfiguration.Inl)]
@@ -116,7 +116,7 @@ public static partial class ImEx
     public static void TextCentered<T>(ref Utf8StringHandler<T> text, float knownWidth = 0) where T : IStringHandlerBuffer
     {
         var size      = knownWidth is 0 ? Im.Font.CalculateSize(ref text, false).X : knownWidth;
-        var available = Im.ContentRegion.Maximum.X;
+        var available = Im.ContentRegion.Available.X;
         Im.Cursor.X += (available - size) / 2;
         Im.Text(ref text);
     }
