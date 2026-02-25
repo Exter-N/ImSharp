@@ -31,5 +31,5 @@ public static partial class ImEx
     /// <param name="value"> The input and output value of the checkbox. </param>
     /// <returns> True if the checkbox has been clicked in this frame, in which case <paramref name="value"/> will be flipped. </returns>
     public static bool TwoStateCheckbox(Utf8LabelHandler label, ref bool value)
-        => ImSharp.XCheckbox.Instance.Draw(label, ref value);
+        => ImSharp.TwoStateCheckbox.Instance.Draw(label, ref value);
 }
