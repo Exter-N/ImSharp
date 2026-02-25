@@ -43,7 +43,7 @@ public static partial class ImEx
         var startPos        = Im.Cursor.Position;
 
         // Start drawing icons. There is at least one visible.
-        Im.Line.Same(iconStart, 0);
+        Im.Cursor.X = iconStart;
         // Spare some work by just pushing the font and styles once instead of per icon.
         using (var font = Im.Font.Push(TIcon.Font))
         {

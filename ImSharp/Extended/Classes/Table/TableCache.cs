@@ -60,7 +60,7 @@ public class TableCache<TCacheItem>(TableData<TCacheItem> parent) : FilterCache<
 
         // Widths have been updated when fetching the cache, set up columns.
         foreach (var (header, width) in Parent.Columns.Zip(HeaderDefaultWidths))
-            table.SetupColumn(header.Label, header.Flags, width);
+            table.SetupColumn(header.Label, header.Flags | TableColumnFlags.WidthFixed, width);
 
         // Draw the headers and filters, count visible columns.
         table.NextRow(TableRowFlags.Headers);
