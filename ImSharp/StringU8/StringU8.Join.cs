@@ -35,7 +35,7 @@ public readonly partial struct StringU8
 
         strings.Last()._value.CopyTo(array.AsMemory(idx));
 
-        return new StringU8(array);
+        return new StringU8(array.AsMemory(..^1));
     }
 
     /// <inheritdoc cref="Join(byte,IReadOnlyCollection{StringU8})"/>
@@ -62,7 +62,7 @@ public readonly partial struct StringU8
 
         strings.Last()._value.CopyTo(array.AsMemory(idx));
 
-        return new StringU8(array);
+        return new StringU8(array.AsMemory(..^1));
     }
 
     /// <inheritdoc cref="Join(byte,IReadOnlyCollection{StringU8})"/>
