@@ -22,9 +22,9 @@ public readonly partial struct StringU8
             case 1: return strings.First();
         }
 
-        var size  = (strings.Count - 1) * strings.Sum(s => s.Length) + 1;
+        var size  = strings.Count + strings.Sum(s => s.Length);
         var array = new byte[size];
-        array[size] = 0;
+        array[^1] = 0;
         var idx = 0;
         foreach (var word in strings.SkipLast(1))
         {
@@ -48,9 +48,9 @@ public readonly partial struct StringU8
             case 1: return strings.First();
         }
 
-        var size  = (strings.Count - 1) * separator.Length * strings.Sum(s => s.Length) + 1;
+        var size  = (strings.Count - 1) * separator.Length + strings.Sum(s => s.Length) + 1;
         var array = new byte[size];
-        array[size] = 0;
+        array[^1] = 0;
         var idx = 0;
         foreach (var word in strings.SkipLast(1))
         {

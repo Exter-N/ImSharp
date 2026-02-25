@@ -17,7 +17,7 @@ public class StringU8ConverterNewtonSoft : JsonConverter<StringU8>
     public override StringU8 ReadJson(JsonReader reader, Type objectType, StringU8 existingValue, bool hasExistingValue,
         JsonSerializer serializer)
     {
-        var text = reader.ReadAsString();
+        var text = serializer.Deserialize<string>(reader);
         if (text is null)
             return hasExistingValue ? existingValue : StringU8.Empty;
 
