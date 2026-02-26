@@ -4,7 +4,7 @@ namespace ImSharp;
 /// <typeparam name="TCacheItem"> The type of the cache items to draw. </typeparam>
 /// <param name="parent"> The combo object this cache is created for. </param>
 public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent)
-    : FilterCache<TCacheItem>
+    : BasicFilterCache<TCacheItem>(parent.Filter)
 {
     /// <summary> The parent filter combo using this cache. </summary>
     protected readonly FilterComboBase<TCacheItem> Parent = parent;
@@ -94,6 +94,8 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
         {
             Im.Popup.CloseCurrent();
             Parent.OnPopupClosed();
+            if (Parent.ClearFilterOnSelection)
+                Parent.Filter.Clear();
             ClosePopup = false;
         }
 
@@ -135,10 +137,6 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
 
         CurrentGlobalSelectionIndex = -1;
     }
-
-    /// <summary> Use the parents function to filter. </summary>
-    protected override bool WouldBeVisible(in TCacheItem item, int globalIndex)
-        => Parent.Filter.WouldBeVisible(item, globalIndex);
 
     /// <summary> Use the parents function to get the items. </summary>
     protected override IEnumerable<TCacheItem> GetItems()
@@ -236,10 +234,7 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
     protected override void Dispose(bool disposing)
     {
         if (Parent.ClearFilterOnCacheDisposal)
-        {
             Parent.Filter.Clear();
-            FilterDirty = true;
-        }
 
         base.Dispose(disposing);
     }

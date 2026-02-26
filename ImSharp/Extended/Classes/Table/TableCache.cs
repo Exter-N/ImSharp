@@ -1,5 +1,3 @@
-using static FFXIVClientStructs.FFXIV.Client.LayoutEngine.LayoutManager;
-
 namespace ImSharp.Table;
 
 /// <summary> The base implementation of a table cache, used to store a table's pre-processed data and it's filters as long as it is active. </summary>

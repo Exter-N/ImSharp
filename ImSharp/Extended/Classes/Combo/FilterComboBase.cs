@@ -38,18 +38,21 @@ public abstract class FilterComboBase()
     /// <summary> The alignment of the text inside the preview button. </summary>
     public Vector2 PreviewAlignment { get; set; }
 
-    /// <summary> Whether the width of the combo popup depends on the displayed items and should be computed. </summary>
-    /// <remarks> If this is false, the preview width is used for the popup window too. </remarks>
-    public bool ComputeWidth { get; init; }
+    public TimeSpan CacheLifetime { get; init; } = TimeSpan.FromSeconds(10);
 
     /// <summary> The maximum number of items to display in the expanded combo list. </summary>
     public int MaximumItems { get; init; } = 12;
 
+    /// <summary> Whether the width of the combo popup depends on the displayed items and should be computed. </summary>
+    /// <remarks> If this is false, the preview width is used for the popup window too. </remarks>
+    public bool ComputeWidth { get; init; }
+
     /// <summary> Whether the filter should be cleared whenever the selection is updated. </summary>
-    public bool ClearFilterOnSelection { get; init; }
+    public bool ClearFilterOnSelection { get; set; }
 
     /// <summary> Whether the filter should be cleared whenever the combo cache is disposed. </summary>
-    public bool ClearFilterOnCacheDisposal { get; init; } = true;
+    public bool ClearFilterOnCacheDisposal { get; set; } = true;
+
 
     /// <summary> The ID used for the cache. </summary>
     protected ImGuiId CurrentId;
@@ -128,6 +131,13 @@ public abstract class FilterComboBase<TCacheItem> : FilterComboBase
     /// <returns> True if the item is currently selected. </returns>
     /// <remarks> Also used to compute the index of the currently selected item on appearing. </remarks>
     protected internal abstract bool IsSelected(TCacheItem item, int globalIndex);
+
+    private FilterComboBaseCache<TCacheItem> CreateCacheInternal()
+    {
+        var ret = CreateCache();
+        ret.KeepAliveDuration = CacheLifetime;
+        return ret;
+    }
 
     /// <summary> Create the cache used to draw the expanded combo list. </summary>
     protected virtual FilterComboBaseCache<TCacheItem> CreateCache()
@@ -230,7 +240,7 @@ public abstract class FilterComboBase<TCacheItem> : FilterComboBase
     protected virtual bool DrawComboPopup([NotNullWhen(true)] out TCacheItem? ret)
     {
         using var style = Im.Style.PushDefault(ImStyleDouble.FramePadding);
-        var       cache = CacheManager.Instance.GetOrCreateCache(CurrentId, CreateCache);
+        var       cache = CacheManager.Instance.GetOrCreateCache(CurrentId, CreateCacheInternal);
         // If the filter is changed, set it dirty for the next frame.
         if (DrawFilter(Im.Window.Width, cache))
             cache.Dirty |= IManagedCache.DirtyFlags.Custom;
@@ -289,7 +299,7 @@ public abstract class FilterComboBase<TCacheItem> : FilterComboBase
             var delta = (int)Im.Io.MouseWheel;
             if (delta is not 0)
             {
-                var cache = CacheManager.Instance.GetOrCreateCache(CurrentId, CreateCache);
+                var cache = CacheManager.Instance.GetOrCreateCache(CurrentId, CreateCacheInternal);
                 if (cache.HandleMouseWheel(delta, out var newIndex))
                 {
                     ret = cache.AllItems[newIndex]!;
