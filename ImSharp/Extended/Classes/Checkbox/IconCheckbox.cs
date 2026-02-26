@@ -68,7 +68,7 @@ public static partial class ImEx
     /// <inheritdoc cref="IconCheckbox{TIcon}.Draw(Utf8LabelHandler,TIcon,ref bool)"/>
     public static bool IconCheckbox<TIcon>(Utf8LabelHandler label, TIcon icon, ref bool value)
         where TIcon : unmanaged, IIconStandIn
-        => ImSharp.IconCheckbox<TIcon>.Instance.Draw(label, ref value);
+        => ImSharp.IconCheckbox<TIcon>.Instance.Draw(label, icon, ref value);
 
     /// <inheritdoc cref="IconCheckbox{TIcon}.Draw(Utf8LabelHandler,TIcon,Rgba32,ref bool)"/>
     public static bool IconCheckbox<TIcon>(Utf8LabelHandler label, TIcon icon, Rgba32 color, ref bool value)
