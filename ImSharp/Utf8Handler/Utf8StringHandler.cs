@@ -222,9 +222,8 @@ public unsafe ref struct Utf8StringHandler<T> where T : IStringHandlerBuffer
     internal static Utf8StringHandler<T> FromInline<TBacking>(in InlineStringU8<TBacking> str)
         where TBacking : unmanaged, IBinaryInteger<TBacking>
     {
-        var bytes = str.GetBytes();
-        // If the inline string is null-terminated, don't make a copy.
-        if (bytes.Length < InlineStringU8<TBacking>.Capacity)
+        var bytes = str.GetBytes(out var isNullTerminated);
+        if (isNullTerminated)
             return new Utf8StringHandler<T>(bytes);
 
         var handler = new Utf8StringHandler<T>(0, 1, out var shouldAppend);

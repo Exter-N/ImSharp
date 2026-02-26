@@ -263,6 +263,25 @@ public struct InlineStringU8<TBacking>(TBacking value)
     public readonly bool ContainsCaseInsensitive(ReadOnlySpan<byte> other)
         => this.AsReadOnlyBytes().ContainsCaseInsensitive(other);
 
+    /// <summary>
+    /// Puts this string into a different backing primitive.
+    /// If the destination primitive is too small, the excess bytes will be truncated. 
+    /// </summary>
+    /// <typeparam name="TDestination"> The destination backing primitive type. </typeparam>
+    /// <returns> This string in the desired backing primitive, if it fits. Otherwise, the starting part that fits. </returns>
+    public readonly InlineStringU8<TDestination> IntoTruncating<TDestination>() where TDestination : unmanaged, IBinaryInteger<TDestination>
+        => new(TDestination.CreateTruncating(Value));
+
+    /// <summary>
+    /// Puts this string into a different backing primitive.
+    /// If the destination primitive is too small, an exception will be thrown. 
+    /// </summary>
+    /// <typeparam name="TDestination"> The destination backing primitive type. </typeparam>
+    /// <returns> This string in the desired backing primitive. </returns>
+    /// <exception cref="OverflowException"> This string is too long for the desired backing primitive. </exception>
+    public readonly InlineStringU8<TDestination> IntoChecked<TDestination>() where TDestination : unmanaged, IBinaryInteger<TDestination>
+        => new(TDestination.CreateChecked(Value));
+
     /// <summary> Clears all the bytes in the backing primitive that are past the string's null terminator. </summary>
     [MethodImpl(ImSharpConfiguration.OptInl)]
     public void TruncateExcess()
@@ -537,5 +556,15 @@ public static class InlineStringU8Extensions
         /// <returns> A span over the bytes of the inline string. </returns>
         public ReadOnlySpan<byte> GetBytes()
             => value.AsReadOnlyBytes()[..value.Length];
+
+        /// <summary> Gets a read-only span over the bytes of an inline string, stopping at the null terminator. </summary>
+        /// <param name="isNullTerminated"> On return, whether there is a null terminator just after the returned span. </param>
+        /// <returns> A span over the bytes of the inline string. </returns>
+        public unsafe ReadOnlySpan<byte> GetBytes(out bool isNullTerminated)
+        {
+            var length = value.Length;
+            isNullTerminated = length < sizeof(TBacking);
+            return value.AsReadOnlyBytes()[..length];
+        }
     }
 }
