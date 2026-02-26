@@ -45,7 +45,7 @@ public struct InlineStringU8<TBacking>(TBacking value)
         {
             var byteScanPattern = GetByteScanPattern();
             var nullBytes       = ~(((Value & byteScanPattern) + byteScanPattern) | Value | byteScanPattern);
-            return int.CreateSaturating(TBacking.TrailingZeroCount(nullBytes) >> 3);
+            return int.CreateTruncating(TBacking.TrailingZeroCount(nullBytes) >> 3);
         }
     }
 
@@ -568,3 +568,4 @@ public static class InlineStringU8Extensions
         }
     }
 }
+
