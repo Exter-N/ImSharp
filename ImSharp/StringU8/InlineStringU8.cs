@@ -10,8 +10,8 @@ namespace ImSharp;
 /// If this is not an unsigned integer primitive from the Base Class Library, the behavior is undefined.
 /// </typeparam>
 /// <remarks>
-/// This structure works best when all the bytes past the null terminator are also null (see also <see cref="TruncateExcess"/>), even though it
-/// tries to behave sensibly when this is not the case. <br />
+/// This structure works best when all the bytes past the null terminator are also null (see also <see cref="TruncateExcess"/>),
+/// even though it tries to behave sensibly when this is not the case. <br />
 /// Likewise, the methods and operators that accept spans work best when those spans do not contain null bytes. <br />
 /// UTF8 well-formedness is the caller's responsibility.
 /// </remarks>
