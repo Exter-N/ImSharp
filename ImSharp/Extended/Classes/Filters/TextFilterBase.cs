@@ -81,7 +81,7 @@ public abstract class TextFilterBase<TCacheItem> : IFilter<TCacheItem>
     protected virtual bool OnMiddleClick()
     {
         if (Text.Length > 0)
-            Im.Tooltip.OnHover("Middle-click to clear filters.\n"u8);
+            Im.Tooltip.OnHover("Middle-click to clear filters.\n"u8, true);
         if (!Im.Item.MiddleClicked())
             return false;
 
