@@ -311,9 +311,14 @@ public abstract class TokenizedFilter<TTokenType, TCacheItem, TToken> : IFilter<
             General.Clear();
         }
 
-        TToken.ProcessList(General);
-        TToken.ProcessList(Forced);
-        TToken.ProcessList(Negated);
+        if (TToken.ProcessList(Forced,  TokenModifier.Forced)
+         || TToken.ProcessList(General, TokenModifier.General)
+         || TToken.ProcessList(Negated, TokenModifier.Negated))
+        {
+            State = FilterState.NoMatches;
+            return;
+        }
+
         // Check if we have any filters.
         State = General.Count is 0 && Forced.Count is 0 && Negated.Count is 0 && None.Count is 0
             ? FilterState.NoFilters
