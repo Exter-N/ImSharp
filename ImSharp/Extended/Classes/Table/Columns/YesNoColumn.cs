@@ -1,23 +1,8 @@
 namespace ImSharp.Table;
 
-/// <summary> Shared base data for <see cref="YesNoColumn{TCacheItem}"/>. </summary>
-public static class YesNoColumn
-{
-    /// <summary> A flag indicating yes or no for wrapping <see cref="TriStateFlagColumn{TEnum,TCacheItem}"/>. </summary>
-    [Flags]
-    public enum YesNoFlag
-    {
-        Yes = 0x01,
-        No  = 0x02,
-    };
-
-    /// <summary> Both yes and no flags together. </summary>
-    public const YesNoFlag YesOrNo = YesNoFlag.Yes | YesNoFlag.No;
-}
-
 /// <summary> A column that can display a checkmark or a cross and filter for both options. </summary>
 /// <typeparam name="TCacheItem"> The type of the cached transformation of the items to display. </typeparam>
-public abstract class YesNoColumn<TCacheItem> : TriStateFlagColumn<YesNoColumn.YesNoFlag, TCacheItem>
+public abstract class YesNoColumn<TCacheItem> : TriStateFlagColumn<YesNoFlag, TCacheItem>
 {
     /// <summary> The color to use for the checkmark representing true. </summary>
     protected virtual Rgba32 YesColor
@@ -34,7 +19,7 @@ public abstract class YesNoColumn<TCacheItem> : TriStateFlagColumn<YesNoColumn.Y
     protected YesNoColumn()
         => Filter = new YesNoFilter(this)
         {
-            AllFlags = YesNoColumn.YesNoFlag.Yes | YesNoColumn.YesNoFlag.No,
+            AllFlags = YesNoFlag.Yes | YesNoFlag.No,
         };
 
     /// <summary> The width can always be given by twice the frame height. </summary>
@@ -63,28 +48,25 @@ public abstract class YesNoColumn<TCacheItem> : TriStateFlagColumn<YesNoColumn.Y
     }
 
     /// <inheritdoc/>
-    protected override IReadOnlyList<(YesNoColumn.YesNoFlag On, YesNoColumn.YesNoFlag Off, StringU8 Name)> TriEnumData
-        => [(YesNoColumn.YesNoFlag.Yes, YesNoColumn.YesNoFlag.No, FilterLabel)];
+    /// <remarks> Should not be called. </remarks>
+    protected override IReadOnlyList<(YesNoFlag On, YesNoFlag Off, StringU8 Name)> TriEnumData
+        => [(YesNoFlag.Yes, YesNoFlag.No, FilterLabel)];
 
     protected override StringU8 DisplayString(in TCacheItem item, int globalIndex)
         => StringU8.Empty;
 
-    protected class YesNoFilter(TriStateFlagColumn<YesNoColumn.YesNoFlag, TCacheItem> parent) : TriStateFlagFilter(parent)
+    protected class YesNoFilter : YesNoFilter<TCacheItem>
     {
-        /// <inheritdoc/>
-        protected override bool SetValue(YesNoColumn.YesNoFlag onValue, YesNoColumn.YesNoFlag offValue, bool? enable)
-        {
-            var newFilter = enable switch
-            {
-                null  => AllFlags,
-                true  => YesNoColumn.YesNoFlag.Yes,
-                false => YesNoColumn.YesNoFlag.No,
-            };
-            if (FilterValue == newFilter)
-                return false;
+        private readonly YesNoColumn<TCacheItem> _parent;
 
-            FilterValue = newFilter;
-            return true;
+        public YesNoFilter(YesNoColumn<TCacheItem> parent)
+        {
+            _parent     = parent;
+            FilterLabel = parent.FilterLabel;
         }
+
+        // <inheritdoc/>
+        public override bool GetValue(in TCacheItem item, int globalIndex, int triEnumIndex)
+            => _parent.GetValue(item, globalIndex, triEnumIndex);
     }
 }
