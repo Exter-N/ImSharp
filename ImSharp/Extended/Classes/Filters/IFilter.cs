@@ -1,15 +1,8 @@
 namespace ImSharp;
 
-/// <summary> An interface representing a filter for arbitrary items. </summary>
-/// <typeparam name="TCacheItem"> The type of the item. </typeparam>
-public interface IFilter<TCacheItem>
+/// <summary> An interface any filter. </summary>
+public interface IFilter
 {
-    /// <summary> Whether an item should be visible or filtered out according to this filter. </summary>
-    /// <param name="item"> The item to check. </param>
-    /// <param name="globalIndex"> The index of the item to check, if applicable. </param>
-    /// <returns> True if the item should be visible, false if it should be filtered out. </returns>
-    public bool WouldBeVisible(in TCacheItem item, int globalIndex);
-
     /// <summary> An event fired whenever this filter changes in any way. </summary>
     public event Action FilterChanged;
 
@@ -30,4 +23,15 @@ public interface IFilter<TCacheItem>
 
     /// <summary> Whether the filter is currently empty, in which case nothing would be filtered out and everything is visible. </summary>
     public bool IsEmpty { get; }
+}
+
+/// <summary> An interface representing a filter for arbitrary items. </summary>
+/// <typeparam name="TCacheItem"> The type of the item. </typeparam>
+public interface IFilter<TCacheItem> : IFilter
+{
+    /// <summary> Whether an item should be visible or filtered out according to this filter. </summary>
+    /// <param name="item"> The item to check. </param>
+    /// <param name="globalIndex"> The index of the item to check, if applicable. </param>
+    /// <returns> True if the item should be visible, false if it should be filtered out. </returns>
+    public bool WouldBeVisible(in TCacheItem item, int globalIndex);
 }
