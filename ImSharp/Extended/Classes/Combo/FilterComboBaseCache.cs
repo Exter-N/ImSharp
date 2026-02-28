@@ -99,6 +99,9 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
             ClosePopup = false;
         }
 
+        if (ret)
+            CurrentGlobalSelectionIndex = -1;
+
         return ret;
     }
 

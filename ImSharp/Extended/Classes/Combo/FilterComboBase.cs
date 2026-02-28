@@ -250,7 +250,6 @@ public abstract class FilterComboBase<TCacheItem> : FilterComboBase
         {
             PostDrawList();
             ret = cache.AllItems[globalIndex]!;
-
             // Clear the filter on selection change given the setting.
             if (ClearFilterOnSelection)
             {
