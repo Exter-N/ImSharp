@@ -17,7 +17,13 @@ public struct StringPair(string? utf16, StringU8 utf8)
         get
         {
             if (field.IsNull)
+            {
+                if (_utf16 is null)
+                    throw new InvalidOperationException("Both variants of the StringPair are null");
+
                 field = new StringU8(Utf16);
+            }
+
             return field;
         }
     } = utf8;
