@@ -16,15 +16,14 @@ public static partial class Im
         public static bool Text(Utf8LabelHandler label, Span<byte> buffer, out StringU8 result, Utf8HintHandler hint = default,
             InputTextFlags flags = InputTextFlags.None)
         {
-            var length = 0ul;
-            if (Text(label.Start(), buffer.Start(), (uint)buffer.Length, hint.Start(), flags, &length))
+            if (!Text(label.Start(), buffer.Start(), (uint)buffer.Length, hint.Start(), flags))
             {
-                result = buffer[..(int)length].CloneNullTerminated();
-                return true;
+                result = StringU8.Empty;
+                return false;
             }
 
-            result = StringU8.Empty;
-            return false;
+            result = buffer[..Context.Pointer->InputTextState.CurrentLengthA].CloneNullTerminated();
+            return true;
         }
 
         /// <summary> Draw a text input. </summary>
@@ -39,10 +38,16 @@ public static partial class Im
         public static bool Text(Utf8LabelHandler label, Span<byte> buffer, out ulong length, Utf8HintHandler hint = default,
             InputTextFlags flags = InputTextFlags.None, uint maxLength = uint.MaxValue)
         {
-            length = 0ul;
             if (maxLength >= buffer.Length)
                 maxLength = (uint)buffer.Length;
-            return Text(label.Start(), buffer.Start(), maxLength, hint.Start(), flags, (ulong*)Unsafe.AsPointer(ref length));
+            if (!Text(label.Start(), buffer.Start(), maxLength, hint.Start(), flags))
+            {
+                length = 0;
+                return false;
+            }
+
+            length = (ulong)Context.Pointer->InputTextState.CurrentLengthA;
+            return true;
         }
 
         /// <summary> Draw a text input. </summary>
@@ -56,14 +61,15 @@ public static partial class Im
         public static bool Text(Utf8LabelHandler label, ref string text, Utf8HintHandler hint = default,
             InputTextFlags flags = InputTextFlags.None, uint maxLength = uint.MaxValue)
         {
-            text.AsSpan().CopyInto<InputStringHandlerBuffer>(out _);
-            var length = 0ul;
-            if (maxLength >= InputStringHandlerBuffer.Size)
-                maxLength = (uint)InputStringHandlerBuffer.Size;
-            var ret = Text(label.Start(), InputStringHandlerBuffer.Buffer, maxLength, hint.Start(), flags, &length);
-            if (Item.Edited)
-                text = Encoding.UTF8.GetString(new ReadOnlySpan<byte>(InputStringHandlerBuffer.Buffer, (int)length));
-            return ret;
+            text.AsSpan().CopyInto<TextStringHandlerBuffer>(out _);
+            if (maxLength >= TextStringHandlerBuffer.Size)
+                maxLength = (uint)TextStringHandlerBuffer.Size;
+            if (!Text(label.Start(), TextStringHandlerBuffer.Buffer, maxLength, hint.Start(), flags))
+                return false;
+
+            text = Encoding.UTF8.GetString(new ReadOnlySpan<byte>(TextStringHandlerBuffer.Buffer,
+                Context.Pointer->InputTextState.CurrentLengthA));
+            return true;
         }
 
         /// <summary> Draw a text input. </summary>
@@ -77,14 +83,14 @@ public static partial class Im
         public static bool Text(Utf8LabelHandler label, ref StringU8 text, Utf8HintHandler hint = default,
             InputTextFlags flags = InputTextFlags.None, uint maxLength = uint.MaxValue)
         {
-            text.Span.CopyInto<InputStringHandlerBuffer>();
-            var length = 0ul;
-            if (maxLength >= InputStringHandlerBuffer.Size)
-                maxLength = (uint)InputStringHandlerBuffer.Size;
-            var ret = Text(label.Start(), InputStringHandlerBuffer.Buffer, maxLength, hint.Start(), flags, &length);
-            if (Item.Edited)
-                text = new StringU8(new ReadOnlySpan<byte>(InputStringHandlerBuffer.Buffer, (int)length), false);
-            return ret;
+            text.Span.CopyInto<TextStringHandlerBuffer>();
+            if (maxLength >= TextStringHandlerBuffer.Size)
+                maxLength = (uint)TextStringHandlerBuffer.Size;
+            if (!Text(label.Start(), TextStringHandlerBuffer.Buffer, maxLength, hint.Start(), flags))
+                return false;
+
+            text = new StringU8(new ReadOnlySpan<byte>(TextStringHandlerBuffer.Buffer, Context.Pointer->InputTextState.CurrentLengthA), false);
+            return true;
         }
 
         /// <summary> Draw a text input of a specific size spanning multiple lines. </summary>
@@ -98,11 +104,9 @@ public static partial class Im
         public static bool MultiLine(Utf8LabelHandler label, Span<byte> buffer, out StringU8 result, Vector2 size = default,
             InputTextFlags flags = InputTextFlags.None)
         {
-            var length = 0ul;
-            if (Native.Methods.Inputs.InputTextMultiline(label.Start(), buffer.Start(), (ulong)buffer.Length, size, flags, &GetTextLength,
-                    &length))
+            if (Native.Methods.Inputs.InputTextMultiline(label.Start(), buffer.Start(), (ulong)buffer.Length, size, flags, null, null))
             {
-                result = buffer[..(int)length].CloneNullTerminated();
+                result = buffer[..Context.Pointer->InputTextState.CurrentLengthA].CloneNullTerminated();
                 return true;
             }
 
@@ -121,9 +125,15 @@ public static partial class Im
         public static bool MultiLine(Utf8LabelHandler label, Span<byte> buffer, out ulong length, Vector2 size = default,
             InputTextFlags flags = InputTextFlags.None)
         {
-            length = 0ul;
-            return Native.Methods.Inputs.InputTextMultiline(label.Start(), buffer.Start(), (ulong)buffer.Length, size, flags | InputTextFlags.CallbackAlways,
-                &GetTextLength, (ulong*)Unsafe.AsPointer(ref length));
+            if (!Native.Methods.Inputs.InputTextMultiline(label.Start(), buffer.Start(), (ulong)buffer.Length, size,
+                    flags | InputTextFlags.CallbackAlways, null, null))
+            {
+                length = 0;
+                return false;
+            }
+
+            length = (ulong)Context.Pointer->InputTextState.CurrentLengthA;
+            return true;
         }
 
         /// <summary> Draw a text input of a specific size spanning multiple lines. </summary>
@@ -136,13 +146,13 @@ public static partial class Im
         public static bool MultiLine(Utf8LabelHandler label, ref StringU8 text, Vector2 size = default,
             InputTextFlags flags = InputTextFlags.None)
         {
-            text.Span.CopyInto<InputStringHandlerBuffer>();
-            var length = 0ul;
-            var ret = Native.Methods.Inputs.InputTextMultiline(label.Start(), InputStringHandlerBuffer.Buffer,
-                (ulong)InputStringHandlerBuffer.Size, size, flags | InputTextFlags.CallbackAlways, &GetTextLength, &length);
-            if (Item.Edited)
-                text = new StringU8(new ReadOnlySpan<byte>(InputStringHandlerBuffer.Buffer, (int)length), false);
-            return ret;
+            text.Span.CopyInto<TextStringHandlerBuffer>();
+            if (!Native.Methods.Inputs.InputTextMultiline(label.Start(), TextStringHandlerBuffer.Buffer,
+                    (ulong)TextStringHandlerBuffer.Size, size, flags | InputTextFlags.CallbackAlways, null, null))
+                return false;
+
+            text = new StringU8(new ReadOnlySpan<byte>(TextStringHandlerBuffer.Buffer, Context.Pointer->InputTextState.CurrentLengthA), false);
+            return true;
         }
 
         /// <summary> Draw a text input of a specific size spanning multiple lines. </summary>
@@ -155,13 +165,14 @@ public static partial class Im
         public static bool MultiLine(Utf8LabelHandler label, ref string text, Vector2 size = default,
             InputTextFlags flags = InputTextFlags.None)
         {
-            text.AsSpan().CopyInto<InputStringHandlerBuffer>(out _);
-            var length = 0ul;
-            var ret = Native.Methods.Inputs.InputTextMultiline(label.Start(), InputStringHandlerBuffer.Buffer,
-                (ulong)InputStringHandlerBuffer.Size, size, flags | InputTextFlags.CallbackAlways, &GetTextLength, &length);
-            if (Item.Edited)
-                text = Encoding.UTF8.GetString(new ReadOnlySpan<byte>(InputStringHandlerBuffer.Buffer, (int)length));
-            return ret;
+            text.AsSpan().CopyInto<TextStringHandlerBuffer>(out _);
+            if (!Native.Methods.Inputs.InputTextMultiline(label.Start(), TextStringHandlerBuffer.Buffer, (ulong)TextStringHandlerBuffer.Size,
+                    size, flags, null, null))
+                return false;
+
+            text = Encoding.UTF8.GetString(new ReadOnlySpan<byte>(TextStringHandlerBuffer.Buffer,
+                Context.Pointer->InputTextState.CurrentLengthA));
+            return true;
         }
 
         /// <summary> Draw a text input for numerical values, with optional +/- buttons. </summary>
@@ -255,20 +266,11 @@ public static partial class Im
             return [];
         }
 
-        [UnmanagedCallersOnly]
-        internal static int GetTextLength(Native.InputTextCallbackData* data)
-        {
-            *(int*)data->UserData = data->BufferTextLength;
-            return 0;
-        }
-
         /// <summary> Handle the hint and text length callback. </summary>
         [MethodImpl(ImSharpConfiguration.OptInl)]
-        internal static bool Text(byte* label, byte* buffer, uint bufferLength, byte* hint, InputTextFlags flags, ulong* textLength)
+        internal static bool Text(byte* label, byte* buffer, uint bufferLength, byte* hint, InputTextFlags flags)
             => *hint is 0
-                ? Native.Methods.Inputs.InputText(label, buffer, bufferLength, flags | InputTextFlags.CallbackAlways,
-                    &GetTextLength, textLength)
-                : Native.Methods.Inputs.InputTextWithHint(label, hint, buffer, bufferLength, flags | InputTextFlags.CallbackAlways,
-                    &GetTextLength, textLength);
+                ? Native.Methods.Inputs.InputText(label, buffer, bufferLength, flags, null, null)
+                : Native.Methods.Inputs.InputTextWithHint(label, hint, buffer, bufferLength, flags, null, null);
     }
 }

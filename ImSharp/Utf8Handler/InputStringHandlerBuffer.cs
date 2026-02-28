@@ -2,6 +2,13 @@ namespace ImSharp;
 
 public unsafe struct InputStringHandlerBuffer : IStringHandlerBuffer
 {
+    /// <summary>
+    ///   A temporary storage string for <see cref="ImEx.InputOnDeactivation"/> text inputs,
+    ///   so that one is able to deactivate an input by activating another input that is drawn earlier.
+    ///   It is reset to null at the beginning of every frame by <see cref="ImSharpPerFrame.OnUpdate"/>.
+    /// </summary>
+    public static StringU8 FrameStorageString = StringU8.Null;
+
     public static int Size
         => ImSharpConfiguration.Context->InputBufferSize;
 
@@ -22,7 +29,14 @@ public unsafe struct InputStringHandlerBuffer : IStringHandlerBuffer
     public static Span<byte> GetInputSpan(ImGuiId id, ref Utf8TextHandler input)
     {
         if (id.ActivePreviousFrame)
-            return Span;
+        {
+            if (FrameStorageString.IsNull)
+                return Span;
+
+            // This is safe since the string is an allocated and owned byte[] if it exists.
+            var span = FrameStorageString.Span;
+            return Unsafe.As<ReadOnlySpan<byte>, Span<byte>>(ref span);
+        }
 
         var begin = input.Start(out var end);
         if (begin != TextStringHandlerBuffer.Buffer)
@@ -35,18 +49,25 @@ public unsafe struct InputStringHandlerBuffer : IStringHandlerBuffer
         return TextStringHandlerBuffer.Span;
     }
 
-    /// <summary> Copy the current data over to the input buffer and set the ID. </summary>
-    /// <param name="buffer"> The current data. </param>
-    public static void SetActive(ReadOnlySpan<byte> buffer)
+    /// <summary> Using the current state data queried before and the result of the input method, return and prepare the data for active widgets. </summary>
+    /// <param name="buffer"> The buffer passed to ImGui. </param>
+    /// <param name="copyBuffer"> Whether the buffer might need to be copied (the input function returned true or the item activated). </param>
+    /// <param name="saveTemp"> Whether we had a different input active before and need to store its data. </param>
+    /// <param name="oldLength"> The length of the prior input, if any. </param>
+    /// <param name="newLength"> The length of the text after the input function. </param>
+    /// <returns> True if the input was deactivated this frame after being edited any time. </returns>
+    public static bool ReturnActive(byte* buffer, bool copyBuffer, bool saveTemp, int oldLength, out int newLength)
     {
-        var ptr    = buffer.Start();
-        var ownPtr = Buffer;
-        if (ptr == ownPtr)
-            return;
+        newLength = Im.Context.Pointer->InputTextState.CurrentLengthA;
+        if (copyBuffer && buffer != Buffer)
+        {
+            if (saveTemp)
+                FrameStorageString = new StringU8(Span[..oldLength], false);
 
-        while (*ptr++ is not 0)
-            *ownPtr++ = *ptr;
+            TextStringHandlerBuffer.Span[..newLength].CopyTo(Span);
+            Buffer[newLength] = 0;
+        }
 
-        *ownPtr = 0;
+        return Im.Item.DeactivatedAfterEdit;
     }
 }

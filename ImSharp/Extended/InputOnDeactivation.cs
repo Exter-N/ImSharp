@@ -8,19 +8,6 @@ public static partial class ImEx
         /// <summary> A text input that only returns true when the item was deactivated this frame and edited, not on every edit. </summary>
         /// <param name="label"> The label as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
         /// <param name="input"> The input string as text. Does not have to be null-terminated. </param>
-        /// <param name="newLength"> The new length of the resulting string that is stored within <seealso cref="InputStringHandlerBuffer"/> while this is active up until another text input activates. </param>
-        /// <param name="hint"> An optional hint to display in the input box while it is empty. </param>
-        /// <param name="flags"> Additional flags controlling the input behavior. </param>
-        /// <param name="maxLength"> The maximum length of the string. </param>
-        /// <returns> True when the control has been active, edited and was deactivated this frame. False otherwise. </returns>
-        /// <remarks> Changing <paramref name="input"/> across frames while this is active will not have an effect. </remarks>
-        public static bool Text(Utf8LabelHandler label, Utf8TextHandler input, out int newLength, Utf8HintHandler hint = default,
-            InputTextFlags flags = InputTextFlags.None, uint maxLength = uint.MaxValue)
-            => Text(ref label, ref input, out newLength, ref hint, flags, maxLength);
-
-        /// <summary> A text input that only returns true when the item was deactivated this frame and edited, not on every edit. </summary>
-        /// <param name="label"> The label as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
-        /// <param name="input"> The input string as text. Does not have to be null-terminated. </param>
         /// <param name="output"> When returning true, the resulting string output encoded in UTF8, otherwise undefined.  </param>
         /// <param name="hint"> An optional hint to display in the input box while it is empty. </param>
         /// <param name="flags"> Additional flags controlling the input behavior. </param>
@@ -32,7 +19,10 @@ public static partial class ImEx
         {
             if (Text(ref label, ref input, out var length, ref hint, flags, maxLength))
             {
-                output = length is 0 ? StringU8.Empty : new StringU8(InputStringHandlerBuffer.Span[..length], false);
+                if (!InputStringHandlerBuffer.FrameStorageString.IsNull)
+                    output = InputStringHandlerBuffer.FrameStorageString;
+                else
+                    output = length is 0 ? StringU8.Empty : new StringU8(InputStringHandlerBuffer.Span[..length], false);
                 return true;
             }
 
@@ -54,7 +44,10 @@ public static partial class ImEx
         {
             if (Text(ref label, ref input, out var length, ref hint, flags, maxLength))
             {
-                output = length is 0 ? string.Empty : Encoding.UTF8.GetString(InputStringHandlerBuffer.Span[..length]);
+                if (!InputStringHandlerBuffer.FrameStorageString.IsNull)
+                    output = InputStringHandlerBuffer.FrameStorageString.ToString();
+                else
+                    output = length is 0 ? string.Empty : Encoding.UTF8.GetString(InputStringHandlerBuffer.Span[..length]);
                 return true;
             }
 
@@ -87,7 +80,10 @@ public static partial class ImEx
         {
             if (MultiLine(ref label, ref input, out var length, size, flags))
             {
-                output = length is 0 ? StringU8.Empty : new StringU8(InputStringHandlerBuffer.Span[..length]);
+                if (!InputStringHandlerBuffer.FrameStorageString.IsNull)
+                    output = InputStringHandlerBuffer.FrameStorageString;
+                else
+                    output = length is 0 ? StringU8.Empty : new StringU8(InputStringHandlerBuffer.Span[..length], false);
                 return true;
             }
 
@@ -108,7 +104,10 @@ public static partial class ImEx
         {
             if (MultiLine(ref label, ref input, out var length, size, flags))
             {
-                output = length is 0 ? string.Empty : Encoding.UTF8.GetString(InputStringHandlerBuffer.Span[..length]);
+                if (!InputStringHandlerBuffer.FrameStorageString.IsNull)
+                    output = InputStringHandlerBuffer.FrameStorageString.ToString();
+                else
+                    output = length is 0 ? string.Empty : Encoding.UTF8.GetString(InputStringHandlerBuffer.Span[..length]);
                 return true;
             }
 
@@ -317,67 +316,34 @@ public static partial class ImEx
         private static unsafe bool Text(ref Utf8LabelHandler label, ref Utf8TextHandler input, out int newLength, ref Utf8HintHandler hint,
             InputTextFlags flags, uint maxLength)
         {
-            var id     = Im.Id.Get(ref label);
-            var buffer = InputStringHandlerBuffer.Buffer;
-            var size   = (uint)InputStringHandlerBuffer.Size;
-            if (!id.ActivePreviousFrame)
-            {
-                buffer = TextStringHandlerBuffer.Buffer;
-                size   = (uint)TextStringHandlerBuffer.Size;
-                var begin = input.Start(out var end);
-                if (begin != TextStringHandlerBuffer.Buffer)
-                {
-                    var span = new ReadOnlySpan<byte>(begin, (int)(end - begin));
-                    span.CopyTo(TextStringHandlerBuffer.Span);
-                    buffer[span.Length] = 0;
-                }
-            }
-            
-            var length = 0ul;
+            var id   = Im.Id.Get(ref label);
+            var span = InputStringHandlerBuffer.GetInputSpan(id, ref input);
             flags &= ~InputTextFlags.EnterReturnsTrue;
-            if (maxLength < size)
-                size = maxLength;
-            var copyBuffer = Im.Input.Text(label.Start(), buffer, size, hint.Start(), flags, &length) || Im.Item.Activated;
-            if (copyBuffer && buffer != InputStringHandlerBuffer.Buffer)
-            {
-                TextStringHandlerBuffer.Span[..(int)length].CopyTo(InputStringHandlerBuffer.Span);
-                InputStringHandlerBuffer.Buffer[length] = 0;
-            }
+            if (maxLength < span.Length)
+                span = span[..(int)maxLength];
 
-            newLength = (int)length;
-            return Im.Item.Deactivated && Im.Item.Edited;
+            var currentLength  = Im.Context.Pointer->InputTextState.CurrentLengthA;
+            var saveTempString = Im.Context.InputTextId != 0 && Im.Context.InputTextId != id;
+            var buffer         = span.Start();
+            var copyBuffer     = Im.Input.Text(label.Start(), buffer, (uint)span.Length, hint.Start(), flags) || Im.Item.Activated;
+            return InputStringHandlerBuffer.ReturnActive(buffer, copyBuffer, saveTempString, currentLength, out newLength);
         }
 
         [MethodImpl(ImSharpConfiguration.Inl)]
         private static unsafe bool MultiLine(ref Utf8LabelHandler label, ref Utf8TextHandler input, out int newLength, Vector2 widgetSize,
             InputTextFlags flags)
         {
-            var id     = Im.Id.Get(ref label);
-            var buffer = InputStringHandlerBuffer.Buffer;
-            var size   = InputStringHandlerBuffer.Size;
-            if (!id.Active)
-            {
-                buffer = TextStringHandlerBuffer.Buffer;
-                size   = TextStringHandlerBuffer.Size;
-                var begin = input.Start(out var end);
-                if (begin != TextStringHandlerBuffer.Buffer)
-                {
-                    var span = new ReadOnlySpan<byte>(begin, (int)(end - begin));
-                    span.CopyTo(TextStringHandlerBuffer.Span);
-                    buffer[span.Length] = 0;
-                }
-            }
-
+            var id   = Im.Id.Get(ref label);
+            var span = InputStringHandlerBuffer.GetInputSpan(id, ref input);
             flags &= ~InputTextFlags.EnterReturnsTrue;
-            if (Im.Input.MultiLine(label, new Span<byte>(buffer, size), out ulong length, widgetSize, flags) || Im.Item.Activated)
-                if (buffer != InputStringHandlerBuffer.Buffer)
-                {
-                    TextStringHandlerBuffer.Span[..(int)length].CopyTo(InputStringHandlerBuffer.Span);
-                    InputStringHandlerBuffer.Buffer[length] = 0;
-                }
 
-            newLength = (int)length;
-            return Im.Item.DeactivatedAfterEdit;
+            var currentLength  = Im.Context.Pointer->InputTextState.CurrentLengthA;
+            var saveTempString = Im.Context.InputTextId != 0 && Im.Context.InputTextId != id;
+            var buffer         = span.Start();
+            var copyBuffer =
+                Im.Native.Methods.Inputs.InputTextMultiline(label.Start(), buffer, (uint)span.Length, widgetSize, flags, null, null)
+             || Im.Item.Activated;
+            return InputStringHandlerBuffer.ReturnActive(buffer, copyBuffer, saveTempString, currentLength, out newLength);
         }
 
         private static class Storage<T> where T : unmanaged, INumber<T>
