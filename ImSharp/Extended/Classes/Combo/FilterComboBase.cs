@@ -53,7 +53,6 @@ public abstract class FilterComboBase()
     /// <summary> Whether the filter should be cleared whenever the combo cache is disposed. </summary>
     public bool ClearFilterOnCacheDisposal { get; set; } = true;
 
-
     /// <summary> The ID used for the cache. </summary>
     protected ImGuiId CurrentId;
 

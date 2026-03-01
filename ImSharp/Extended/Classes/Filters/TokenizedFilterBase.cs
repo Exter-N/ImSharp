@@ -326,6 +326,6 @@ public abstract class TokenizedFilter<TTokenType, TCacheItem, TToken> : IFilter<
     }
 
     /// <inheritdoc/>
-    public bool IsEmpty
+    public virtual bool IsEmpty
         => Text.Length is 0;
 }
