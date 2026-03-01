@@ -3,6 +3,9 @@ namespace ImSharp;
 /// <summary> A flattened tree node that can be drawn in a linear list. </summary>
 public interface IFlattenedTreeNode
 {
+    /// <summary> The unique Identifier for the node to use as an ID. </summary>
+    public int Identifier { get; }
+
     /// <summary> The local index of the parent of this node, -1 if no parent exists. </summary>
     public int ParentIndex { get; set; }
 
@@ -108,7 +111,7 @@ public static class TreeLine
             }
 
             // Draw the item itself under the ID of the current index.
-            using var id = Im.Id.Push(enumerator.Current);
+            using var id = Im.Id.Push(currentItem.Identifier);
             currentItem.Draw(enumerator.Current);
         } while (enumerator.MoveNext());
 
