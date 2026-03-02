@@ -36,6 +36,9 @@ public static class TreeLine
         if (list.Count is 0)
             return;
 
+#if TESTING
+        lineColor = lineColor.HalfTransparent();
+#endif
         // Note that lines may be aliased in different ways depending on the renderer.
         var itemHeightWithSpacing = itemHeight + Im.Style.ItemSpacing.Y;
         // The indentation width is specified by the style.
@@ -104,9 +107,16 @@ public static class TreeLine
                 // We only draw the omitted lines for the last node of the parent for uniqueness.
                 if (parent.StartsLineTo == enumerator.Current)
                 {
+#if TESTING
+                    var orig = lineColor;
+                    lineColor = Rgba32.Red.HalfTransparent();
+#endif
                     var cursorOffset = new Vector2(indentationWidth, (enumerator.Current - currentItem.ParentIndex) * itemHeightWithSpacing);
                     StartLine(drawList, parent, currentItem.ParentIndex, Im.Cursor.ScreenPosition - cursorOffset);
                     --hasMissingParents;
+#if TESTING
+                    lineColor = orig;
+#endif
                 }
             }
 
@@ -126,7 +136,11 @@ public static class TreeLine
             {
                 var s = start with { X = start.X + (hasMissingParents - 1) * indentationWidth };
                 var e = end with { X = s.X };
+#if TESTING
+                drawList.Line(s, e, Rgba32.Green.HalfTransparent(), lineWidth);
+#else
                 drawList.Line(s, e, lineColor, lineWidth);
+#endif
                 --hasMissingParents;
             } while (hasMissingParents > 0);
         }
