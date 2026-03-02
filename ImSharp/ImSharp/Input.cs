@@ -126,7 +126,7 @@ public static partial class Im
             InputTextFlags flags = InputTextFlags.None)
         {
             if (!Native.Methods.Inputs.InputTextMultiline(label.Start(), buffer.Start(), (ulong)buffer.Length, size,
-                    flags | InputTextFlags.CallbackAlways, null, null))
+                    flags, null, null))
             {
                 length = 0;
                 return false;
@@ -148,7 +148,7 @@ public static partial class Im
         {
             text.Span.CopyInto<TextStringHandlerBuffer>();
             if (!Native.Methods.Inputs.InputTextMultiline(label.Start(), TextStringHandlerBuffer.Buffer,
-                    (ulong)TextStringHandlerBuffer.Size, size, flags | InputTextFlags.CallbackAlways, null, null))
+                    (ulong)TextStringHandlerBuffer.Size, size, flags, null, null))
                 return false;
 
             text = new StringU8(new ReadOnlySpan<byte>(TextStringHandlerBuffer.Buffer, Context.Pointer->InputTextState.CurrentLengthA), false);
