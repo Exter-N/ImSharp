@@ -171,13 +171,9 @@ public class FilterComboBaseCache<TCacheItem>(FilterComboBase<TCacheItem> parent
         // If nothing is selected, try to find a selection.
         FindSelection();
 
-        // If nothing is selected still, treat it as starting from 0, otherwise, roll over.
-        if (CurrentFilteredSelectionIndex <= 0)
-            CurrentFilteredSelectionIndex = (FilteredItems.Count - delta) % FilteredItems.Count;
-        else
-            CurrentFilteredSelectionIndex = (CurrentFilteredSelectionIndex + FilteredItems.Count - delta) % FilteredItems.Count;
-        CurrentGlobalSelectionIndex = FilteredItems[CurrentFilteredSelectionIndex];
-        newIndex                    = CurrentGlobalSelectionIndex;
+        CurrentFilteredSelectionIndex = ImUtility.ApplyMouseWheelDelta(delta, CurrentFilteredSelectionIndex, FilteredItems.Count);
+        CurrentGlobalSelectionIndex   = FilteredItems[CurrentFilteredSelectionIndex];
+        newIndex                      = CurrentGlobalSelectionIndex;
         return true;
     }
 
