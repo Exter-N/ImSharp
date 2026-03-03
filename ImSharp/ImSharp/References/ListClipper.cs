@@ -37,6 +37,19 @@ public partial class Im
             get => ref Pointer->ItemsCount;
         }
 
+        public readonly int ItemsInCurrentStep
+        {
+            [MethodImpl(ImSharpConfiguration.Inl)]
+            get
+            {
+                if (Pointer->TempData is null)
+                    return 0;
+
+                var step = Pointer->TempData->StepNo - 1;
+                return Pointer->TempData->Ranges[step].Count;
+            }
+        }
+
         /// <summary> The total height of the items. </summary>
         public readonly ref float ItemsHeight
         {
