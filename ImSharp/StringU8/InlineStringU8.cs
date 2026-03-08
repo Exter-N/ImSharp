@@ -18,10 +18,8 @@ namespace ImSharp;
 #if HAS_NEWTONSOFT
 // ReSharper disable once RedundantNameQualifier
 [Newtonsoft.Json.JsonConverter(typeof(InlineStringU8ConverterNewtonSoft))]
-[InlineStringU8JsonConverter]
-#else
-[InlineStringU8JsonConverter]
 #endif
+[InlineStringU8JsonConverter]
 [StructLayout(LayoutKind.Sequential)]
 public struct InlineStringU8<TBacking>(TBacking value)
     : IReadOnlyList<byte>, IEquatable<InlineStringU8<TBacking>>, IEquatable<ReadOnlySpan<byte>>,
@@ -47,16 +45,6 @@ public struct InlineStringU8<TBacking>(TBacking value)
             var nullBytes       = ~(((Value & byteScanPattern) + byteScanPattern) | Value | byteScanPattern);
             return int.CreateTruncating(TBacking.TrailingZeroCount(nullBytes) >> 3);
         }
-    }
-
-    [MethodImpl(ImSharpConfiguration.OptInl)]
-    private static TBacking GetByteScanPattern()
-    {
-        const ulong pattern64 = 0x7F7F7F7F7F7F7F7FUL;
-
-        return typeof(TBacking) == typeof(UInt128)
-            ? TBacking.CreateTruncating(new UInt128(pattern64, pattern64))
-            : TBacking.CreateTruncating(pattern64);
     }
 
     /// <inheritdoc cref="Length"/>
@@ -211,7 +199,7 @@ public struct InlineStringU8<TBacking>(TBacking value)
         if (comparison is not 0)
             return comparison;
 
-        return other.Length == sizeof(TBacking) || bytes[other.Length] == 0 ? 0 : 1;
+        return other.Length == sizeof(TBacking) || bytes[other.Length] is 0 ? 0 : 1;
     }
 
     /// <summary>
@@ -230,7 +218,7 @@ public struct InlineStringU8<TBacking>(TBacking value)
         if (comparison is not 0)
             return comparison;
 
-        return other.Length == sizeof(TBacking) || bytes[other.Length] == 0 ? 0 : 1;
+        return other.Length == sizeof(TBacking) || bytes[other.Length] is 0 ? 0 : 1;
     }
 
     /// <summary> Checks if this string starts with the same bytes as <param name="other"/>. </summary>
@@ -521,6 +509,16 @@ public struct InlineStringU8<TBacking>(TBacking value)
 
         Truncate(length);
         Value |= other.Value << (length << 3);
+    }
+
+    [MethodImpl(ImSharpConfiguration.OptInl)]
+    private static TBacking GetByteScanPattern()
+    {
+        const ulong pattern64 = 0x7F7F7F7F7F7F7F7FUL;
+
+        return typeof(TBacking) == typeof(UInt128)
+            ? TBacking.CreateTruncating(new UInt128(pattern64, pattern64))
+            : TBacking.CreateTruncating(pattern64);
     }
 }
 
