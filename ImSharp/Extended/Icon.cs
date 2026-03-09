@@ -132,7 +132,7 @@ public static partial class ImEx
                 size.X = Im.Style.FrameHeight;
             if (size.Y is 0)
                 size.Y = Im.Style.FrameHeight;
-            bool      ret;
+            bool ret;
             using (T.Font.Push())
             {
                 using var _ = Im.Disabled(disabled);
@@ -244,7 +244,10 @@ public static partial class ImEx
             using var _     = Im.Disabled(config.Disabled);
             bool      ret;
             using (PushButtonLabelAlign(size.X, labelWidth, iconPosition))
+            {
                 ret = Im.Button(label, size, config.Flags);
+            }
+
             DrawLabeledButtonIcon(icon, labelWidth, iconPosition);
             return ret;
         }
@@ -279,7 +282,10 @@ public static partial class ImEx
                 using var color = Im.Color.Push(ImGuiColor.Button, buttonColor)
                     .Push(ImGuiColor.Text, textColor);
                 using (PushButtonLabelAlign(size.X, labelWidth, iconPosition))
+                {
                     ret = Im.Button(label, size, flags);
+                }
+
                 DrawLabeledButtonIcon(icon, labelWidth, iconPosition);
             }
 
@@ -303,7 +309,10 @@ public static partial class ImEx
             using (Im.Disabled(disabled))
             {
                 using (PushButtonLabelAlign(size.X, labelWidth, iconPosition))
+                {
                     ret = Im.Button(label, size, flags);
+                }
+
                 DrawLabeledButtonIcon(icon, labelWidth, iconPosition);
             }
 
@@ -325,7 +334,10 @@ public static partial class ImEx
                 size.Y = Im.Style.FrameHeight;
             bool ret;
             using (PushButtonLabelAlign(size.X, labelWidth, iconPosition))
+            {
                 ret = Im.Button(label, size, flags);
+            }
+
             DrawLabeledButtonIcon(icon, labelWidth, iconPosition);
 
             if (tooltip.GetSpan(out var span))
@@ -352,10 +364,13 @@ public static partial class ImEx
                 size.X = Im.Style.FrameHeight + Im.Style.ItemInnerSpacing.X + labelWidth;
             if (size.Y is 0)
                 size.Y = Im.Style.FrameHeight;
-            using var _    = Im.Disabled(disabled);
+            using var _ = Im.Disabled(disabled);
             bool      ret;
             using (PushButtonLabelAlign(size.X, labelWidth, iconPosition))
+            {
                 ret = Im.Button(label, size, flags);
+            }
+
             DrawLabeledButtonIcon(icon, labelWidth, iconPosition);
             return ret;
         }
@@ -373,7 +388,10 @@ public static partial class ImEx
                 size.Y = Im.Style.FrameHeight;
             bool ret;
             using (PushButtonLabelAlign(size.X, labelWidth, iconPosition))
+            {
                 ret = Im.Button(label, size, flags);
+            }
+
             DrawLabeledButtonIcon(icon, labelWidth, iconPosition);
             return ret;
         }
@@ -390,8 +408,8 @@ public static partial class ImEx
         {
             width -= 2.0f * Im.Style.FramePadding.X;
             var leeway = width - labelWidth;
-            if (leeway == 0.0f)
-                return new();
+            if (leeway is 0.0f)
+                return new Im.StyleDisposable();
 
             var iconReserve = Im.Style.TextHeight + Im.Style.ItemInnerSpacing.X;
             var position    = (leeway - iconReserve) * Im.Style.ButtonTextAlignment.X;
