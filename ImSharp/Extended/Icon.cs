@@ -220,6 +220,208 @@ public static partial class ImEx
             return Im.Button(icon.Span, size, flags);
         }
 
+
+        /// <summary> Draw a button with the given icon and label. </summary>
+        /// <typeparam name="T"> The icon type. </typeparam>
+        /// <param name="icon"> The icon. </param>
+        /// <param name="label"> The label. </param>
+        /// <param name="config"> Additional parameters to configure the design and behavior of the button. </param>
+        /// <param name="iconPosition"> Where to display the icon. </param>
+        /// <returns> True if the button has been clicked in this frame. </returns>
+        [OverloadResolutionPriority(25)]
+        public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, in ButtonConfiguration config = default,
+            IconPosition iconPosition = IconPosition.BeforeLabel) where T : IIconStandIn
+        {
+            var labelWidth = Im.Font.CalculateSize(ref label).X;
+            var size = new Vector2(config.Size.X is 0 ? Im.Style.FrameHeight + Im.Style.ItemInnerSpacing.X + labelWidth : config.Size.X,
+                config.Size.Y is 0 ? Im.Style.FrameHeight : config.Size.Y);
+
+            using var color = Im.Color.Push(ImGuiColor.Button, config.ButtonColor)
+                .Push(ImGuiColor.ButtonHovered, config.HoveredColor)
+                .Push(ImGuiColor.ButtonActive,  config.ActiveColor)
+                .Push(ImGuiColor.Text,          config.TextColor)
+                .Push(ImGuiColor.Border,        config.BorderColor);
+            using var style = Im.Style.Push(ImStyleSingle.FrameBorderThickness, Im.Style.GlobalScale, config.BorderColor.IsVisible);
+            using var _     = Im.Disabled(config.Disabled);
+            bool      ret;
+            using (PushButtonLabelAlign(size.X, labelWidth, iconPosition))
+                ret = Im.Button(label, size, config.Flags);
+            DrawLabeledButtonIcon(icon, labelWidth, iconPosition);
+            return ret;
+        }
+
+        /// <summary> Draw a button with the given icon and label. </summary>
+        /// <typeparam name="T"> The icon type. </typeparam>
+        /// <param name="icon"> The icon. </param>
+        /// <param name="label"> The label. </param>
+        /// <param name="size"> The desired size for the button. If (0, 0), it will be calculated automatically. </param>
+        /// <param name="tooltip"> A tooltip shown when hovering the button regardless of whether it is disabled or not as text. Does not have to be null-terminated. </param>
+        /// <param name="disabled"> Whether the button should be disabled or not. </param>
+        /// <param name="buttonColor"> The color of the button's background. </param>
+        /// <param name="textColor"> The color of the button's label. </param>
+        /// <param name="flags"> Additional flags to control the button's behaviour. </param>
+        /// <param name="iconPosition"> Where to display the icon. </param>
+        /// <returns> True if the button has been clicked in this frame. </returns>
+        /// <remarks> The tooltip is always evaluated. If this is expensive, prefer leaving it empty and using <seealso cref="Im.Tooltip.OnHover(HoveredFlags,ref HoverUtf8StringHandler)"/> manually. </remarks>
+        [OverloadResolutionPriority(50)]
+        public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, Utf8TextHandler tooltip = default, bool disabled = false,
+            ColorParameter buttonColor = default, ColorParameter textColor = default, Vector2 size = default,
+            ButtonFlags flags = ButtonFlags.None, IconPosition iconPosition = IconPosition.BeforeLabel)
+            where T : IIconStandIn
+        {
+            var labelWidth = Im.Font.CalculateSize(ref label).X;
+            if (size.X is 0)
+                size.X = Im.Style.FrameHeight + Im.Style.ItemInnerSpacing.X + labelWidth;
+            if (size.Y is 0)
+                size.Y = Im.Style.FrameHeight;
+            bool ret;
+            using (Im.Disabled(disabled))
+            {
+                using var color = Im.Color.Push(ImGuiColor.Button, buttonColor)
+                    .Push(ImGuiColor.Text, textColor);
+                using (PushButtonLabelAlign(size.X, labelWidth, iconPosition))
+                    ret = Im.Button(label, size, flags);
+                DrawLabeledButtonIcon(icon, labelWidth, iconPosition);
+            }
+
+            if (tooltip.GetSpan(out var span))
+                Im.Tooltip.OnHover(HoveredFlags.AllowWhenDisabled, span, true);
+            return ret;
+        }
+
+        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,Utf8TextHandler,bool,ColorParameter,ColorParameter,Vector2,ButtonFlags,bool)"/>
+        [OverloadResolutionPriority(100)]
+        public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, Utf8TextHandler tooltip = default, bool disabled = false,
+            Vector2 size = default, ButtonFlags flags = ButtonFlags.None, IconPosition iconPosition = IconPosition.BeforeLabel)
+            where T : IIconStandIn
+        {
+            var labelWidth = Im.Font.CalculateSize(ref label).X;
+            if (size.X is 0)
+                size.X = Im.Style.FrameHeight + Im.Style.ItemInnerSpacing.X + labelWidth;
+            if (size.Y is 0)
+                size.Y = Im.Style.FrameHeight;
+            bool ret;
+            using (Im.Disabled(disabled))
+            {
+                using (PushButtonLabelAlign(size.X, labelWidth, iconPosition))
+                    ret = Im.Button(label, size, flags);
+                DrawLabeledButtonIcon(icon, labelWidth, iconPosition);
+            }
+
+            if (tooltip.GetSpan(out var span))
+                Im.Tooltip.OnHover(HoveredFlags.AllowWhenDisabled, span, true);
+            return ret;
+        }
+
+        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,Utf8TextHandler,bool,ColorParameter,ColorParameter,Vector2,ButtonFlags,bool)"/>
+        [OverloadResolutionPriority(200)]
+        public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, Utf8TextHandler tooltip = default, Vector2 size = default,
+            ButtonFlags flags = ButtonFlags.None, IconPosition iconPosition = IconPosition.BeforeLabel)
+            where T : IIconStandIn
+        {
+            var labelWidth = Im.Font.CalculateSize(ref label).X;
+            if (size.X is 0)
+                size.X = Im.Style.FrameHeight + Im.Style.ItemInnerSpacing.X + labelWidth;
+            if (size.Y is 0)
+                size.Y = Im.Style.FrameHeight;
+            bool ret;
+            using (PushButtonLabelAlign(size.X, labelWidth, iconPosition))
+                ret = Im.Button(label, size, flags);
+            DrawLabeledButtonIcon(icon, labelWidth, iconPosition);
+
+            if (tooltip.GetSpan(out var span))
+                Im.Tooltip.OnHover(HoveredFlags.AllowWhenDisabled, span, true);
+            return ret;
+        }
+
+        /// <summary> Draw a button with the given icon and label. </summary>
+        /// <typeparam name="T"> The icon type. </typeparam>
+        /// <param name="icon"> The icon. </param>
+        /// <param name="label"> The label. </param>
+        /// <param name="size"> The desired size for the button. If (0, 0), it will be frame size. </param>
+        /// <param name="disabled"> Whether the button should be disabled or not. </param>
+        /// <param name="flags"> Additional flags to control the button's behaviour. </param>
+        /// <param name="iconPosition"> Where to display the icon. </param>
+        /// <returns> True if the button has been clicked in this frame. </returns>
+        [OverloadResolutionPriority(300)]
+        public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, bool disabled = false, Vector2 size = default,
+            ButtonFlags flags = ButtonFlags.None, IconPosition iconPosition = IconPosition.BeforeLabel)
+            where T : IIconStandIn
+        {
+            var labelWidth = Im.Font.CalculateSize(ref label).X;
+            if (size.X is 0)
+                size.X = Im.Style.FrameHeight + Im.Style.ItemInnerSpacing.X + labelWidth;
+            if (size.Y is 0)
+                size.Y = Im.Style.FrameHeight;
+            using var _    = Im.Disabled(disabled);
+            bool      ret;
+            using (PushButtonLabelAlign(size.X, labelWidth, iconPosition))
+                ret = Im.Button(label, size, flags);
+            DrawLabeledButtonIcon(icon, labelWidth, iconPosition);
+            return ret;
+        }
+
+        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,bool,Vector2,ButtonFlags,bool)"/>
+        [OverloadResolutionPriority(400)]
+        public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, Vector2 size = default, ButtonFlags flags = ButtonFlags.None,
+            IconPosition iconPosition = IconPosition.BeforeLabel)
+            where T : IIconStandIn
+        {
+            var labelWidth = Im.Font.CalculateSize(ref label).X;
+            if (size.X is 0)
+                size.X = Im.Style.FrameHeight + Im.Style.ItemInnerSpacing.X + labelWidth;
+            if (size.Y is 0)
+                size.Y = Im.Style.FrameHeight;
+            bool ret;
+            using (PushButtonLabelAlign(size.X, labelWidth, iconPosition))
+                ret = Im.Button(label, size, flags);
+            DrawLabeledButtonIcon(icon, labelWidth, iconPosition);
+            return ret;
+        }
+
+        /// <summary> Calculate the default size of a button with the given icon and label. </summary>
+        /// <typeparam name="T"> The icon type. </typeparam>
+        /// <param name="icon"> The icon. </param>
+        /// <param name="label"> The label. </param>
+        /// <returns> The size the button would take by default. </returns>
+        public static Vector2 CalculateLabeledButtonSize<T>(T icon, Utf8LabelHandler label) where T : IIconStandIn
+            => new(Im.Style.FrameHeight + Im.Style.ItemInnerSpacing.X + Im.Font.CalculateSize(ref label).X, Im.Style.FrameHeight);
+
+        private static Im.StyleDisposable PushButtonLabelAlign(float width, float labelWidth, IconPosition iconPosition)
+        {
+            width -= 2.0f * Im.Style.FramePadding.X;
+            var leeway = width - labelWidth;
+            if (leeway == 0.0f)
+                return new();
+
+            var iconReserve = Im.Style.TextHeight + Im.Style.ItemInnerSpacing.X;
+            var position    = (leeway - iconReserve) * Im.Style.ButtonTextAlignment.X;
+            if (iconPosition is IconPosition.BeforeLabel or IconPosition.Start)
+                position += iconReserve;
+
+            return ImStyleDouble.ButtonTextAlign.PushX(position / leeway);
+        }
+
+        private static void DrawLabeledButtonIcon<T>(T icon, float labelWidth, IconPosition iconPosition) where T : IIconStandIn
+        {
+            using var font       = T.Font.Push();
+            var       upperLeft  = Im.Item.UpperLeftCorner + Im.Style.FramePadding;
+            var       lowerRight = Im.Item.LowerRightCorner - Im.Style.FramePadding;
+            if (iconPosition is IconPosition.AfterLabel or IconPosition.End)
+                upperLeft.X += labelWidth + Im.Style.ItemInnerSpacing.X;
+            else
+                lowerRight.X -= labelWidth + Im.Style.ItemInnerSpacing.X;
+            var alignment = iconPosition switch
+            {
+                IconPosition.Start => 0.0f,
+                IconPosition.End   => 1.0f,
+                _                  => Im.Style.ButtonTextAlignment.X,
+            };
+            Im.DrawList.Window.Text(
+                Vector2.Lerp(upperLeft, lowerRight - Im.Font.CalculateSize(icon.Span), Im.Style.ButtonTextAlignment with { X = alignment }),
+                ImGuiColor.Text.Get(), icon.Span);
+        }
+
         /// <summary> Draw an icon with a label and a tooltip when hovering either of them. </summary>
         /// <typeparam name="T"> The icon type. </typeparam>
         /// <param name="icon"> The icon. </param>
@@ -278,6 +480,22 @@ public static partial class ImEx
             Im.Text(ref label);
             if (hovered || Im.Item.Hovered())
                 Im.Tooltip.Set(tooltip);
+        }
+
+        /// <summary> Positioning behaviours for the icon in a labeled icon button. </summary>
+        public enum IconPosition
+        {
+            /// <summary> Position the icon just before the label. </summary>
+            BeforeLabel = 0,
+
+            /// <summary> Position the icon just after the label. </summary>
+            AfterLabel = 1,
+
+            /// <summary> Position the icon at the start of the button, independently of <see cref="ImStyleDouble.ButtonTextAlign"/>. </summary>
+            Start = 2,
+
+            /// <summary> Position the icon at the end of the button, independently of <see cref="ImStyleDouble.ButtonTextAlign"/>. </summary>
+            End = 3,
         }
     }
 }
