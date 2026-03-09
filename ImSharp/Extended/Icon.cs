@@ -64,7 +64,7 @@ public static partial class ImEx
         /// <param name="tooltip"> A tooltip shown when hovering the button regardless of whether it is disabled or not as text. Does not have to be null-terminated. </param>
         /// <param name="config"> Additional parameters to configure the design and behavior of the button. </param>
         /// <returns> True if the button has been clicked in this frame. </returns>
-        /// <remarks> The tooltip is always evaluated. If this is expensive, prefer leaving it empty and using <seealso cref="Im.Tooltip.OnHover(HoveredFlags,ref HoverUtf8StringHandler)"/> manually. </remarks>
+        /// <remarks> The tooltip is always evaluated. If this is expensive, prefer leaving it empty and using <seealso cref="Im.Tooltip.OnHover(HoveredFlags,ref HoverUtf8StringHandler,bool,Im.Font)"/> manually. </remarks>
         [OverloadResolutionPriority(20)]
         public static bool Button<T>(T icon, Utf8TextHandler tooltip = default, in ButtonConfiguration config = default) where T : IIconStandIn
         {
@@ -121,7 +121,7 @@ public static partial class ImEx
         /// <param name="textColor"> The color of the button's label. </param>
         /// <param name="flags"> Additional flags to control the button's behaviour. </param>
         /// <returns> True if the button has been clicked in this frame. </returns>
-        /// <remarks> The tooltip is always evaluated. If this is expensive, prefer leaving it empty and using <seealso cref="Im.Tooltip.OnHover(HoveredFlags,ref HoverUtf8StringHandler)"/> manually. </remarks>
+        /// <remarks> The tooltip is always evaluated. If this is expensive, prefer leaving it empty and using <seealso cref="Im.Tooltip.OnHover(HoveredFlags,ref HoverUtf8StringHandler,bool,Im.Font)"/> manually. </remarks>
         [OverloadResolutionPriority(50)]
         public static bool Button<T>(T icon, Utf8TextHandler tooltip = default, bool disabled = false,
             ColorParameter buttonColor = default, ColorParameter textColor = default, Vector2 size = default,
@@ -220,7 +220,6 @@ public static partial class ImEx
             return Im.Button(icon.Span, size, flags);
         }
 
-
         /// <summary> Draw a button with the given icon and label. </summary>
         /// <typeparam name="T"> The icon type. </typeparam>
         /// <param name="icon"> The icon. </param>
@@ -262,7 +261,7 @@ public static partial class ImEx
         /// <param name="flags"> Additional flags to control the button's behaviour. </param>
         /// <param name="iconPosition"> Where to display the icon. </param>
         /// <returns> True if the button has been clicked in this frame. </returns>
-        /// <remarks> The tooltip is always evaluated. If this is expensive, prefer leaving it empty and using <seealso cref="Im.Tooltip.OnHover(HoveredFlags,ref HoverUtf8StringHandler)"/> manually. </remarks>
+        /// <remarks> The tooltip is always evaluated. If this is expensive, prefer leaving it empty and using <seealso cref="Im.Tooltip.OnHover(HoveredFlags,ref HoverUtf8StringHandler,bool,Im.Font)"/> manually. </remarks>
         [OverloadResolutionPriority(50)]
         public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, Utf8TextHandler tooltip = default, bool disabled = false,
             ColorParameter buttonColor = default, ColorParameter textColor = default, Vector2 size = default,
@@ -289,7 +288,7 @@ public static partial class ImEx
             return ret;
         }
 
-        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,Utf8TextHandler,bool,ColorParameter,ColorParameter,Vector2,ButtonFlags,bool)"/>
+        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,Utf8TextHandler,bool,ColorParameter,ColorParameter,Vector2,ButtonFlags,IconPosition)"/>
         [OverloadResolutionPriority(100)]
         public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, Utf8TextHandler tooltip = default, bool disabled = false,
             Vector2 size = default, ButtonFlags flags = ButtonFlags.None, IconPosition iconPosition = IconPosition.BeforeLabel)
@@ -313,7 +312,7 @@ public static partial class ImEx
             return ret;
         }
 
-        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,Utf8TextHandler,bool,ColorParameter,ColorParameter,Vector2,ButtonFlags,bool)"/>
+        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,Utf8TextHandler,bool,ColorParameter,ColorParameter,Vector2,ButtonFlags,IconPosition)"/>
         [OverloadResolutionPriority(200)]
         public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, Utf8TextHandler tooltip = default, Vector2 size = default,
             ButtonFlags flags = ButtonFlags.None, IconPosition iconPosition = IconPosition.BeforeLabel)
@@ -361,7 +360,7 @@ public static partial class ImEx
             return ret;
         }
 
-        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,bool,Vector2,ButtonFlags,bool)"/>
+        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,bool,Vector2,ButtonFlags,IconPosition)"/>
         [OverloadResolutionPriority(400)]
         public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, Vector2 size = default, ButtonFlags flags = ButtonFlags.None,
             IconPosition iconPosition = IconPosition.BeforeLabel)
