@@ -217,9 +217,37 @@ public static partial class ImEx
         /// <param name="label"> The label. </param>
         /// <param name="tooltip"> A tooltip shown when hovering the button regardless of whether it is disabled or not as text. Does not have to be null-terminated. </param>
         /// <param name="config"> Additional parameters to configure the design and behavior of the button. </param>
+        /// <param name="corners"> Flags to control which corners of the button should follow the frame rounding style. </param>
         /// <param name="iconPosition"> Where to display the icon. </param>
         /// <returns> True if the button has been clicked in this frame. </returns>
         /// <remarks> The tooltip is always evaluated. If this is expensive, prefer leaving it empty and using <seealso cref="Im.Tooltip.OnHover(HoveredFlags,ref HoverUtf8StringHandler,bool,Im.Font)"/> manually. </remarks>
+        [OverloadResolutionPriority(18)]
+        public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, Utf8TextHandler tooltip = default,
+            in ButtonConfiguration config = default, Corners corners = Corners.Default,
+            IconPosition iconPosition = IconPosition.BeforeLabel) where T : IIconStandIn
+        {
+            var labelWidth = Im.Font.CalculateSize(ref label).X;
+            var size       = config.Size;
+            HandleLabeledButtonSizeDefaults(ref size, icon, labelWidth);
+
+            bool ret;
+            using (Im.Disabled(config.Disabled))
+            {
+                using var style = config.PushColorStyle();
+                using (PushButtonLabelAlign(icon, size.X, labelWidth, iconPosition))
+                {
+                    ret = ButtonCorners(label, size, config.Flags, corners);
+                }
+
+                DrawLabeledButtonIcon(icon, labelWidth, iconPosition);
+            }
+
+            if (tooltip.GetSpan(out var span))
+                Im.Tooltip.OnHover(HoveredFlags.AllowWhenDisabled, span, true);
+            return ret;
+        }
+
+        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,Utf8TextHandler,in ButtonConfiguration,Corners,IconPosition)"/>
         [OverloadResolutionPriority(20)]
         public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, Utf8TextHandler tooltip = default,
             in ButtonConfiguration config = default, IconPosition iconPosition = IconPosition.BeforeLabel) where T : IIconStandIn
@@ -250,8 +278,30 @@ public static partial class ImEx
         /// <param name="icon"> The icon. </param>
         /// <param name="label"> The label. </param>
         /// <param name="config"> Additional parameters to configure the design and behavior of the button. </param>
+        /// <param name="corners"> Flags to control which corners of the button should follow the frame rounding style. </param>
         /// <param name="iconPosition"> Where to display the icon. </param>
         /// <returns> True if the button has been clicked in this frame. </returns>
+        [OverloadResolutionPriority(23)]
+        public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, in ButtonConfiguration config = default,
+            Corners corners = Corners.Default, IconPosition iconPosition = IconPosition.BeforeLabel) where T : IIconStandIn
+        {
+            var labelWidth = Im.Font.CalculateSize(ref label).X;
+            var size       = config.Size;
+            HandleLabeledButtonSizeDefaults(ref size, icon, labelWidth);
+
+            using var style = config.PushColorStyle();
+            using var _     = Im.Disabled(config.Disabled);
+            bool      ret;
+            using (PushButtonLabelAlign(icon, size.X, labelWidth, iconPosition))
+            {
+                ret = ButtonCorners(label, size, config.Flags, corners);
+            }
+
+            DrawLabeledButtonIcon(icon, labelWidth, iconPosition);
+            return ret;
+        }
+
+        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,in ButtonConfiguration,Corners,IconPosition)"/>
         [OverloadResolutionPriority(25)]
         public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, in ButtonConfiguration config = default,
             IconPosition iconPosition = IconPosition.BeforeLabel) where T : IIconStandIn
@@ -282,9 +332,37 @@ public static partial class ImEx
         /// <param name="buttonColor"> The color of the button's background. </param>
         /// <param name="textColor"> The color of the button's label. </param>
         /// <param name="flags"> Additional flags to control the button's behaviour. </param>
+        /// <param name="corners"> Flags to control which corners of the button should follow the frame rounding style. </param>
         /// <param name="iconPosition"> Where to display the icon. </param>
         /// <returns> True if the button has been clicked in this frame. </returns>
         /// <remarks> The tooltip is always evaluated. If this is expensive, prefer leaving it empty and using <seealso cref="Im.Tooltip.OnHover(HoveredFlags,ref HoverUtf8StringHandler,bool,Im.Font)"/> manually. </remarks>
+        [OverloadResolutionPriority(48)]
+        public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, Utf8TextHandler tooltip = default, bool disabled = false,
+            ColorParameter buttonColor = default, ColorParameter textColor = default, Vector2 size = default,
+            ButtonFlags flags = ButtonFlags.None, Corners corners = Corners.Default, IconPosition iconPosition = IconPosition.BeforeLabel)
+            where T : IIconStandIn
+        {
+            var labelWidth = Im.Font.CalculateSize(ref label).X;
+            HandleLabeledButtonSizeDefaults(ref size, icon, labelWidth);
+            bool ret;
+            using (Im.Disabled(disabled))
+            {
+                using var color = Im.Color.Push(ImGuiColor.Button, buttonColor)
+                    .Push(ImGuiColor.Text, textColor);
+                using (PushButtonLabelAlign(icon, size.X, labelWidth, iconPosition))
+                {
+                    ret = ButtonCorners(label, size, flags, corners);
+                }
+
+                DrawLabeledButtonIcon(icon, labelWidth, iconPosition);
+            }
+
+            if (tooltip.GetSpan(out var span))
+                Im.Tooltip.OnHover(HoveredFlags.AllowWhenDisabled, span, true);
+            return ret;
+        }
+
+        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,Utf8TextHandler,bool,ColorParameter,ColorParameter,Vector2,ButtonFlags,Corners,IconPosition)"/>
         [OverloadResolutionPriority(50)]
         public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, Utf8TextHandler tooltip = default, bool disabled = false,
             ColorParameter buttonColor = default, ColorParameter textColor = default, Vector2 size = default,
@@ -311,7 +389,31 @@ public static partial class ImEx
             return ret;
         }
 
-        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,Utf8TextHandler,bool,ColorParameter,ColorParameter,Vector2,ButtonFlags,IconPosition)"/>
+        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,Utf8TextHandler,bool,ColorParameter,ColorParameter,Vector2,ButtonFlags,Corners,IconPosition)"/>
+        [OverloadResolutionPriority(98)]
+        public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, Utf8TextHandler tooltip = default, bool disabled = false,
+            Vector2 size = default, ButtonFlags flags = ButtonFlags.None, Corners corners = Corners.Default,
+            IconPosition iconPosition = IconPosition.BeforeLabel) where T : IIconStandIn
+        {
+            var labelWidth = Im.Font.CalculateSize(ref label).X;
+            HandleLabeledButtonSizeDefaults(ref size, icon, labelWidth);
+            bool ret;
+            using (Im.Disabled(disabled))
+            {
+                using (PushButtonLabelAlign(icon, size.X, labelWidth, iconPosition))
+                {
+                    ret = ButtonCorners(label, size, flags, corners);
+                }
+
+                DrawLabeledButtonIcon(icon, labelWidth, iconPosition);
+            }
+
+            if (tooltip.GetSpan(out var span))
+                Im.Tooltip.OnHover(HoveredFlags.AllowWhenDisabled, span, true);
+            return ret;
+        }
+
+        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,Utf8TextHandler,bool,ColorParameter,ColorParameter,Vector2,ButtonFlags,Corners,IconPosition)"/>
         [OverloadResolutionPriority(100)]
         public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, Utf8TextHandler tooltip = default, bool disabled = false,
             Vector2 size = default, ButtonFlags flags = ButtonFlags.None, IconPosition iconPosition = IconPosition.BeforeLabel)
@@ -335,7 +437,28 @@ public static partial class ImEx
             return ret;
         }
 
-        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,Utf8TextHandler,bool,ColorParameter,ColorParameter,Vector2,ButtonFlags,IconPosition)"/>
+        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,Utf8TextHandler,bool,ColorParameter,ColorParameter,Vector2,ButtonFlags,Corners,IconPosition)"/>
+        [OverloadResolutionPriority(198)]
+        public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, Utf8TextHandler tooltip = default, Vector2 size = default,
+            ButtonFlags flags = ButtonFlags.None, Corners corners = Corners.Default, IconPosition iconPosition = IconPosition.BeforeLabel)
+            where T : IIconStandIn
+        {
+            var labelWidth = Im.Font.CalculateSize(ref label).X;
+            HandleLabeledButtonSizeDefaults(ref size, icon, labelWidth);
+            bool ret;
+            using (PushButtonLabelAlign(icon, size.X, labelWidth, iconPosition))
+            {
+                ret = ButtonCorners(label, size, flags, corners);
+            }
+
+            DrawLabeledButtonIcon(icon, labelWidth, iconPosition);
+
+            if (tooltip.GetSpan(out var span))
+                Im.Tooltip.OnHover(HoveredFlags.AllowWhenDisabled, span, true);
+            return ret;
+        }
+
+        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,Utf8TextHandler,bool,ColorParameter,ColorParameter,Vector2,ButtonFlags,Corners,IconPosition)"/>
         [OverloadResolutionPriority(200)]
         public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, Utf8TextHandler tooltip = default, Vector2 size = default,
             ButtonFlags flags = ButtonFlags.None, IconPosition iconPosition = IconPosition.BeforeLabel)
@@ -363,8 +486,28 @@ public static partial class ImEx
         /// <param name="size"> The desired size for the button. If (0, 0), it will be frame size. </param>
         /// <param name="disabled"> Whether the button should be disabled or not. </param>
         /// <param name="flags"> Additional flags to control the button's behaviour. </param>
+        /// <param name="corners"> Flags to control which corners of the button should follow the frame rounding style. </param>
         /// <param name="iconPosition"> Where to display the icon. </param>
         /// <returns> True if the button has been clicked in this frame. </returns>
+        [OverloadResolutionPriority(298)]
+        public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, bool disabled = false, Vector2 size = default,
+            ButtonFlags flags = ButtonFlags.None, Corners corners = Corners.Default, IconPosition iconPosition = IconPosition.BeforeLabel)
+            where T : IIconStandIn
+        {
+            var labelWidth = Im.Font.CalculateSize(ref label).X;
+            HandleLabeledButtonSizeDefaults(ref size, icon, labelWidth);
+            using var _ = Im.Disabled(disabled);
+            bool      ret;
+            using (PushButtonLabelAlign(icon, size.X, labelWidth, iconPosition))
+            {
+                ret = ButtonCorners(label, size, flags, corners);
+            }
+
+            DrawLabeledButtonIcon(icon, labelWidth, iconPosition);
+            return ret;
+        }
+
+        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,bool,Vector2,ButtonFlags,Corners,IconPosition)"/>
         [OverloadResolutionPriority(300)]
         public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, bool disabled = false, Vector2 size = default,
             ButtonFlags flags = ButtonFlags.None, IconPosition iconPosition = IconPosition.BeforeLabel)
@@ -383,7 +526,25 @@ public static partial class ImEx
             return ret;
         }
 
-        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,bool,Vector2,ButtonFlags,IconPosition)"/>
+        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,bool,Vector2,ButtonFlags,Corners,IconPosition)"/>
+        [OverloadResolutionPriority(398)]
+        public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, Vector2 size = default, ButtonFlags flags = ButtonFlags.None,
+            Corners corners = Corners.Default, IconPosition iconPosition = IconPosition.BeforeLabel)
+            where T : IIconStandIn
+        {
+            var labelWidth = Im.Font.CalculateSize(ref label).X;
+            HandleLabeledButtonSizeDefaults(ref size, icon, labelWidth);
+            bool ret;
+            using (PushButtonLabelAlign(icon, size.X, labelWidth, iconPosition))
+            {
+                ret = ButtonCorners(label, size, flags, corners);
+            }
+
+            DrawLabeledButtonIcon(icon, labelWidth, iconPosition);
+            return ret;
+        }
+
+        /// <inheritdoc cref="LabeledButton{T}(T,Utf8LabelHandler,bool,Vector2,ButtonFlags,Corners,IconPosition)"/>
         [OverloadResolutionPriority(400)]
         public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, Vector2 size = default, ButtonFlags flags = ButtonFlags.None,
             IconPosition iconPosition = IconPosition.BeforeLabel)
