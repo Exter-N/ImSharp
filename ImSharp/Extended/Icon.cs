@@ -409,11 +409,13 @@ public static partial class ImEx
         public static Vector2 CalculateLabeledButtonSize<T>(T icon, Utf8LabelHandler label) where T : IIconStandIn
             => new(CalculateLabeledButtonWidth(icon, Im.Font.CalculateSize(ref label).X), Im.Style.FrameHeight);
 
+        [MethodImpl(ImSharpConfiguration.Inl)]
         private static float CalculateLabeledButtonWidth<T>(T icon, float labelWidth) where T : IIconStandIn
             => Im.Style.FramePadding.X * 2.0f
               + (icon.IsEmpty ? 0.0f : Im.Style.TextHeight)
               + (labelWidth is 0.0f ? 0.0f : Im.Style.ItemInnerSpacing.X + labelWidth);
 
+        [MethodImpl(ImSharpConfiguration.Inl)]
         private static void HandleLabeledButtonSizeDefaults<T>(ref Vector2 size, T icon, float labelWidth) where T : IIconStandIn
         {
             if (size.X is 0)
