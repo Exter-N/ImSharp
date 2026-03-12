@@ -224,6 +224,45 @@ public static partial class ImEx
         /// <typeparam name="T"> The icon type. </typeparam>
         /// <param name="icon"> The icon. </param>
         /// <param name="label"> The label. </param>
+        /// <param name="tooltip"> A tooltip shown when hovering the button regardless of whether it is disabled or not as text. Does not have to be null-terminated. </param>
+        /// <param name="config"> Additional parameters to configure the design and behavior of the button. </param>
+        /// <param name="iconPosition"> Where to display the icon. </param>
+        /// <returns> True if the button has been clicked in this frame. </returns>
+        /// <remarks> The tooltip is always evaluated. If this is expensive, prefer leaving it empty and using <seealso cref="Im.Tooltip.OnHover(HoveredFlags,ref HoverUtf8StringHandler,bool,Im.Font)"/> manually. </remarks>
+        [OverloadResolutionPriority(20)]
+        public static bool LabeledButton<T>(T icon, Utf8LabelHandler label, Utf8TextHandler tooltip = default,
+            in ButtonConfiguration config = default, IconPosition iconPosition = IconPosition.BeforeLabel) where T : IIconStandIn
+        {
+            var labelWidth = Im.Font.CalculateSize(ref label).X;
+            var size = new Vector2(config.Size.X is 0 ? CalculateLabeledButtonWidth(icon, labelWidth) : config.Size.X,
+                config.Size.Y is 0 ? Im.Style.FrameHeight : config.Size.Y);
+
+            bool ret;
+            using (Im.Disabled(config.Disabled))
+            {
+                using var color = Im.Color.Push(ImGuiColor.Button, config.ButtonColor)
+                    .Push(ImGuiColor.ButtonHovered, config.HoveredColor)
+                    .Push(ImGuiColor.ButtonActive,  config.ActiveColor)
+                    .Push(ImGuiColor.Text,          config.TextColor)
+                    .Push(ImGuiColor.Border,        config.BorderColor);
+                using var style = Im.Style.Push(ImStyleSingle.FrameBorderThickness, Im.Style.GlobalScale, config.BorderColor.IsVisible);
+                using (PushButtonLabelAlign(icon, size.X, labelWidth, iconPosition))
+                {
+                    ret = Im.Button(label, size, config.Flags);
+                }
+
+                DrawLabeledButtonIcon(icon, labelWidth, iconPosition);
+            }
+
+            if (tooltip.GetSpan(out var span))
+                Im.Tooltip.OnHover(HoveredFlags.AllowWhenDisabled, span, true);
+            return ret;
+        }
+
+        /// <summary> Draw a button with the given icon and label. </summary>
+        /// <typeparam name="T"> The icon type. </typeparam>
+        /// <param name="icon"> The icon. </param>
+        /// <param name="label"> The label. </param>
         /// <param name="config"> Additional parameters to configure the design and behavior of the button. </param>
         /// <param name="iconPosition"> Where to display the icon. </param>
         /// <returns> True if the button has been clicked in this frame. </returns>
