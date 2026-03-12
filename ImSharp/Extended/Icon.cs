@@ -232,7 +232,7 @@ public static partial class ImEx
             IconPosition iconPosition = IconPosition.BeforeLabel) where T : IIconStandIn
         {
             var labelWidth = Im.Font.CalculateSize(ref label).X;
-            var size = new Vector2(config.Size.X is 0 ? Im.Style.FrameHeight + Im.Style.ItemInnerSpacing.X + labelWidth : config.Size.X,
+            var size = new Vector2(config.Size.X is 0 ? CalculateLabeledButtonWidth(icon, labelWidth) : config.Size.X,
                 config.Size.Y is 0 ? Im.Style.FrameHeight : config.Size.Y);
 
             using var color = Im.Color.Push(ImGuiColor.Button, config.ButtonColor)
@@ -243,7 +243,7 @@ public static partial class ImEx
             using var style = Im.Style.Push(ImStyleSingle.FrameBorderThickness, Im.Style.GlobalScale, config.BorderColor.IsVisible);
             using var _     = Im.Disabled(config.Disabled);
             bool      ret;
-            using (PushButtonLabelAlign(size.X, labelWidth, iconPosition))
+            using (PushButtonLabelAlign(icon, size.X, labelWidth, iconPosition))
             {
                 ret = Im.Button(label, size, config.Flags);
             }
@@ -273,7 +273,7 @@ public static partial class ImEx
         {
             var labelWidth = Im.Font.CalculateSize(ref label).X;
             if (size.X is 0)
-                size.X = Im.Style.FrameHeight + Im.Style.ItemInnerSpacing.X + labelWidth;
+                size.X = CalculateLabeledButtonWidth(icon, labelWidth);
             if (size.Y is 0)
                 size.Y = Im.Style.FrameHeight;
             bool ret;
@@ -281,7 +281,7 @@ public static partial class ImEx
             {
                 using var color = Im.Color.Push(ImGuiColor.Button, buttonColor)
                     .Push(ImGuiColor.Text, textColor);
-                using (PushButtonLabelAlign(size.X, labelWidth, iconPosition))
+                using (PushButtonLabelAlign(icon, size.X, labelWidth, iconPosition))
                 {
                     ret = Im.Button(label, size, flags);
                 }
@@ -302,13 +302,13 @@ public static partial class ImEx
         {
             var labelWidth = Im.Font.CalculateSize(ref label).X;
             if (size.X is 0)
-                size.X = Im.Style.FrameHeight + Im.Style.ItemInnerSpacing.X + labelWidth;
+                size.X = CalculateLabeledButtonWidth(icon, labelWidth);
             if (size.Y is 0)
                 size.Y = Im.Style.FrameHeight;
             bool ret;
             using (Im.Disabled(disabled))
             {
-                using (PushButtonLabelAlign(size.X, labelWidth, iconPosition))
+                using (PushButtonLabelAlign(icon, size.X, labelWidth, iconPosition))
                 {
                     ret = Im.Button(label, size, flags);
                 }
@@ -329,11 +329,11 @@ public static partial class ImEx
         {
             var labelWidth = Im.Font.CalculateSize(ref label).X;
             if (size.X is 0)
-                size.X = Im.Style.FrameHeight + Im.Style.ItemInnerSpacing.X + labelWidth;
+                size.X = CalculateLabeledButtonWidth(icon, labelWidth);
             if (size.Y is 0)
                 size.Y = Im.Style.FrameHeight;
             bool ret;
-            using (PushButtonLabelAlign(size.X, labelWidth, iconPosition))
+            using (PushButtonLabelAlign(icon, size.X, labelWidth, iconPosition))
             {
                 ret = Im.Button(label, size, flags);
             }
@@ -361,12 +361,12 @@ public static partial class ImEx
         {
             var labelWidth = Im.Font.CalculateSize(ref label).X;
             if (size.X is 0)
-                size.X = Im.Style.FrameHeight + Im.Style.ItemInnerSpacing.X + labelWidth;
+                size.X = CalculateLabeledButtonWidth(icon, labelWidth);
             if (size.Y is 0)
                 size.Y = Im.Style.FrameHeight;
             using var _ = Im.Disabled(disabled);
             bool      ret;
-            using (PushButtonLabelAlign(size.X, labelWidth, iconPosition))
+            using (PushButtonLabelAlign(icon, size.X, labelWidth, iconPosition))
             {
                 ret = Im.Button(label, size, flags);
             }
@@ -383,11 +383,11 @@ public static partial class ImEx
         {
             var labelWidth = Im.Font.CalculateSize(ref label).X;
             if (size.X is 0)
-                size.X = Im.Style.FrameHeight + Im.Style.ItemInnerSpacing.X + labelWidth;
+                size.X = CalculateLabeledButtonWidth(icon, labelWidth);
             if (size.Y is 0)
                 size.Y = Im.Style.FrameHeight;
             bool ret;
-            using (PushButtonLabelAlign(size.X, labelWidth, iconPosition))
+            using (PushButtonLabelAlign(icon, size.X, labelWidth, iconPosition))
             {
                 ret = Im.Button(label, size, flags);
             }
@@ -402,10 +402,19 @@ public static partial class ImEx
         /// <param name="label"> The label. </param>
         /// <returns> The size the button would take by default. </returns>
         public static Vector2 CalculateLabeledButtonSize<T>(T icon, Utf8LabelHandler label) where T : IIconStandIn
-            => new(Im.Style.FrameHeight + Im.Style.ItemInnerSpacing.X + Im.Font.CalculateSize(ref label).X, Im.Style.FrameHeight);
+            => new(CalculateLabeledButtonWidth(icon, Im.Font.CalculateSize(ref label).X), Im.Style.FrameHeight);
 
-        private static Im.StyleDisposable PushButtonLabelAlign(float width, float labelWidth, IconPosition iconPosition)
+        private static float CalculateLabeledButtonWidth<T>(T icon, float labelWidth) where T : IIconStandIn
+            => Im.Style.FramePadding.X * 2.0f
+              + (icon.IsEmpty ? 0.0f : Im.Style.TextHeight)
+              + (labelWidth is 0.0f ? 0.0f : Im.Style.ItemInnerSpacing.X + labelWidth);
+
+        private static Im.StyleDisposable PushButtonLabelAlign<T>(T icon, float width, float labelWidth, IconPosition iconPosition)
+            where T : IIconStandIn
         {
+            if (labelWidth is 0.0f || icon.IsEmpty)
+                return new Im.StyleDisposable();
+
             width -= 2.0f * Im.Style.FramePadding.X;
             var leeway = width - labelWidth;
             if (leeway is 0.0f)
@@ -421,6 +430,9 @@ public static partial class ImEx
 
         private static void DrawLabeledButtonIcon<T>(T icon, float labelWidth, IconPosition iconPosition) where T : IIconStandIn
         {
+            if (icon.IsEmpty)
+                return;
+
             using var font       = T.Font.Push();
             var       upperLeft  = Im.Item.UpperLeftCorner + Im.Style.FramePadding;
             var       lowerRight = Im.Item.LowerRightCorner - Im.Style.FramePadding;
