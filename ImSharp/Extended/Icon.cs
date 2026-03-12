@@ -449,10 +449,14 @@ public static partial class ImEx
             using var font       = T.Font.Push();
             var       upperLeft  = Im.Item.UpperLeftCorner + Im.Style.FramePadding;
             var       lowerRight = Im.Item.LowerRightCorner - Im.Style.FramePadding;
-            if (iconPosition is IconPosition.AfterLabel or IconPosition.End)
-                upperLeft.X += labelWidth + Im.Style.ItemInnerSpacing.X;
-            else
-                lowerRight.X -= labelWidth + Im.Style.ItemInnerSpacing.X;
+            if (labelWidth is not 0.0f)
+            {
+                if (iconPosition is IconPosition.AfterLabel or IconPosition.End)
+                    upperLeft.X += labelWidth + Im.Style.ItemInnerSpacing.X;
+                else
+                    lowerRight.X -= labelWidth + Im.Style.ItemInnerSpacing.X;
+            }
+
             var alignment = iconPosition switch
             {
                 IconPosition.Start => 0.0f,
