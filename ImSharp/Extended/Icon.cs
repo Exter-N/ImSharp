@@ -74,11 +74,7 @@ public static partial class ImEx
             bool      ret;
             using (T.Font.Push())
             {
-                using var style = ImStyleBorder.Frame.Push(config.BorderColor, Im.Style.GlobalScale, config.BorderColor.IsVisible)
-                    .Push(ImGuiColor.Button,        config.ButtonColor)
-                    .Push(ImGuiColor.ButtonHovered, config.HoveredColor)
-                    .Push(ImGuiColor.ButtonActive,  config.ActiveColor)
-                    .Push(ImGuiColor.Text,          config.TextColor);
+                using var style = config.PushColorStyle();
 
                 ret = Im.Button(icon.Span, size, config.Flags);
             }
@@ -100,12 +96,7 @@ public static partial class ImEx
             var size = new Vector2(config.Size.X is 0 ? Im.Style.FrameHeight : config.Size.X,
                 config.Size.Y is 0 ? Im.Style.FrameHeight : config.Size.Y);
 
-            using var color = Im.Color.Push(ImGuiColor.Button, config.ButtonColor)
-                .Push(ImGuiColor.ButtonHovered, config.HoveredColor)
-                .Push(ImGuiColor.ButtonActive,  config.ActiveColor)
-                .Push(ImGuiColor.Text,          config.TextColor)
-                .Push(ImGuiColor.Border,        config.BorderColor);
-            using var style = Im.Style.Push(ImStyleSingle.FrameBorderThickness, Im.Style.GlobalScale, config.BorderColor.IsVisible);
+            using var style = config.PushColorStyle();
             using var _     = Im.Disabled(config.Disabled);
             using var font  = T.Font.Push();
             return Im.Button(icon.Span, size, config.Flags);
@@ -240,12 +231,7 @@ public static partial class ImEx
             bool ret;
             using (Im.Disabled(config.Disabled))
             {
-                using var color = Im.Color.Push(ImGuiColor.Button, config.ButtonColor)
-                    .Push(ImGuiColor.ButtonHovered, config.HoveredColor)
-                    .Push(ImGuiColor.ButtonActive,  config.ActiveColor)
-                    .Push(ImGuiColor.Text,          config.TextColor)
-                    .Push(ImGuiColor.Border,        config.BorderColor);
-                using var style = Im.Style.Push(ImStyleSingle.FrameBorderThickness, Im.Style.GlobalScale, config.BorderColor.IsVisible);
+                using var style = config.PushColorStyle();
                 using (PushButtonLabelAlign(icon, size.X, labelWidth, iconPosition))
                 {
                     ret = Im.Button(label, size, config.Flags);
@@ -274,12 +260,7 @@ public static partial class ImEx
             var size = new Vector2(config.Size.X is 0 ? CalculateLabeledButtonWidth(icon, labelWidth) : config.Size.X,
                 config.Size.Y is 0 ? Im.Style.FrameHeight : config.Size.Y);
 
-            using var color = Im.Color.Push(ImGuiColor.Button, config.ButtonColor)
-                .Push(ImGuiColor.ButtonHovered, config.HoveredColor)
-                .Push(ImGuiColor.ButtonActive,  config.ActiveColor)
-                .Push(ImGuiColor.Text,          config.TextColor)
-                .Push(ImGuiColor.Border,        config.BorderColor);
-            using var style = Im.Style.Push(ImStyleSingle.FrameBorderThickness, Im.Style.GlobalScale, config.BorderColor.IsVisible);
+            using var style = config.PushColorStyle();
             using var _     = Im.Disabled(config.Disabled);
             bool      ret;
             using (PushButtonLabelAlign(icon, size.X, labelWidth, iconPosition))
