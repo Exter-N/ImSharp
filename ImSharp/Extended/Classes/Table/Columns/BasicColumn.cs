@@ -22,7 +22,7 @@ public abstract class BasicColumn<TCacheItem> : ITableColumn<TCacheItem>
 
     /// <summary> Use the default comparer for the type to compare items. </summary>
     public virtual int Compare(in TCacheItem lhs, int lhsGlobalIndex, in TCacheItem rhs, int rhsGlobalIndex)
-        => Comparer<TCacheItem>.Default.Compare(lhs, rhs);
+        => lhs is IComparable ? Comparer<TCacheItem>.Default.Compare(lhs, rhs) : 0;
 
     /// <summary> The width is just the scaled <see cref="UnscaledWidth"/>. </summary>
     public virtual float ComputeWidth(IEnumerable<TCacheItem> _)
