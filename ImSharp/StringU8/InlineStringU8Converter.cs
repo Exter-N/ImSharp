@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Microsoft.Extensions.Logging;
 #if HAS_NEWTONSOFT
 using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 #endif
