@@ -43,6 +43,10 @@ public abstract class BasicColumn<TCacheItem> : ITableColumn<TCacheItem>
     public virtual void PostSort()
     { }
 
+    /// <inheritdoc/>
+    public virtual void PostDraw(in TableCache<TCacheItem> cache)
+    { }
+
     /// <summary> No filtering is supported. </summary>
     public virtual bool WouldBeVisible(in TCacheItem item, int globalIndex)
         => true;
