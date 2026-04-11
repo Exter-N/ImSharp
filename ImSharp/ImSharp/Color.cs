@@ -11,6 +11,7 @@ public static partial class Im
         /// <param name="flags"> Additional flags controlling the editing panel. </param>
         /// <returns> True if the color has been changed in this frame. </returns>
         [MethodImpl(ImSharpConfiguration.OptInl)]
+        [OverloadResolutionPriority(100)]
         public static unsafe bool Editor(Utf8LabelHandler label, ref Vector3 color, ColorEditorFlags flags = ColorEditorFlags.None)
             => Native.Methods.Color.ColorEdit3(label.Start(), (float*)Unsafe.AsPointer(ref color), flags);
 
@@ -20,6 +21,7 @@ public static partial class Im
         /// <param name="flags"> Additional flags controlling the editing panel. </param>
         /// <returns> True if the color has been changed in this frame. </returns>
         [MethodImpl(ImSharpConfiguration.OptInl)]
+        [OverloadResolutionPriority(100)]
         public static unsafe bool Editor(Utf8LabelHandler label, ref Vector4 color, ColorEditorFlags flags = ColorEditorFlags.None)
             => Native.Methods.Color.ColorEdit4(label.Start(), (float*)Unsafe.AsPointer(ref color), flags);
 
@@ -29,6 +31,7 @@ public static partial class Im
         /// <param name="flags"> Additional flags controlling the button display and editing popup. </param>
         /// <returns> True if the color has been changed in this frame. </returns>
         [MethodImpl(ImSharpConfiguration.OptInl)]
+        [OverloadResolutionPriority(100)]
         public static unsafe bool Picker(Utf8LabelHandler label, ref Vector3 color, ColorPickerFlags flags = ColorPickerFlags.None)
             => Native.Methods.Color.ColorPicker3(label.Start(), (float*)Unsafe.AsPointer(ref color), flags);
 
@@ -38,8 +41,9 @@ public static partial class Im
         /// <param name="flags"> Additional flags controlling the button display and editing popup. </param>
         /// <returns> True if the color has been changed in this frame. </returns>
         [MethodImpl(ImSharpConfiguration.OptInl)]
+        [OverloadResolutionPriority(100)]
         public static unsafe bool Picker(Utf8LabelHandler label, ref Vector4 color, ColorPickerFlags flags = ColorPickerFlags.None)
-            => Native.Methods.Color.ColorPicker4(label.Start(), (float*)Unsafe.AsPointer(ref color), flags);
+            => Native.Methods.Color.ColorPicker4(label.Start(), (float*)Unsafe.AsPointer(ref color), flags, null);
 
         /// <summary> Draw a color button. </summary>
         /// <param name="description"> The tooltip description and ID as text. If this is a UTF8 string, it HAS to be null-terminated. </param>
@@ -49,6 +53,7 @@ public static partial class Im
         /// <returns> True if the button has been clicked in this frame. </returns>
         /// <remarks> The color button is a rectangle of the given size and color. On hover, it will display color information and the given description. </remarks>
         [MethodImpl(ImSharpConfiguration.OptInl)]
+        [OverloadResolutionPriority(100)]
         public static unsafe bool Button(Utf8LabelHandler description, in Vector4 color, ColorButtonFlags flags = ColorButtonFlags.None,
             Vector2 size = default)
             => Native.Methods.Color.ColorButton(description.Start(), color, flags, size);
@@ -70,7 +75,7 @@ public static partial class Im
         public static unsafe bool Picker(Utf8LabelHandler label, ref Rgba32 color, ColorPickerFlags flags = ColorPickerFlags.None)
         {
             var vector = color.ToVector();
-            if (!Native.Methods.Color.ColorPicker4(label.Start(), (float*)&vector, flags))
+            if (!Native.Methods.Color.ColorPicker4(label.Start(), (float*)&vector, flags, null))
                 return false;
 
             color = new Rgba32(vector);
@@ -85,6 +90,7 @@ public static partial class Im
 
         /// <inheritdoc cref="ColorDisposable.Push(ImGuiColor,Rgba32,bool)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
+        [OverloadResolutionPriority(50)]
         public static ColorDisposable Push(ImGuiColor type, Rgba32 color, bool condition)
             => new ColorDisposable().Push(type, color, condition);
 
@@ -95,16 +101,19 @@ public static partial class Im
 
         /// <inheritdoc cref="ColorDisposable.Push(ImGuiColor,Vector4,bool)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
+        [OverloadResolutionPriority(100)]
         public static ColorDisposable Push(ImGuiColor type, Vector4 color, bool condition)
             => new ColorDisposable().Push(type, color, condition);
 
         /// <inheritdoc cref="ColorDisposable.Push(ImGuiColor,Rgba32)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
+        [OverloadResolutionPriority(50)]
         public static ColorDisposable Push(ImGuiColor type, Rgba32 color)
             => new ColorDisposable().Push(type, color);
 
         /// <inheritdoc cref="ColorDisposable.Push(ImGuiColor,Vector4)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
+        [OverloadResolutionPriority(100)]
         public static ColorDisposable Push(ImGuiColor type, Vector4 color)
             => new ColorDisposable().Push(type, color);
 
