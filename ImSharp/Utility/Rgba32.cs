@@ -138,6 +138,11 @@ public readonly record struct Rgba32(uint Color) : ISpanFormattable, IUtf8SpanFo
     public Rgba32 HalfTransparent()
         => (Color & 0x00FFFFFFu) | ((Color & 0xFE000000u) >> 1);
 
+    /// <summary> Get this color with specified alpha in [0, 1]. </summary>
+    [MethodImpl(ImSharpConfiguration.Inl)]
+    public Rgba32 WithAlpha(float alpha)
+        => (Color & 0x00FFFFFFu) | (uint)((byte)(Math.Clamp(alpha, 0, 1) * 0xFF) << 24);
+
     /// <summary> Obtain an approximation of the intensity of a color without taking into consideration the alpha value. </summary>
     /// <param name="color"> The color. </param>
     /// <returns> The approximated intensity. </returns>
