@@ -24,7 +24,7 @@ public static class EnumExtensions
         /// <remarks> If <paramref name="flags"/> is 0, this always returns false. </remarks>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public bool CheckAny(TEnum flags)
-            => value.And(flags) is not 0;
+            => !EqualityComparer<TEnum>.Default.Equals(value.And(flags), default);
 
         /// <summary> Check whether all given flags are set. </summary>
         /// <param name="flags"> The flags to check for. </param>
@@ -40,7 +40,7 @@ public static class EnumExtensions
         /// <remarks> If <paramref name="flags"/> is 0, this always returns true. </remarks>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         public bool CheckNone(TEnum flags)
-            => value.And(flags) is 0;
+            => EqualityComparer<TEnum>.Default.Equals(value.And(flags), default);
 
         /// <summary> Return the bit-wise OR of two generic enum values. </summary>
         /// <param name="rhs"> The right-hand value. </param>
