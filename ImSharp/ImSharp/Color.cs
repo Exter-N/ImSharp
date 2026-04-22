@@ -88,6 +88,37 @@ public static partial class Im
             Vector2 size = default)
             => Native.Methods.Color.ColorButton(description.Start(), color.ToVector(), flags, size);
 
+        /// <summary> Draw a tooltip for a given color as if hovering a color button or edit. </summary>
+        /// <param name="name"> The label for the tooltip. If this is a UTF8 string, it HAS to be null-terminated. </param>
+        /// <param name="color"> The color to draw. </param>
+        /// <param name="flags"> Additional flags to control the behavior. </param>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        [OverloadResolutionPriority(100)]
+        public static unsafe void Tooltip(Utf8LabelHandler name, in Vector4 color, ColorEditorFlags flags = ColorEditorFlags.None)
+        {
+            fixed (Vector4* ptr = &color)
+            {
+                Native.Methods.Internal.ColorTooltip(name.Start(), (float*)ptr, flags);
+            }
+        }
+
+        /// <inheritdoc cref="Tooltip(Utf8LabelHandler,in Vector4,ColorEditorFlags)"/>
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        [OverloadResolutionPriority(50)]
+        public static unsafe void Tooltip(Utf8LabelHandler name, in Vector3 color, ColorEditorFlags flags = ColorEditorFlags.None)
+        {
+            fixed (Vector3* ptr = &color)
+            {
+                Native.Methods.Internal.ColorTooltip(name.Start(), (float*)ptr, flags | ColorEditorFlags.NoAlpha);
+            }
+        }
+
+        /// <inheritdoc cref="Tooltip(Utf8LabelHandler,in Vector4,ColorEditorFlags)"/>
+        [OverloadResolutionPriority(0)]
+        [MethodImpl(ImSharpConfiguration.OptInl)]
+        public static unsafe void Tooltip(Utf8LabelHandler name, Rgba32 color, ColorEditorFlags flags = ColorEditorFlags.None)
+            => Tooltip(name, color.ToVector(), flags);
+
         /// <inheritdoc cref="ColorDisposable.Push(ImGuiColor,Rgba32,bool)"/>
         [MethodImpl(ImSharpConfiguration.OptInl)]
         [OverloadResolutionPriority(50)]
